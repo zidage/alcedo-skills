@@ -241,6 +241,20 @@ alcedo-cli call search.query '{"text":"sony","limit":5}'
 The search looks at the file name, the camera, the lens, and the other metadata, and at the AI
 descriptions when the project has them.
 
+## Apply a LUT
+
+Find the LUT in the LUT library, then give its `editor_value` to `editor.set`:
+
+```bash
+alcedo-cli --json call lut.list '{"query":"vision3 250d","category":"film_simulation"}'
+alcedo-cli --json call editor.set '{"field":"lut","value":<editor_value of the LUT>,"note":"agent: film look"}'
+```
+
+Read `display_requirement` of the LUT: some looks are made for one output transform (for
+example ACES 2.0 SDR 100 nits). Render a preview after the write and look at it. To remove the
+LUT, set `lut` to `{}`. Do not search the disk for `.cube` files or read `lut-inventory.json`:
+`lut.list` gives the references that stay valid when the library moves or a package is updated.
+
 ## Retouch every photo
 
 Do the edit loop for each photo of `library.list`. A Bash example that opens each photo and

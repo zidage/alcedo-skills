@@ -1365,6 +1365,89 @@
     }
   },
   {
+    "changes_state": false,
+    "description": "Lists the LUTs of the LUT library with the rules of the LUT browser. A 'query' matches the name, file name, aliases, source, film, print, and path, and sorts the matches by search rank; without a query the LUTs are sorted by name. 'editor_value' of a LUT is the value for editor.set on the 'lut' field that the LUT browser applies: the reference, the name, and the remembered encodings. A LUT that the grade cannot apply has 'applicable' false and no 'editor_value'. Waits while the library loads or refreshes its inventory. Needs no open project.",
+    "method": "lut.list",
+    "params_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "category": {
+          "description": "Only LUTs of this category.",
+          "enum": [
+            "general",
+            "film_simulation"
+          ],
+          "type": "string"
+        },
+        "favorites": {
+          "description": "Only favorite LUTs. Default false.",
+          "type": "boolean"
+        },
+        "limit": {
+          "description": "The number of LUTs to return. Default 50.",
+          "maximum": 500,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "offset": {
+          "description": "The first LUT to return. Default 0.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "package": {
+          "description": "Only LUTs of this installed official package, for example spectral_film_lut. An empty string selects the LUTs outside packages.",
+          "type": "string"
+        },
+        "query": {
+          "description": "Search text, as in the search field of the LUT browser.",
+          "type": "string"
+        },
+        "timeout_ms": {
+          "default": 120000,
+          "description": "Time limit in milliseconds for the command to reach its terminal state.",
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "result_schema": {
+      "properties": {
+        "has_more": {
+          "type": "boolean"
+        },
+        "inventory_complete": {
+          "type": "boolean"
+        },
+        "limit": {
+          "type": "integer"
+        },
+        "luts": {
+          "type": "array"
+        },
+        "offset": {
+          "type": "integer"
+        },
+        "root": {
+          "type": "string"
+        },
+        "total": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "root",
+        "inventory_complete",
+        "total",
+        "offset",
+        "limit",
+        "has_more",
+        "luts"
+      ],
+      "type": "object"
+    }
+  },
+  {
     "changes_state": true,
     "description": "Closes the editor image and the loaded project. With persist (the default), both are saved first; without it, the changes since the last save are discarded. The response arrives when no project is loaded.",
     "method": "project.close",
