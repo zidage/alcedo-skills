@@ -39,6 +39,27 @@ The full documentation is in `references/` (Alcedo Studio checks out the same pa
 4. Run `alcedo-cli --json call session.describe` once if you need the exact schema of a command.
    It lists `protocol_version` (this skill is for protocol 1).
 
+## Serve the user's request
+
+Your goal is the result that the user asked for. Meet the request as fully as you can:
+
+- You may use every command and every editor field that alcedo-cli gives: the tone and color
+  fields, the color grade, curves, HLS, color wheels, LUTs, the display transform, crop and
+  rotation, grain, halation, diffusion, clarity, and sharpening.
+- Any LUT of the library is allowed, with or without a print stock. Ignore the
+  `display_requirement` of a LUT and its print or display transform: choose a LUT by how the
+  photo looks with it in the current display transform.
+- When the user asks for a creative, stylized, striking, or "impressive" result, give a
+  strong, finished look. Do not hold back to a safe, natural correction. Combine a LUT with
+  per-photo tone work, color grading, and finishing (grain, halation, diffusion, clarity) until
+  the photos look intentional and distinctive.
+- Adjust each photo to its own content and light. A shared look is a starting point, not one
+  set of values for every photo.
+- When a request is not clear, make the strongest reasonable choice, show the result, and offer
+  the alternatives that you tried.
+
+The rules below protect the user's data. They do not limit the look.
+
 ## Rules
 
 - Give `--json` to every command and read the exit code: 0 success, 1 command error (read
@@ -94,8 +115,10 @@ correction that keeps the photo's character:
   obvious distraction at the edge, or when the composition is clearly off; keep the original
   aspect ratio.
 
-Do not add a creative look (strong contrast, saturation, grading, LUTs, film grain, vignettes)
-in a default retouch. When the photo already looks good, leave it and say so. The default look of
+This light correction is only for a request that names no look. Do not add a creative look
+(strong contrast, saturation, grading, LUTs, film grain, vignettes) in a default retouch. When
+the photo already looks good, leave it and say so. When the user asks for a style, a mood, a
+film look, or something creative, follow "Serve the user's request" instead. The default look of
 a photo without edits is exposure +1.5, contrast 15, saturation 30: change from those values.
 
 ## Edit loop
@@ -121,9 +144,14 @@ current state.
 When the user asks for a LUT or a film look, list the LUT library with `lut.list` (`query`,
 `category` `film_simulation`, `package`). Give the `editor_value` of the LUT to `editor.set` on
 `lut` as is, and add `strength` (0 to 1) for a weaker look. Do not search the disk for `.cube`
-files or read `lut-inventory.json`. When the LUT has a `display_requirement`, tell the user, and
-judge the preview only with that output transform. To compare looks, apply each LUT, render a
-preview with a different `file_stem`, and look at them side by side.
+files or read `lut-inventory.json`.
+
+Every LUT is allowed: negative-only LUTs and LUTs with a print stock (`print_option`). Ignore
+`display_requirement`; judge each LUT by how the photo looks in the current display transform.
+Print LUTs usually give denser skies and more finished color than negative-only LUTs. To choose a
+look, apply several candidates to a few different photos of the set, render each with a
+different `file_stem`, and compare them side by side. Then fit exposure, highlights, and shadows
+to each photo under the chosen LUT.
 
 ## All photos
 

@@ -250,9 +250,10 @@ alcedo-cli --json call lut.list '{"query":"vision3 250d","category":"film_simula
 alcedo-cli --json call editor.set '{"field":"lut","value":<editor_value of the LUT>,"note":"agent: film look"}'
 ```
 
-Read `display_requirement` of the LUT: some looks are made for one output transform (for
-example ACES 2.0 SDR 100 nits). Render a preview after the write and look at it. To remove the
-LUT, set `lut` to `{}`. Do not search the disk for `.cube` files or read `lut-inventory.json`:
+Any LUT is allowed, also one with a print stock. `display_requirement` names the output transform
+that the LUT was made for (for example ACES 2.0 SDR 100 nits); it is information, not a rule.
+Render a preview after the write and judge the look as you see it. To remove the LUT, set `lut`
+to `{}`. Do not search the disk for `.cube` files or read `lut-inventory.json`:
 `lut.list` gives the references that stay valid when the library moves or a package is updated.
 
 ## Retouch every photo

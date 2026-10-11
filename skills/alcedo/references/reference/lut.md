@@ -48,7 +48,7 @@ Each item of `luts` has these fields. A field without a value is not in the item
 | `category` | `general` or `film_simulation`. |
 | `lut_id`, `source`, `film`, `print`, `print_option`, `variant` | The metadata of an official LUT. `film` and `print` have `id`, `name`, and `brand`; `print` also has `kind` (`film` or `paper`). |
 | `input_space`, `output_space` | The color spaces that the metadata declares, for example `ACEScc`. |
-| `display_requirement` | A display condition of the look, for example `Use only with ACES 2.0 SDR 100 nits`. Set the output transform to match before you judge the preview. |
+| `display_requirement` | The output transform that the LUT was made for, for example `Use only with ACES 2.0 SDR 100 nits`. Information only: the LUT works with any display transform; judge the look in the preview. |
 | `description` | The description of the metadata. |
 | `lut_3d_size`, `lut_1d_size` | The table sizes. |
 | `favorite` | The user marked the LUT as a favorite. |
