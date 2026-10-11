@@ -8,8 +8,8 @@ description: Edit, rate, search, and export RAW photos in Alcedo Studio through 
 `alcedo-cli` sends JSON-RPC commands to Alcedo Studio. You look at the photos yourself: render a
 preview, open the PNG, judge it, and change the editor values until it looks right.
 
-The full documentation is in `references/` (the same pages as `docs/automation` in the Alcedo
-Studio repository). Read the page before you use a command group for the first time:
+The full documentation is in `references/` (Alcedo Studio checks out the same pages at
+`docs/alcedo-skills`). Read the page before you use a command group for the first time:
 
 | Need | Page |
 | --- | --- |
@@ -19,6 +19,7 @@ Studio repository). Read the page before you use a command group for the first t
 | Complete examples (import, edit loop, Versions, export, search, GUI) | `references/workflows.md` |
 | Parameters, result, and errors of a command | `references/reference/<group>.md` |
 | What each editor field does, its range, its direction | `references/reference/editor_fields.md` |
+| Find a LUT of the user's LUT library and apply it | `references/reference/lut.md` |
 | Known limits | `references/limits.md` |
 
 ## Before you start
@@ -114,6 +115,15 @@ a photo without edits is exposure +1.5, contrast 15, saturation 30: change from 
 Tell the user what you changed in plain words (for example "exposure +0.3 EV, 300 K warmer,
 leveled by 1.5 degrees"). When the user wants a different result, continue the loop from the
 current state.
+
+## LUTs
+
+When the user asks for a LUT or a film look, list the LUT library with `lut.list` (`query`,
+`category` `film_simulation`, `package`). Give the `editor_value` of the LUT to `editor.set` on
+`lut` as is, and add `strength` (0 to 1) for a weaker look. Do not search the disk for `.cube`
+files or read `lut-inventory.json`. When the LUT has a `display_requirement`, tell the user, and
+judge the preview only with that output transform. To compare looks, apply each LUT, render a
+preview with a different `file_stem`, and look at them side by side.
 
 ## All photos
 

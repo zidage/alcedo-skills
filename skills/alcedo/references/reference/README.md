@@ -23,5 +23,6 @@ written by hand. The examples ran with the release build. Every command also acc
 | [Versions](versions.md) | `versions.list`, `versions.create`, `versions.branch`, `versions.checkout`, `versions.rename`, `versions.remove` |
 | [Export](export.md) | `export.options`, `export.run`, `export.status` |
 | [Search](search.md) | `search.query` |
+| [LUT](lut.md) | `lut.list` |
 
 [Editor fields](editor_fields.md) lists every field of `editor.set`.

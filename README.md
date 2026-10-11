@@ -59,24 +59,40 @@ a session named `gui` is listed.
 | Path | Contents |
 | --- | --- |
 | `skills/alcedo/SKILL.md` | The instructions of the agent. |
-| `skills/alcedo/references/` | The alcedo-cli documentation, copied from `docs/automation` of Alcedo Studio. |
+| `skills/alcedo/references/` | The alcedo-cli documentation. |
 | `skills/alcedo/scripts/analyze_preview.py` | Optional measurements of a preview PNG. |
-| `scripts/sync_references.py` | Copies the documentation from an Alcedo Studio checkout and sets the version. |
+| `scripts/set_version.py` | Sets the plugin version. |
+
+## The alcedo-cli documentation
+
+`skills/alcedo/references/` is the only copy of the alcedo-cli documentation. Alcedo Studio
+checks out this repository at `docs/alcedo-skills` as a git submodule, and its build and tests
+use the files there:
+
+- `AutomationReferenceDocsTest` compares `references/reference/commands.json` and
+  `editor_catalog.json` with the command schemas of the build.
+- `scripts/automation/generate_cli_reference.py` of Alcedo Studio writes the generated parts of
+  the pages in `references/reference/`.
+
+A change to the automation commands therefore has two commits: one in this repository (the
+documentation), and one in Alcedo Studio (the code and the new submodule commit). Push the
+commit of this repository first, so that the submodule commit exists on GitHub. Links to other
+files of Alcedo Studio are full GitHub links, because the skill does not contain those files.
 
 ## Versions
 
 The plugin version is the Alcedo Studio version that the skill was checked with. At each Alcedo
-Studio release:
+Studio release, start from the submodule commit of that release:
 
 ```bash
-python scripts/sync_references.py <AlcedoStudio checkout> --version <x.y.z>
-git commit -am "Sync the references with Alcedo Studio <x.y.z>"
+python scripts/set_version.py <x.y.z>
+git commit -am "Set the version to Alcedo Studio <x.y.z>"
 git tag v<x.y.z>
 git push --follow-tags
 ```
 
-`python scripts/sync_references.py <checkout> --check` fails when the references differ from the
-checkout.
+The `main` branch can describe commands that are newer than the last release. They are in the
+next release, and `alcedo-cli` built from the `main` branch of Alcedo Studio has them.
 
 ## License
 

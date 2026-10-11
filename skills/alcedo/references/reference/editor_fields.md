@@ -30,7 +30,8 @@ fields at their reset values. Read the values with `editor.get` before you chang
   - The editor keeps the rotated crop inside the image, so the value in the result can differ
     from the value you sent: use the returned value. A rotation makes the crop smaller; set
     the angle back to 0 and the crop to `{"x":0,"y":0,"width":1,"height":1}` to undo it.
-- **Curves and LUTs** (`curve`, `lut`): a write gives the complete value.
+- **Curves and LUTs** (`curve`, `lut`): a write gives the complete value. For `lut`, use the
+  `editor_value` of the LUT that [`lut.list`](lut.md) returns.
 
 ## Field tables
 

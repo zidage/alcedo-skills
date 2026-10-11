@@ -19,7 +19,7 @@ You can use it in two ways:
 | [Installation](installation.md) | Where `alcedo-cli` and `alcedo_main` are, and how to check the setup. |
 | [Concepts](concepts.md) | Sessions, session files, hosts, agent control, tasks, notifications, history and Versions, UI values. |
 | [Command-line interface](cli.md) | Global options, `call`, `schema`, `session start/stop/list/prune`, `watch`, output, exit codes, error codes. |
-| [Workflows](workflows.md) | Complete examples: import and rate, edit and preview, Versions, export, search, edit in the GUI. |
+| [Workflows](workflows.md) | Complete examples: import and rate, edit and preview, Versions, export, search, apply a LUT, edit in the GUI. |
 | [Known limits](limits.md) | Behavior to know about, and the open issues. |
 | [Command reference](reference/README.md) | Every command with its parameters, result, errors, and an example. |
 | [Editor fields](reference/editor_fields.md) | Every field of `editor.set` with its range and reset value. |
