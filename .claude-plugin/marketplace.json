@@ -1,0 +1,15 @@
+{
+  "name": "alcedo-skills",
+  "owner": {
+    "name": "Yurun Zi"
+  },
+  "description": "Agent skills for the Alcedo Studio RAW photo editor.",
+  "plugins": [
+    {
+      "name": "alcedo",
+      "source": "./",
+      "description": "Edit, rate, search, and export photos in Alcedo Studio with alcedo-cli.",
+      "version": "0.3.2"
+    }
+  ]
+}

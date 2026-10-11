@@ -1,0 +1,11 @@
+{
+  "name": "alcedo",
+  "version": "0.3.2",
+  "description": "Edit, rate, search, and export photos in Alcedo Studio with alcedo-cli (automation protocol 1).",
+  "author": {
+    "name": "Yurun Zi"
+  },
+  "homepage": "https://github.com/zidage/alcedo-skills",
+  "repository": "https://github.com/zidage/alcedo-skills",
+  "keywords": ["photo", "raw", "alcedo", "photo-editing"]
+}
