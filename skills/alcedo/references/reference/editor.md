@@ -191,7 +191,7 @@ With `mode` `as_shot`, `color_temp` reports the white balance of the camera.
 <!-- BEGIN GENERATED: editor.set -->
 Changes state: yes. In a GUI session it needs agent control (`control.acquire`).
 
-Sets one field of the open image to a UI value, like releasing a panel control: one history commit. Answers after the commit and its rendered frame, with the value that the editor now shows (a crop can be constrained). A value equal to the current one makes no commit. The commit has the author agent and the optional 'note'.
+Sets one field of the open image to a UI value, like releasing a panel control: one history commit. Answers after the commit and its rendered frame, with the value that the editor now shows (a crop can be constrained). A value equal to the current one makes no commit. The commit has the author agent and the optional 'note'. When the frame of the commit fails to render, the commit stays and the error data has 'reason' and 'head_commit'; editor.undo reverts it.
 
 **Parameters**
 
@@ -218,6 +218,9 @@ Sets one field of the open image to a UI value, like releasing a panel control: 
   `exposure must be in [-10, 10]`.
 - `-32002` `Adjustments require an interactive image`: no photo is open, or the editor is
   loading, saving, or in a failed state. `state` in the result of `editor.get` tells which.
+- `-32007` `The change is applied, but its frame failed to render: ...`: the commit stays.
+  `data.reason` has the render error and `data.head_commit` the new head; `editor.undo`
+  reverts the change.
 
 **Example**
 
@@ -240,7 +243,7 @@ alcedo-cli --json call editor.set '{"field":"color_temp","value":{"mode":"custom
 <!-- BEGIN GENERATED: editor.batch_set -->
 Changes state: yes. In a GUI session it needs agent control (`control.acquire`).
 
-Sets several fields in order. Each change that alters a value is one history commit, applied after the frame of the previous one. The first change that fails stops the batch: the error data has 'applied' (the changes before it, which stay) and 'head_commit'. Each commit has the author agent and the optional 'note'.
+Sets several fields in order. Each change that alters a value is one history commit, applied after the frame of the previous one. The first change that fails stops the batch: the error data has 'applied' (the changes before it, which stay) and 'head_commit'. A change whose frame fails to render is committed and stays, so 'applied' counts it. Each commit has the author agent and the optional 'note'.
 
 **Parameters**
 
@@ -270,6 +273,8 @@ again before each change after the first.
   `editor.set`.
 - `-32002` `Adjustments require an interactive image`: as for `editor.set`.
 - `-32004`: the user took control.
+- `-32007`: the frame of a change failed to render, as for `editor.set`. That change is
+  committed, so `data.applied` counts it.
 
 The changes apply in order and each one makes a commit. When a change fails, the changes before
 it stay: `data.applied` is their number and `data.head_commit` the head after them, for example
@@ -291,7 +296,7 @@ alcedo-cli --json call editor.batch_set '{"changes":[{"field":"contrast","value"
 <!-- BEGIN GENERATED: editor.undo -->
 Changes state: yes. In a GUI session it needs agent control (`control.acquire`).
 
-Moves the history head back one commit, like Edit > Undo. Answers after the frame of the restored values.
+Moves the history head back one commit, like Edit > Undo. Answers after the frame of the restored values. When that frame fails to render, the head stays moved and the error data has 'head_commit'.
 
 **Parameters**
 
@@ -310,6 +315,8 @@ No parameters other than `timeout_ms`.
 
 - `-32001`: no photo is open.
 - `-32002`: `Nothing to undo`.
+- `-32007`: the frame of the restored values failed to render. The head stays moved;
+  `data.head_commit` is the new head.
 
 **Example**
 
@@ -326,7 +333,7 @@ alcedo-cli --json call editor.undo
 <!-- BEGIN GENERATED: editor.redo -->
 Changes state: yes. In a GUI session it needs agent control (`control.acquire`).
 
-Moves the history head forward one commit, like Edit > Redo. Answers after the frame of the restored values.
+Moves the history head forward one commit, like Edit > Redo. Answers after the frame of the restored values. When that frame fails to render, the head stays moved and the error data has 'head_commit'.
 
 **Parameters**
 
@@ -345,6 +352,8 @@ No parameters other than `timeout_ms`.
 
 - `-32001`: no photo is open.
 - `-32002`: `Nothing to redo`.
+- `-32007`: the frame of the restored values failed to render. The head stays moved;
+  `data.head_commit` is the new head.
 
 **Example**
 

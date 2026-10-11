@@ -142,7 +142,7 @@
   },
   {
     "changes_state": true,
-    "description": "Sets several fields in order. Each change that alters a value is one history commit, applied after the frame of the previous one. The first change that fails stops the batch: the error data has 'applied' (the changes before it, which stay) and 'head_commit'. Each commit has the author agent and the optional 'note'.",
+    "description": "Sets several fields in order. Each change that alters a value is one history commit, applied after the frame of the previous one. The first change that fails stops the batch: the error data has 'applied' (the changes before it, which stay) and 'head_commit'. A change whose frame fails to render is committed and stays, so 'applied' counts it. Each commit has the author agent and the optional 'note'.",
     "method": "editor.batch_set",
     "params_schema": {
       "additionalProperties": false,
@@ -594,7 +594,7 @@
   },
   {
     "changes_state": true,
-    "description": "Moves the history head forward one commit, like Edit > Redo. Answers after the frame of the restored values.",
+    "description": "Moves the history head forward one commit, like Edit > Redo. Answers after the frame of the restored values. When that frame fails to render, the head stays moved and the error data has 'head_commit'.",
     "method": "editor.redo",
     "params_schema": {
       "additionalProperties": false,
@@ -634,7 +634,7 @@
   },
   {
     "changes_state": true,
-    "description": "Sets one field of the open image to a UI value, like releasing a panel control: one history commit. Answers after the commit and its rendered frame, with the value that the editor now shows (a crop can be constrained). A value equal to the current one makes no commit. The commit has the author agent and the optional 'note'.",
+    "description": "Sets one field of the open image to a UI value, like releasing a panel control: one history commit. Answers after the commit and its rendered frame, with the value that the editor now shows (a crop can be constrained). A value equal to the current one makes no commit. The commit has the author agent and the optional 'note'. When the frame of the commit fails to render, the commit stays and the error data has 'reason' and 'head_commit'; editor.undo reverts it.",
     "method": "editor.set",
     "params_schema": {
       "additionalProperties": false,
@@ -696,7 +696,7 @@
   },
   {
     "changes_state": true,
-    "description": "Moves the history head back one commit, like Edit > Undo. Answers after the frame of the restored values.",
+    "description": "Moves the history head back one commit, like Edit > Undo. Answers after the frame of the restored values. When that frame fails to render, the head stays moved and the error data has 'head_commit'.",
     "method": "editor.undo",
     "params_schema": {
       "additionalProperties": false,
