@@ -77,3 +77,7 @@ git push --follow-tags
 
 `python scripts/sync_references.py <checkout> --check` fails when the references differ from the
 checkout.
+
+## License
+
+MIT. See [LICENSE](LICENSE).
