@@ -59,8 +59,11 @@ Each item of `luts` has these fields. A field without a value is not in the item
 | `editor_value` | Only for an applicable LUT: the complete value for `editor.set` on `lut`, as the LUT browser applies it. It has `reference`, `name`, and `input_encoding` and `output_encoding` (the remembered encodings, else `acescc`). |
 
 To apply a LUT, give its `editor_value` to `editor.set` as is. Add `strength` (0 to 1) to the
-value for a weaker look. A reference stays valid when the user moves the library to another
-folder, and an official reference stays valid when the package is updated.
+value for a weaker look. `editor.get` and the result of `editor.set` give `lut` in the same
+shape, with `strength`. To change only the strength of the current LUT, read `lut` with
+`editor.get`, change `strength`, and write the value with `editor.set`. A reference stays valid
+when the user moves the library to another folder, and an official reference stays valid when
+the package is updated.
 
 **Errors**
 
@@ -84,5 +87,5 @@ alcedo-cli --json call editor.set '{"field":"lut","value":{"input_encoding":"ace
 ```
 
 ```json
-{"field":"lut","head_commit":"8c7f9da6c06575392c60839279612656","value":{"input_encoding":"acescc","lutId":"spectral_film_lut:kodak_vision3_250d_5207:adx","lutName":"Kodak Vision3 250D 5207","ocio_lmt":"","output_encoding":"acescc","packageId":"spectral_film_lut","path":"","referenceKind":"official","strength":1}}
+{"field":"lut","head_commit":"8c7f9da6c06575392c60839279612656","value":{"input_encoding":"acescc","name":"Kodak Vision3 250D 5207","output_encoding":"acescc","reference":{"kind":"official","lut_id":"spectral_film_lut:kodak_vision3_250d_5207:adx","package_id":"spectral_film_lut"},"strength":1}}
 ```

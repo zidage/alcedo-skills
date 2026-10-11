@@ -31,7 +31,11 @@ fields at their reset values. Read the values with `editor.get` before you chang
     from the value you sent: use the returned value. A rotation makes the crop smaller; set
     the angle back to 0 and the crop to `{"x":0,"y":0,"width":1,"height":1}` to undo it.
 - **Curves and LUTs** (`curve`, `lut`): a write gives the complete value. For `lut`, use the
-  `editor_value` of the LUT that [`lut.list`](lut.md) returns.
+  `editor_value` of the LUT that [`lut.list`](lut.md) returns. `editor.get` gives `lut` in the
+  same shape, with `strength`, so you can write the value from `editor.get` back with a change.
+- **Input profile:** `input_profile` applies only to a raster image, not to a RAW image. A RAW
+  image has no input profile: `editor.get` does not return the field, and `editor.set` on it
+  answers `-32602`.
 
 ## Field tables
 

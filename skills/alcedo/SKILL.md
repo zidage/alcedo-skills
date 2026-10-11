@@ -143,8 +143,9 @@ current state.
 
 When the user asks for a LUT or a film look, list the LUT library with `lut.list` (`query`,
 `category` `film_simulation`, `package`). Give the `editor_value` of the LUT to `editor.set` on
-`lut` as is, and add `strength` (0 to 1) for a weaker look. Do not search the disk for `.cube`
-files or read `lut-inventory.json`.
+`lut` as is, and add `strength` (0 to 1) for a weaker look. To change only the strength of the
+current LUT, write the `lut` value from `editor.get` back with a new `strength`. Do not search
+the disk for `.cube` files or read `lut-inventory.json`.
 
 Every LUT is allowed: negative-only LUTs and LUTs with a print stock (`print_option`). Ignore
 `display_requirement`; judge each LUT by how the photo looks in the current display transform.
