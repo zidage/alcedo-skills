@@ -16,7 +16,7 @@ written by hand. The examples ran with the release build. Every command also acc
 | [Session](session.md) | `session.ping`, `session.describe`, `state.get`, `session.shutdown` |
 | [Control](control.md) | `control.acquire`, `control.release`, `control.get` |
 | [Project](project.md) | `project.create`, `project.open`, `project.save`, `project.close` |
-| [Library](library.md) | `library.import`, `library.folders`, `library.list`, `library.thumbnail`, `library.rate`, `library.delete`, `library.selection.get`, `library.selection.set` |
+| [Library](library.md) | `library.import`, `library.folders`, `library.list`, `library.info`, `library.thumbnail`, `library.thumbnails`, `library.rate`, `library.delete`, `library.selection.get`, `library.selection.set` |
 | [Tasks](tasks.md) | `tasks.list`, `tasks.wait` |
 | [Editor](editor.md) | `editor.open`, `editor.close`, `editor.catalog`, `editor.get`, `editor.set`, `editor.batch_set`, `editor.undo`, `editor.redo`, `editor.history`, `editor.actions` |
 | [Render](render.md) | `render.preview` |

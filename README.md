@@ -17,6 +17,9 @@ What it does by default:
   more changes.
 - **All photos:** the same work for every photo of a project, a folder, or your selection, with
   a short report at the end.
+- **Cull a shoot:** contact sheets of hundreds of photos with the file name, capture time, and
+  exposure of each, and optional detail crops for a sharpness check, so the agent can pick and
+  rate the best frames.
 
 ## Requirements
 
@@ -27,6 +30,8 @@ What it does by default:
 - An agent that can read images, so that it can look at the previews.
 - Optional: Python 3.9+ with numpy and Pillow, for `scripts/analyze_preview.py`. The agent runs
   it only when you ask for measurements.
+- Optional: Python 3.9+ with Pillow, for `scripts/contact_sheet.py` (contact sheets), and an
+  `alcedo-cli` with the `batch` command and `library.info` and `library.thumbnails`.
 
 ## Install
 

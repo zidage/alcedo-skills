@@ -171,6 +171,38 @@ When the user asks to process every photo (of a project, a folder, or a selectio
 4. Export only when the user asked for it (`export.run`, then `tasks.wait`, then
    `export.status`).
 
+## Contact sheets: cull and compare many photos
+
+When the user asks you to cull, pick, compare, or rate a set of photos, or to find the sharp or
+the best frames, look at them on contact sheets instead of calling `library.thumbnail` once per
+photo:
+
+```bash
+python "${CLAUDE_SKILL_DIR}/scripts/contact_sheet.py" --session <name> --out-dir <tmp dir> [source] [options]
+```
+
+It needs Python 3.9+ with Pillow and `alcedo-cli` on the PATH (or `--cli <path>`). It sends all
+commands through one `alcedo-cli batch` process, so 600 photos are one call. Write the sheets to
+a temporary folder, not next to the user's photos.
+
+- Source: every photo of the root folder by default, or `--ids 12,40,41`, `--ids-file <file>`,
+  `--selection` (GUI), `--search <text>`, `--folder <folder_id or path>`.
+- Order: `--sort capture_time` (default), `file_name`, `rating`, `element_id`, `camera_model`,
+  `lens`, or `input`; add `--descending`.
+- Grid: `--columns 6 --rows 5` photos per sheet, `--cell 320` pixels per thumbnail.
+- Sharpness: `--detail center` (or `--detail 0.3,0.4`, x and y from 0 to 1) adds a crop at about
+  the full image resolution beside each thumbnail. It opens every photo in the editor and is
+  much slower; in the GUI session hold control first. Make detail sheets for the candidates
+  only, for example the similar frames you must choose between, not for the whole set.
+
+The script prints `{"index": ..., "sheets": [...], "photo_count": ..., "thumbnail_failures": ...}`.
+Open each sheet with your image reading tool. Each cell has a large sequence number and the label
+`#<seq>  id <element_id>`, the rating, the file name, the capture time, the camera, the lens, and
+focal length, aperture, shutter, and ISO; a blank line means the metadata has no value. The
+index JSON lists `photos` in sequence order with `seq`, `sheet`, `row`, `column`, `element_id`,
+`file_path`, and the metadata. Name photos to the user by file name, and act on them by
+`element_id` (for example `library.rate`). Rate or delete only what the user asked for.
+
 ## Measurements (only on request)
 
 Do not measure photos by default; judge them by looking. When the user asks for numbers (for

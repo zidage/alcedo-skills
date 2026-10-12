@@ -1118,6 +1118,115 @@
   },
   {
     "changes_state": false,
+    "description": "Returns the source file and the capture values of 'element_ids', in that order. The capture values come from the metadata that the import read: capture_time, camera_make, camera_model, lens, focal_mm, aperture, shutter, shutter_seconds, iso, width, and height. A value that the metadata does not have is left out of the item.",
+    "method": "library.info",
+    "params_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "element_ids": {
+          "items": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "maxItems": 1000,
+          "minItems": 1,
+          "type": "array"
+        },
+        "timeout_ms": {
+          "default": 120000,
+          "description": "Time limit in milliseconds for the command to reach its terminal state.",
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "element_ids"
+      ],
+      "type": "object"
+    },
+    "result_schema": {
+      "properties": {
+        "items": {
+          "items": {
+            "properties": {
+              "aperture": {
+                "description": "The f-number.",
+                "type": "number"
+              },
+              "camera_make": {
+                "type": "string"
+              },
+              "camera_model": {
+                "type": "string"
+              },
+              "capture_time": {
+                "description": "YYYY-MM-DD HH:MM:SS by the camera clock.",
+                "type": "string"
+              },
+              "element_id": {
+                "type": "integer"
+              },
+              "file_name": {
+                "type": "string"
+              },
+              "file_path": {
+                "description": "The source file of the photo.",
+                "type": "string"
+              },
+              "focal_mm": {
+                "description": "The real focal length in mm.",
+                "type": "number"
+              },
+              "height": {
+                "type": "integer"
+              },
+              "image_id": {
+                "type": "integer"
+              },
+              "iso": {
+                "type": "integer"
+              },
+              "lens": {
+                "type": "string"
+              },
+              "metadata_error": {
+                "description": "Why the metadata cannot be read; the item then has only the library columns.",
+                "type": "string"
+              },
+              "rating": {
+                "type": "integer"
+              },
+              "shutter": {
+                "description": "The exposure time, for example 1/250s.",
+                "type": "string"
+              },
+              "shutter_seconds": {
+                "type": "number"
+              },
+              "width": {
+                "description": "The image width in pixels.",
+                "type": "integer"
+              }
+            },
+            "required": [
+              "element_id",
+              "image_id",
+              "file_name",
+              "rating"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "items"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "changes_state": false,
     "description": "Returns one page of the photos of a folder (the root folder by default) in the order of 'sort', then by element id. 'total' is the photo count of the folder.",
     "method": "library.list",
     "params_schema": {
@@ -1363,6 +1472,88 @@
         "path",
         "width",
         "height"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "changes_state": false,
+    "description": "Renders the library thumbnails of 'element_ids' and writes each as the PNG file <element_id>.png in 'out_dir', with the long edge 'long_edge'. Answers when every thumbnail is written or has failed: each item has 'path', 'width', and 'height', or 'error'.",
+    "method": "library.thumbnails",
+    "params_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "element_ids": {
+          "items": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "maxItems": 1000,
+          "minItems": 1,
+          "type": "array"
+        },
+        "long_edge": {
+          "default": 512,
+          "maximum": 2048,
+          "minimum": 16,
+          "type": "integer"
+        },
+        "out_dir": {
+          "description": "Folder of the PNG files.",
+          "type": "string"
+        },
+        "timeout_ms": {
+          "default": 120000,
+          "description": "Time limit in milliseconds for the command to reach its terminal state.",
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "element_ids",
+        "out_dir"
+      ],
+      "type": "object"
+    },
+    "result_schema": {
+      "properties": {
+        "failed_count": {
+          "type": "integer"
+        },
+        "items": {
+          "items": {
+            "properties": {
+              "element_id": {
+                "type": "integer"
+              },
+              "error": {
+                "type": "string"
+              },
+              "height": {
+                "type": "integer"
+              },
+              "path": {
+                "type": "string"
+              },
+              "width": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "element_id"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "written_count": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "items",
+        "written_count",
+        "failed_count"
       ],
       "type": "object"
     }
@@ -1952,6 +2143,33 @@
           "type": "boolean"
         },
         "project": {
+          "properties": {
+            "entered": {
+              "description": "The loaded project is open in the window. Project and editor commands need it. A loaded project that is not entered (the window shows the start screen) is opened with project.open and its path.",
+              "type": "boolean"
+            },
+            "loaded": {
+              "description": "A project file is loaded.",
+              "type": "boolean"
+            },
+            "loading": {
+              "description": "A project load runs.",
+              "type": "boolean"
+            },
+            "message": {
+              "type": "string"
+            },
+            "path": {
+              "description": "The loaded project file.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "loaded",
+            "entered",
+            "loading",
+            "path"
+          ],
           "type": "object"
         },
         "tasks": {

@@ -85,6 +85,11 @@ No parameters other than `timeout_ms`.
 | `host_mode` | string | yes |  |
 | `idle` | boolean | yes |  |
 | `project` | object | yes |  |
+| `project.entered` | boolean | yes | The loaded project is open in the window. Project and editor commands need it. A loaded project that is not entered (the window shows the start screen) is opened with project.open and its path. |
+| `project.loaded` | boolean | yes | A project file is loaded. |
+| `project.loading` | boolean | yes | A project load runs. |
+| `project.message` | string | no |  |
+| `project.path` | string | yes | The loaded project file. |
 | `tasks` | array | yes |  |
 | `workspace` | string | yes |  |
 <!-- END GENERATED: state.get -->

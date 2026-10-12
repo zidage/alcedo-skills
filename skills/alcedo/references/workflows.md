@@ -56,6 +56,41 @@ alcedo-cli call library.list '{"sort":"rating","descending":true,"limit":2}'
 {"items":[{"element_id":1,"file_name":"DSC0027.ARW","image_id":1,"rating":4},{"element_id":3,"file_name":"DSC06683.dng","image_id":3,"rating":4}],"offset":0,"total":3}
 ```
 
+## Cull many photos with contact sheets
+
+To look at a whole set of photos (cull, pick the best of similar frames, find the sharp ones),
+the script
+[`contact_sheet.py`](https://github.com/zidage/alcedo-skills/blob/main/skills/alcedo/scripts/contact_sheet.py)
+of the alcedo skill draws contact sheets. It needs Python 3.9 with Pillow. It sends all its
+commands through one `alcedo-cli batch` process: `library.info` for the labels and
+`library.thumbnails` for the pictures, so 600 photos take one script call.
+
+```bash
+python contact_sheet.py --session trip --out-dir D:/Temp/trip-sheets
+```
+
+```json
+{"index": "D:\\Temp\\trip-sheets\\contact_sheet.json", "sheets": ["D:\\Temp\\trip-sheets\\contact_sheet_001.jpg", "D:\\Temp\\trip-sheets\\contact_sheet_002.jpg"], "photo_count": 41, "thumbnail_failures": 0}
+```
+
+Each cell shows the sequence number in a large badge, then `#<seq>  id <element_id>` and the
+rating, the file name, the capture time, the camera, the lens, and the focal length, aperture,
+shutter, and ISO. A value that the metadata does not have is left blank. The index
+`contact_sheet.json` maps each sequence number to its sheet, row, column, and cell box, and to the
+`element_id` and `file_path` of the photo. Use the element ids with `library.rate` and the other
+commands:
+
+```bash
+alcedo-cli call library.rate '{"element_ids":[12,15,40],"rating":4}'
+```
+
+The source is every photo of the root folder unless you give `--ids`, `--ids-file`,
+`--selection`, `--search <text>`, or `--folder <id or path>`. The photos are in capture time
+order (`--sort`, `--descending`). The grid is 6 by 5 cells of 320 pixels (`--columns`, `--rows`,
+`--cell`). `--detail center` (or `--detail x,y`) adds a crop at about the full image resolution
+beside each thumbnail for a sharpness check; it opens every photo in the editor and takes much
+longer than the thumbnails.
+
 ## Edit a photo: preview, look, adjust
 
 The editor edits one photo at a time. Each change is a commit in the history of the active

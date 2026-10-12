@@ -48,6 +48,42 @@ Prints the command list: the method, `(changes state)` for a command that change
 the description. With `--json` it prints the full `commands` array of `session.describe`, with
 the parameter and result schemas.
 
+### batch
+
+```text
+alcedo-cli batch
+```
+
+Reads requests from stdin, one JSON object on each line, and sends them in order over one
+connection to the session. Use it in scripts that send many commands: one process and one
+connection instead of one `alcedo-cli call` for each command.
+
+Each request line has `method` and optional `params` (an object) and `id`:
+
+```json
+{"id":1,"method":"library.info","params":{"element_ids":[1,2]}}
+```
+
+For each request, `batch` prints one compact JSON line, in the order of the requests, after the
+command has answered: the `id` of the request (or the line number when the request has no `id`)
+with `result` or `error`. It always prints JSON; `--json` is not needed. Empty lines are skipped.
+A line that is not such an object gets an `error` with the code -32600, and `batch` continues
+with the next line. `--timeout` applies to every request without `timeout_ms`.
+
+```bash
+printf '%s\n' '{"method":"session.ping"}' '{"method":"library.list","params":{"limit":1}}' | alcedo-cli batch
+```
+
+```json
+{"id":1,"result":{"pong":true}}
+{"id":2,"result":{"items":[{"element_id":1,"file_name":"DSC0027.ARW","image_id":1,"rating":0}],"offset":0,"total":3}}
+```
+
+A script can write a request, read its answer line, and decide the next request: `batch` answers
+each line before it reads the next one. `batch` ends at the end of stdin. Its exit code is 0 when
+every command succeeded, 1 when a command answered an error or a line was not a request, 2 when
+the session selection failed, and 3 when the connection was lost (it stops at once).
+
 ### session start
 
 ```text
