@@ -148,7 +148,7 @@ the owner. `data.pointer` points at the parameter that is wrong, for example `/v
 | -32001 | not ready | The state that the command needs does not exist: no project, no editor image, no library selection in the headless host. | Open a project or a photo first. |
 | -32002 | rejected | The owner refused the operation. For example: the active Version cannot be removed. | Read `data.reason`. |
 | -32003 | control not held | A state-changing command in a GUI session without agent control. | Call `control.acquire`. |
-| -32004 | control revoked by user | The user selected **Take control**. | Stop. Wait until the user selects **Return control**, then call `control.acquire`. |
+| -32004 | control revoked by user | The user selected **Stop**. | Stop. Wait until the user tells you to continue, then call `control.acquire`. |
 | -32005 | busy | A resource is in use: another holder has control, or the editor renders another job (for example an open comparison). | Wait and try again. |
 | -32006 | timeout | The command did not reach its terminal state within `timeout_ms`. | The operation can still finish. Check with `state.get` or `editor.history` before you repeat it. |
 | -32007 | failed | The operation started and failed. | Read `data.reason`. |

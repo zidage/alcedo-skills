@@ -272,7 +272,7 @@ again before each change after the first.
 - `-32602` `/changes/<n>/field` or `/changes/<n>/value`: change `<n>` is not valid, as for
   `editor.set`.
 - `-32002` `Adjustments require an interactive image`: as for `editor.set`.
-- `-32004`: the user took control.
+- `-32004`: the user stopped the agent.
 - `-32007`: the frame of a change failed to render, as for `editor.set`. That change is
   committed, so `data.applied` counts it.
 
