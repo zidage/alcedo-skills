@@ -166,6 +166,123 @@ alcedo-cli --json call library.thumbnail '{"element_id":2,"out":"D:/Photos/thumb
 {"height":171,"path":"D:/Photos/thumbs/DSC00800.png","width":256}
 ```
 
+## `library.thumbnails`
+
+<!-- BEGIN GENERATED: library.thumbnails -->
+Changes state: no.
+
+Renders the library thumbnails of 'element_ids' and writes each as the PNG file <element_id>.png in 'out_dir', with the long edge 'long_edge'. Answers when every thumbnail is written or has failed: each item has 'path', 'width', and 'height', or 'error'.
+
+**Parameters**
+
+| Name | Type | Required | Default | Notes |
+| --- | --- | --- | --- | --- |
+| `element_ids` | array of integer | yes |  | 1 to 1000 items; each item at least 1. |
+| `long_edge` | integer | no | `512` | 16 to 2048. |
+| `out_dir` | string | yes |  | Folder of the PNG files. |
+
+**Result**
+
+| Field | Type | Always | Notes |
+| --- | --- | --- | --- |
+| `failed_count` | integer | yes |  |
+| `items` | array of object | yes |  |
+| `items[].element_id` | integer | yes |  |
+| `items[].error` | string | no |  |
+| `items[].height` | integer | no |  |
+| `items[].path` | string | no |  |
+| `items[].width` | integer | no |  |
+| `written_count` | integer | yes |  |
+<!-- END GENERATED: library.thumbnails -->
+
+The thumbnails of many photos in one command, for example for a contact sheet. The files are
+named by the element id and show the committed edits, as `library.thumbnail` does. Several
+thumbnails render at the same time; the answer comes when the last one is written or has
+failed. A photo whose thumbnail fails has `error` in its item and does not fail the command.
+Give a `timeout_ms` that fits the number of photos: a thumbnail that is not in the cache needs
+a RAW decode.
+
+**Errors**
+
+- `-32602` `/element_ids`: unknown ids (`data.unknown_ids` lists them; nothing is written), or
+  more than 1000 ids.
+- `-32602` `/out_dir`: the folder cannot be created.
+- `-32001`: no project is loaded.
+- `-32006`: the thumbnails did not finish within `timeout_ms`. The files written so far stay.
+
+**Example**
+
+```bash
+alcedo-cli --json call library.thumbnails '{"element_ids":[2,6],"out_dir":"D:/Photos/thumbs","long_edge":256}'
+```
+
+```json
+{"failed_count":0,"items":[{"element_id":2,"height":256,"path":"D:/Photos/thumbs/2.png","width":171},{"element_id":6,"height":256,"path":"D:/Photos/thumbs/6.png","width":171}],"written_count":2}
+```
+
+## `library.info`
+
+<!-- BEGIN GENERATED: library.info -->
+Changes state: no.
+
+Returns the source file and the capture values of 'element_ids', in that order. The capture values come from the metadata that the import read: capture_time, camera_make, camera_model, lens, focal_mm, aperture, shutter, shutter_seconds, iso, width, and height. A value that the metadata does not have is left out of the item.
+
+**Parameters**
+
+| Name | Type | Required | Default | Notes |
+| --- | --- | --- | --- | --- |
+| `element_ids` | array of integer | yes |  | 1 to 1000 items; each item at least 1. |
+
+**Result**
+
+| Field | Type | Always | Notes |
+| --- | --- | --- | --- |
+| `items` | array of object | yes |  |
+| `items[].aperture` | number | no | The f-number. |
+| `items[].camera_make` | string | no |  |
+| `items[].camera_model` | string | no |  |
+| `items[].capture_time` | string | no | YYYY-MM-DD HH:MM:SS by the camera clock. |
+| `items[].element_id` | integer | yes |  |
+| `items[].file_name` | string | yes |  |
+| `items[].file_path` | string | no | The source file of the photo. |
+| `items[].focal_mm` | number | no | The real focal length in mm. |
+| `items[].height` | integer | no |  |
+| `items[].image_id` | integer | yes |  |
+| `items[].iso` | integer | no |  |
+| `items[].lens` | string | no |  |
+| `items[].metadata_error` | string | no | Why the metadata cannot be read; the item then has only the library columns. |
+| `items[].rating` | integer | yes |  |
+| `items[].shutter` | string | no | The exposure time, for example 1/250s. |
+| `items[].shutter_seconds` | number | no |  |
+| `items[].width` | integer | no | The image width in pixels. |
+<!-- END GENERATED: library.info -->
+
+The source file and the capture values of photos, for a contact sheet label or to tell similar
+photos apart. The values come from the metadata that the import read; a camera or a file that
+does not record a value leaves it out of the item. `capture_time` is the camera clock without a
+time zone. `width` and `height` are the size of the image as the metadata gives it. The command
+gives no focus point: each camera maker records it in its own way.
+
+When the metadata of a photo cannot be read, its item has only the library fields and
+`metadata_error`.
+
+**Errors**
+
+- `-32602` `/element_ids`: unknown ids (`data.unknown_ids` lists them), or more than 1000 ids.
+- `-32001`: no project is loaded.
+
+**Example**
+
+```bash
+alcedo-cli --json call library.info '{"element_ids":[2,6]}'
+```
+
+```json
+{"items":[{"aperture":2,"camera_make":"Sony","camera_model":"ILCE-7M3","capture_time":"2022-09-18 21:36:18","element_id":2,"file_name":"DSC0027.ARW","file_path":"D:/Photos/2022-canada/DSC0027.ARW","focal_mm":28,"height":6024,"image_id":2,"iso":80,"lens":"FE 28mm F2","rating":0,"shutter":"1/1000s","shutter_seconds":0.001,"width":4024},{"aperture":6.3,"camera_make":"Sony","camera_model":"Sony ILCE-1","capture_time":"2023-10-22 21:08:01","element_id":6,"file_name":"DSC06683.dng","file_path":"D:/Photos/2023-yosemite/DSC06683.dng","focal_mm":50,"height":8672,"image_id":6,"iso":200,"lens":"FE 20-70mm F4 G","rating":0,"shutter":"1/800s","shutter_seconds":0.00125,"width":5784}]}
+```
+
+For many photos at once, see the contact sheet script in the skill (`scripts/contact_sheet.py`).
+
 ## `library.rate`
 
 <!-- BEGIN GENERATED: library.rate -->
