@@ -1952,6 +1952,33 @@
           "type": "boolean"
         },
         "project": {
+          "properties": {
+            "entered": {
+              "description": "The loaded project is open in the window. Project and editor commands need it. A loaded project that is not entered (the window shows the start screen) is opened with project.open and its path.",
+              "type": "boolean"
+            },
+            "loaded": {
+              "description": "A project file is loaded.",
+              "type": "boolean"
+            },
+            "loading": {
+              "description": "A project load runs.",
+              "type": "boolean"
+            },
+            "message": {
+              "type": "string"
+            },
+            "path": {
+              "description": "The loaded project file.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "loaded",
+            "entered",
+            "loading",
+            "path"
+          ],
           "type": "object"
         },
         "tasks": {
