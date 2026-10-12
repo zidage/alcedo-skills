@@ -5,7 +5,8 @@ Agent skills for [Alcedo Studio](https://github.com/zidage/AlcedoStudio), the RA
 The skill `alcedo` lets an AI agent (for example Claude Code) edit, rate, search, and export
 photos through `alcedo-cli`. The agent renders a preview of each photo, looks at it, and changes
 the editor values until the photo looks right. It can work headless on a project or a folder,
-or in your open Alcedo Studio window, where you can take control back at any time.
+or in your open Alcedo Studio window, where you can stop it at any time. To let it continue,
+tell the agent; there is nothing to select in the window.
 
 What it does by default:
 
@@ -66,23 +67,23 @@ a session named `gui` is listed.
 ## The alcedo-cli documentation
 
 `skills/alcedo/references/` is the only copy of the alcedo-cli documentation. Alcedo Studio
-checks out this repository at `docs/alcedo-skills` as a git submodule, and its build and tests
-use the files there:
+links this repository from its README and does not pin a commit of it. To check the reference
+against an Alcedo Studio build, give the build a local checkout of this repository:
 
-- `AutomationReferenceDocsTest` compares `references/reference/commands.json` and
+- Configure Alcedo Studio with `-DALCEDO_SKILLS_DIR=<this checkout>`. Then
+  `AutomationReferenceDocsTest` compares `references/reference/commands.json` and
   `editor_catalog.json` with the command schemas of the build.
-- `scripts/automation/generate_cli_reference.py` of Alcedo Studio writes the generated parts of
-  the pages in `references/reference/`.
+- `scripts/automation/generate_cli_reference.py --skills-dir <this checkout>` of Alcedo Studio
+  writes the generated parts of the pages in `references/reference/`.
 
-A change to the automation commands therefore has two commits: one in this repository (the
-documentation), and one in Alcedo Studio (the code and the new submodule commit). Push the
-commit of this repository first, so that the submodule commit exists on GitHub. Links to other
-files of Alcedo Studio are full GitHub links, because the skill does not contain those files.
+A change to the automation commands therefore has two pull requests: one in this repository
+(the documentation), and one in Alcedo Studio (the code). Links to other files of Alcedo Studio
+are full GitHub links, because the skill does not contain those files.
 
 ## Versions
 
 The plugin version is the Alcedo Studio version that the skill was checked with. At each Alcedo
-Studio release, start from the submodule commit of that release:
+Studio release, check the reference against the release build (see above), then:
 
 ```bash
 python scripts/set_version.py <x.y.z>

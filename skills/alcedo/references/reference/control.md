@@ -46,6 +46,20 @@ A state-changing command after **Stop**:
 {"error":{"code":-32004,"data":{"reason":"The user stopped the agent. Stop working and ask the user what to do. Call control.acquire only after the user tells you to continue."},"message":"The user stopped the agent. Stop working and ask the user what to do. Call control.acquire only after the user tells you to continue."}}
 ```
 
+`control.get` after **Stop** stays the same until an agent acquires control. The window has no
+button that changes it:
+
+```json
+{"held":false,"holder_name":"","revoked_by_user":true}
+```
+
+After the user tells the agent to continue, `control.acquire` succeeds and the stopped agent
+task continues:
+
+```json
+{"held":true,"holder_name":"claude-code","revoked_by_user":false}
+```
+
 ## `control.release`
 
 <!-- BEGIN GENERATED: control.release -->

@@ -8,8 +8,8 @@ description: Edit, rate, search, and export RAW photos in Alcedo Studio through 
 `alcedo-cli` sends JSON-RPC commands to Alcedo Studio. You look at the photos yourself: render a
 preview, open the PNG, judge it, and change the editor values until it looks right.
 
-The full documentation is in `references/` (Alcedo Studio checks out the same pages at
-`docs/alcedo-skills`). Read the page before you use a command group for the first time:
+The full documentation is in `references/`. Read the page before you use a command group for
+the first time:
 
 | Need | Page |
 | --- | --- |
@@ -79,8 +79,13 @@ The rules below protect the user's data. They do not limit the look.
 
 - Call `control.acquire` with `{"holder_name":"<your name>"}` before any command that changes
   state, and `control.release` when you are done, also after an error.
-- `-32004` means the user clicked **Stop**. Stop at once, tell the user, and wait until they tell
-  you to continue. Only then call `control.acquire` again. Never acquire or retry on your own.
+- `-32004` means the user clicked **Stop**. Stop at once, tell the user what you did and what
+  is left, and end your turn. The window has no button that gives control back to you, so do not
+  wait for `control.changed` and do not poll `control.get`: `revoked_by_user` stays `true` until
+  you call `control.acquire`. Call it only after the user tells you to continue in the
+  conversation. Never acquire or retry on your own.
+- Give every state-changing command a `note`: the agent task in the window lists each command
+  with its note, so the user can follow what you do.
 - `-32005` from `control.acquire` means another agent holds control: tell the user.
 - Work on the photo the user selected: `library.selection.get`, or the photo that the editor has
   open (`editor.get` returns its `element_id`).
