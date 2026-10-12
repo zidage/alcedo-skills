@@ -9,8 +9,8 @@ You can use it in two ways:
 - **Headless:** `alcedo-cli session start --headless` starts `alcedo_main` without a window.
   Use it for batch work and scripts.
 - **GUI:** the normal Alcedo Studio window also serves a session named `gui`. An agent can edit
-  in the window while you watch. The agent takes control first, and you can take control back at
-  any time.
+  in the window while you watch. The agent takes control first, and you can stop it at any time.
+  To let it continue, tell the agent; there is nothing to select in the window.
 
 ## Pages
 

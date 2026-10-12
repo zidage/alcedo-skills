@@ -44,8 +44,9 @@ Behavior to know about in Alcedo Studio 0.3.2 (protocol version 1), and the open
 
 ## GUI session
 
-- **The user can take control at any time.** Every command that changes state can fail with
-  `-32004`. An agent must stop and wait for **Return control**; it must not retry in a loop.
+- **The user can stop the agent at any time.** Every command that changes state can fail with
+  `-32004`. An agent must stop and wait until the user tells it to continue; it must not call
+  `control.acquire` or retry on its own.
 - **`session stop` on the `gui` session closes the application.**
 - **No test runs random command sequences** against a session yet
   ([#330](https://github.com/zidage/AlcedoStudio/issues/330)).

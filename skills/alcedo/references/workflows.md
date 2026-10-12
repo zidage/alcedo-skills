@@ -303,8 +303,9 @@ The Alcedo Studio window serves the session `gui` (see
 2. The agent edits the photo that the user selected (`library.selection.get`) with the same
    commands as above. The user sees each change in the window.
 
-3. The user can click **Take control** at any time. The next agent command fails with `-32004`:
-   stop and wait until the user clicks **Return control**, then call `control.acquire` again.
+3. The user can click **Stop** at any time. The next agent command fails with `-32004`: stop,
+   tell the user, and end your turn. Nothing in the window gives control back. When the user
+   tells you to continue, call `control.acquire` again and go on.
 
 4. The agent gives control back when it is done:
 

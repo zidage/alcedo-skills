@@ -71,14 +71,19 @@ In the GUI host the user and an agent share one editor. Agent control takes turn
   that changes state fails with `-32003`. Reads always run.
 - `control.acquire` takes control. It waits while the user drags an editor slider, and answers
   when the user releases it. The task island of the window then shows a task of the kind
-  **Agent**, with the holder name as the title and the running command as the detail.
+  **Agent**, with the holder name as the title and the running command as the detail. The task
+  dialog pins the agent task above the other tasks and lists each state-changing command with
+  its `note` and its outcome. The task stays until the user dismisses it.
 - While the agent holds control, the user cannot change the session: the adjustment panels,
   Undo, Redo, Versions changes, image switching, import, delete, rating, export, and project open
   and create are off. The user can still browse, zoom and pan, search, and read History and
   Versions.
-- **Take control** (the cancel button of the agent task) gives control back to the user at once.
-  The next agent command fails with `-32004`, and `control.acquire` fails with `-32004` too.
-- **Return control** (on the canceled agent task) lets the agent call `control.acquire` again.
+- **Stop** (the stop button of the agent task) gives control back to the user at once. The next
+  command that changes state fails with `-32004`. The agent must stop and ask the user.
+- There is no step in the window that gives control back to the agent. `revoked_by_user` becomes
+  `true` at **Stop** and stays `true` until an agent calls `control.acquire`; no notification
+  comes between. The user tells the agent to continue in the conversation, and then the agent
+  calls `control.acquire`. The same holder continues in the same agent task.
 - `control.release` gives control back. The agent task ends as succeeded.
 - Control does not belong to a connection. A second agent gets `-32005` while another holder
   has control.
@@ -112,7 +117,7 @@ The host sends notifications to every connected client. `alcedo-cli watch` print
 | `task.finished` | A task object | A task finishes. |
 | `session.state_changed` | `state`, `element_id`, `image_id` | The editor state or the open image changes. |
 | `history.changed` | `element_id`, `image_id`, `head_commit`, `version_id` | The history head or the active Version changes, by the agent or by the user. |
-| `control.changed` | `held`, `holder_name`, `revoked_by_user` | Agent control changes (GUI host only). |
+| `control.changed` | `held`, `holder_name`, `revoked_by_user` | Agent control changes (GUI host only): an acquire, a release, or **Stop**. |
 
 Editor states: `NoImage`, `Acquiring`, `Loading`, `Interactive`, `Saving`, `Switching`,
 `RetainedImageFailure`, `Failed`, `ShuttingDown`. Edits are possible in `Interactive`.

@@ -1,7 +1,7 @@
 [
   {
     "changes_state": false,
-    "description": "Takes control of a GUI session so that state-changing commands run. While the agent holds control, the user cannot change the session state; the task island shows the agent task with the running command. Waits while the user drags an editor control. Fails with -32004 after the user took control until the user selects Return control, and with -32005 while another holder holds control. The headless host always reports held.",
+    "description": "Takes control of a GUI session so that state-changing commands run. While the agent holds control, the user cannot change the session state; the task island shows the agent task with each state-changing command and its note. Waits while the user drags an editor control. After the user stopped the agent, state-changing commands fail with -32004; call control.acquire again only after the user tells you to continue, and the agent task continues. Fails with -32005 while another holder holds control. The headless host always reports held.",
     "method": "control.acquire",
     "params_schema": {
       "additionalProperties": false,
@@ -29,6 +29,7 @@
           "type": "string"
         },
         "revoked_by_user": {
+          "description": "True after the user stopped the agent, until an agent calls control.acquire again.",
           "type": "boolean"
         }
       },
@@ -65,6 +66,7 @@
           "type": "string"
         },
         "revoked_by_user": {
+          "description": "True after the user stopped the agent, until an agent calls control.acquire again.",
           "type": "boolean"
         }
       },
@@ -101,6 +103,7 @@
           "type": "string"
         },
         "revoked_by_user": {
+          "description": "True after the user stopped the agent, until an agent calls control.acquire again.",
           "type": "boolean"
         }
       },

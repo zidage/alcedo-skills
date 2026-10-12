@@ -8,8 +8,8 @@ description: Edit, rate, search, and export RAW photos in Alcedo Studio through 
 `alcedo-cli` sends JSON-RPC commands to Alcedo Studio. You look at the photos yourself: render a
 preview, open the PNG, judge it, and change the editor values until it looks right.
 
-The full documentation is in `references/` (Alcedo Studio checks out the same pages at
-`docs/alcedo-skills`). Read the page before you use a command group for the first time:
+The full documentation is in `references/`. Read the page before you use a command group for
+the first time:
 
 | Need | Page |
 | --- | --- |
@@ -79,8 +79,13 @@ The rules below protect the user's data. They do not limit the look.
 
 - Call `control.acquire` with `{"holder_name":"<your name>"}` before any command that changes
   state, and `control.release` when you are done, also after an error.
-- `-32004` means the user clicked **Take control**. Stop at once, tell the user, and wait until
-  they say they clicked **Return control**. Then `control.acquire` again. Never retry in a loop.
+- `-32004` means the user clicked **Stop**. Stop at once, tell the user what you did and what
+  is left, and end your turn. The window has no button that gives control back to you, so do not
+  wait for `control.changed` and do not poll `control.get`: `revoked_by_user` stays `true` until
+  you call `control.acquire`. Call it only after the user tells you to continue in the
+  conversation. Never acquire or retry on your own.
+- Give every state-changing command a `note`: the agent task in the window lists each command
+  with its note, so the user can follow what you do.
 - `-32005` from `control.acquire` means another agent holds control: tell the user.
 - Work on the photo the user selected: `library.selection.get`, or the photo that the editor has
   open (`editor.get` returns its `element_id`).
@@ -127,7 +132,8 @@ a photo without edits is exposure +1.5, contrast 15, saturation 30: change from 
 2. Decide the next change. For a user request ("warmer", "more contrast", "a moody look"), find
    the fields in `references/reference/editor_fields.md` or with `editor.catalog`.
 3. Apply it with `editor.set` or `editor.batch_set`. Give a `note` that says what and why, for
-   example `"note":"agent: lift exposure, subject underexposed"`. The note shows in the history.
+   example `"note":"agent: lift exposure, subject underexposed"`. The note shows in the history
+   and, in the GUI session, in the activity of the agent task.
 4. Render a new preview and look again. Compare it with the previous preview. When you cannot
    see a difference, the change was small: do not test with an extreme value; take a larger
    step or render with `"compare":"root"`.
@@ -187,6 +193,6 @@ not whether it looks good.
 | -32001 | Not ready: no project or no photo open | Open the project or the photo first. |
 | -32002 | Rejected now, for example `Adjustments require an interactive image` | Read `state` from `editor.get`; open the photo or wait for loading. |
 | -32003 | GUI: no agent control | `control.acquire`. |
-| -32004 | GUI: the user took control | Stop and wait for the user. |
+| -32004 | GUI: the user stopped the agent | Stop and wait until the user tells you to continue. |
 | -32005 | Busy (an import, export, or render runs) | `tasks.wait`, then try again. |
 | -32007 | Failed | Read `data.reason`; after a failed editor save, see `references/limits.md`. |
