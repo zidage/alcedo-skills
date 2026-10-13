@@ -23,10 +23,13 @@ What it does by default:
 
 ## Requirements
 
-- Alcedo Studio 0.3.2 or later with `alcedo-cli` (automation protocol 1). The installers do not
-  contain `alcedo-cli` yet; build it from source (see
+- Alcedo Studio 0.3.2 or later with `alcedo-cli` (automation protocol 1). The packages after
+  0.3.2 contain `alcedo-cli` beside the Alcedo Studio program: `<install folder>\bin\alcedo-cli.exe`
+  on Windows and `AlcedoStudio.app/Contents/MacOS/alcedo-cli` on macOS. The installers do not
+  change `PATH`; the agent calls `alcedo-cli` by its full path. For 0.3.2, build `alcedo-cli`
+  from source (see
   [Build from source](https://github.com/zidage/AlcedoStudio/blob/main/docs/build_from_source.md),
-  target `alcedo-cli`) and put it on the PATH.
+  target `alcedo-cli`).
 - An agent that can read images, so that it can look at the previews.
 - Optional: Python 3.9+ with numpy and Pillow, for `scripts/analyze_preview.py`. The agent runs
   it only when you ask for measurements.

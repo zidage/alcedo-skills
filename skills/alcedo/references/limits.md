@@ -4,12 +4,12 @@ Behavior to know about in Alcedo Studio 0.3.2 (protocol version 1), and the open
 
 ## Installation
 
-- **The packages do not contain `alcedo-cli` yet.** The Windows installer and the macOS app have
-  only `alcedo_main`. Build `alcedo-cli` from source (target `alcedo-cli`) until the packages have
-  it ([#329](https://github.com/zidage/AlcedoStudio/issues/329)).
-- **macOS app:** the host program in the app is `AlcedoStudio.app/Contents/MacOS/AlcedoStudio`,
-  and `session start` does not look for it there. Give `--host-binary` (see
+- **The 0.3.2 packages do not contain `alcedo-cli`.** The packages after 0.3.2 have it beside
+  the Alcedo Studio program. With 0.3.2, build `alcedo-cli` from source (target `alcedo-cli`)
+  and give `--host-binary` to `session start` (see
   [Installation](installation.md#where-the-programs-are)).
+- **`alcedo-cli` is not on `PATH`.** The installers do not change `PATH`. Call `alcedo-cli` by
+  its full path (see [Installation](installation.md#find-alcedo-cli)).
 - **No switch in the settings page** for the GUI session. Change `automation/serverEnabled` in the
   settings store (see [Installation](installation.md#the-gui-session-setting)).
 
@@ -53,6 +53,5 @@ Behavior to know about in Alcedo Studio 0.3.2 (protocol version 1), and the open
 
 ## Protocol
 
-- **No MCP server yet.** Agents call `alcedo-cli` from a shell
-  ([#329](https://github.com/zidage/AlcedoStudio/issues/329)).
+- **No MCP server.** Agents call `alcedo-cli` from a shell.
 - **Local only.** The socket accepts connections from the same OS user on the same computer.

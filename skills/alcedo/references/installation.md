@@ -1,40 +1,53 @@
 # Installation
 
-`alcedo-cli` is a small program beside `alcedo_main`. It needs no installation of its own. It
-finds `alcedo_main` in its own folder when it starts a headless session.
+`alcedo-cli` is a small program in the same folder as the Alcedo Studio program. It needs no
+installation of its own, and the installers do not add it to `PATH`. Call it by its full path.
 
 ## Where the programs are
 
-| Build | `alcedo-cli` | `alcedo_main` |
+| Build | `alcedo-cli` | Alcedo Studio program (`alcedo_main`) |
 | --- | --- | --- |
+| Windows installer | `<install folder>\bin\alcedo-cli.exe` | `<install folder>\bin\alcedo_main.exe` |
+| macOS disk image | `AlcedoStudio.app/Contents/MacOS/alcedo-cli` | `AlcedoStudio.app/Contents/MacOS/AlcedoStudio` |
 | Windows build from source | `build/<preset>/alcedo_studio/src/alcedo-cli.exe` | `build/<preset>/alcedo_studio/src/alcedo_main.exe` |
-| macOS build from source | `build/<preset>/alcedo_studio/src/alcedo-cli` | `build/<preset>/alcedo_studio/src/alcedo_main.app/Contents/MacOS/alcedo_main` |
-| Windows installer | Not in the package yet ([#329](https://github.com/zidage/AlcedoStudio/issues/329)). | `<install folder>\bin\alcedo_main.exe`; the default install folder is `C:\Program Files\Alcedo Studio` |
-| macOS disk image | Not in the package yet ([#329](https://github.com/zidage/AlcedoStudio/issues/329)). | `AlcedoStudio.app/Contents/MacOS/AlcedoStudio` |
+| macOS build from source | `build/<preset>/alcedo_studio/src/alcedo-cli` | `build/<preset>/alcedo_studio/src/alcedo_main` |
 
-`<preset>` is the CMake preset, for example `release` or `debug`. See
-[Build from source](https://github.com/zidage/AlcedoStudio/blob/main/docs/build_from_source.md).
+- The default Windows install folder is `C:\Program Files\Alcedo Studio`. The usual macOS app
+  is `/Applications/AlcedoStudio.app`.
+- The packages of Alcedo Studio 0.3.2 and earlier do not contain `alcedo-cli`. With those
+  versions, build it from source (target `alcedo-cli`).
+- `<preset>` is the build folder of the CMake preset, for example `release` or `macos-debug`.
+  See [Build from source](https://github.com/zidage/AlcedoStudio/blob/main/docs/build_from_source.md).
 
-`session start` looks for `alcedo_main` in this order:
+## Find alcedo-cli
 
-1. `--host-binary <path>`.
-2. The folder of `alcedo-cli`.
-3. `../MacOS/alcedo_main` (for `alcedo-cli` in `Contents/Helpers` of the app bundle).
-4. `alcedo_main.app/Contents/MacOS/alcedo_main` beside `alcedo-cli` (a macOS build tree).
+1. Try `alcedo-cli help`. Some users put it on `PATH` themselves.
+2. Look in the default location of the table above.
+3. When Alcedo Studio is open, `alcedo-cli` is in the folder of the running program:
 
-The packaged macOS program is named `AlcedoStudio`, so with a packaged app give
-`--host-binary AlcedoStudio.app/Contents/MacOS/AlcedoStudio`.
+   ```powershell
+   Split-Path (Get-Process alcedo_main).Path
+   ```
 
-A GUI session needs no `alcedo-cli` path: the Alcedo Studio window starts its own session.
+   ```bash
+   dirname "$(ps -o comm= -p "$(pgrep -x AlcedoStudio)")"
+   ```
 
-## Put alcedo-cli on the PATH
+4. If you cannot find it, ask the user where Alcedo Studio is installed.
 
-The examples in these pages call `alcedo-cli` by name. Add its folder to `PATH`, or call it
-with its full path.
+The examples in these pages call `alcedo-cli` by name. Use its full path in its place, for
+example `"C:\Program Files\Alcedo Studio\bin\alcedo-cli.exe" session list` or
+`/Applications/AlcedoStudio.app/Contents/MacOS/alcedo-cli session list`.
 
-```bash
-export PATH="/d/Projects/pu-erh_lab/build/release/alcedo_studio/src:$PATH"
-```
+## How session start finds the program
+
+`session start` uses `--host-binary <path>`. Without it, `session start` uses the Alcedo Studio
+program in the folder of `alcedo-cli`: `alcedo_main.exe` on Windows, `AlcedoStudio` in the macOS
+app, and `alcedo_main` in a macOS build from source.
+
+Give `--host-binary` only when `alcedo-cli` and the program are in different folders.
+
+A GUI session needs no `session start`: the Alcedo Studio window starts its own session.
 
 ## Check the setup
 
