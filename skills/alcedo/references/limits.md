@@ -18,8 +18,12 @@ Behavior to know about in Alcedo Studio 0.3.2 (protocol version 1), and the open
 - **Import takes RAW files only.** JPEG, PNG, TIFF, and other files count as `unsupported`.
 - **`library.thumbnail` shows committed edits, through a cache.** A thumbnail made just after an
   edit can show the earlier edits. Use `render.preview` for the open photo.
-- **No command copies or pastes adjustments** between photos. Set the same fields on each photo
-  with `editor.batch_set`.
+- **One Paste at a time.** `adjustments.paste` fails with `-32005` while another Paste or an
+  editor save runs.
+- **Paste replaces the look, it does not add to it.** The new Version starts at the photo as
+  imported, so the earlier edits of the photo are not in it (they stay in the earlier Version).
+  A photo where the package changes nothing fails with a message in the task `result`.
+- **Packages last for the session.** `adjustments.copy` keeps a package until the session ends.
 
 ## Editor
 

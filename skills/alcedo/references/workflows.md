@@ -291,6 +291,47 @@ Render a preview after the write and judge the look as you see it. To remove the
 to `{}`. Do not search the disk for `.cube` files or read `lut-inventory.json`:
 `lut.list` gives the references that stay valid when the library moves or a package is updated.
 
+## Apply one look to many photos
+
+Tune one photo, then copy its adjustments and paste them onto the other photos with one call.
+Each photo gets one new Version with one commit, not one commit per field.
+
+1. Tune the source photo with the edit loop (`editor.open`, `editor.set`, `render.preview`).
+
+2. List what can be copied, and choose the nodes or items that make the look:
+
+   ```bash
+   alcedo-cli --json call adjustments.items '{"element_id":1}'
+   ```
+
+   The Color Grade node (`grade.primary`) holds the tone and color adjustments. The Develop
+   node holds `crop_rotate` and `color_temp`, which usually suit only the source photo.
+
+3. Copy:
+
+   ```bash
+   alcedo-cli --json call adjustments.copy '{"element_id":1,"items":[{"node_id":"grade.primary"}]}'
+   ```
+
+   The result has `package_id` (for example `package-1`) and the copied items.
+
+4. Paste onto the set and wait for the background task:
+
+   ```bash
+   alcedo-cli --json call adjustments.paste '{"package_id":"package-1","element_ids":[2],"note":"agent: look of photo 1"}'
+   alcedo-cli --json call tasks.wait '{"task_id":"bgtask-2"}'
+   ```
+
+   ```json
+   {"kind":"adjustmentPaste","message":"Adjustments pasted.","progress":-1,"result":{"applied_count":1,"applied_ids":[2],"failure_count":0,"failures":[]},"state":"succeeded","task_id":"bgtask-2","title":"Pasting adjustments"}
+   ```
+
+   `task_id` comes from the paste result. `result.failures` names each photo that failed and why. In the GUI session, a paste without
+   `element_ids` uses the photos selected in the library.
+
+5. Render previews of a few pasted photos and fix the photos that need their own exposure or
+   white balance with the edit loop.
+
 ## Retouch every photo
 
 Do the edit loop for each photo of `library.list`. A Bash example that opens each photo and

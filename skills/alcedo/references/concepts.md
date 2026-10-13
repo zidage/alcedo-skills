@@ -96,11 +96,12 @@ Long operations return a task id at once. `tasks.wait` waits for the end of a ta
 | --- | --- | --- |
 | `import-N` | `library.import` | `import` |
 | `export-N` | `export.run` | `export` |
-| `bgtask-N` | `library.rate` with several photos, editor saves, and other background work | For example `ratingUpdate`, `editorSave`, `agentControl` |
+| `bgtask-N` | `library.rate` with several photos, `adjustments.paste`, editor saves, and other background work | For example `ratingUpdate`, `adjustmentPaste`, `editorSave`, `agentControl` |
 
 The numbers start at 1 in each process. A task object has `task_id`, `kind`, `state`
 (`queued`, `running`, `canceling`, `succeeded`, `failed`, or `canceled`), `progress` (percent,
--1 when unknown), and `message`. Import and export tasks also have `counts`.
+-1 when unknown), and `message`. Import and export tasks also have `counts`. A finished
+`adjustmentPaste` task has `result`: the pasted photos and each failed photo with the reason.
 
 - `tasks.wait {"task_id": "export-1"}` waits for one task.
 - `tasks.wait {"idle": true}` waits until no import, export, or background task runs. Use it
@@ -135,6 +136,8 @@ active Version is the current state of the photo.
 - `editor.set` makes one commit when the value changes. `editor.batch_set` makes one commit for
   each changed field. The author of an agent commit is `agent`; the History panel shows the
   `note` of the call.
+- `adjustments.paste` gives each photo one new Version with one commit. The Version starts at
+  the photo as imported; the earlier edits of the photo stay in its earlier Version.
 - `editor.undo` and `editor.redo` move the head along the commits of the active Version.
 - `versions.create` starts a new Version at the image as imported. `versions.branch` starts a
   new Version at a commit of the active Version. `versions.checkout` switches the active
