@@ -1,6 +1,6 @@
 # Command reference
 
-Protocol version 1, Alcedo Studio 0.3.2. `alcedo-cli schema` prints the same list from a running
+Protocol version 1, Alcedo Studio 0.3.3. `alcedo-cli schema` prints the same list from a running
 session.
 
 Each section has the description, the parameters, and the result. These parts are generated

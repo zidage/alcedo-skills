@@ -60,7 +60,7 @@ alcedo-cli --json call session.describe
 ```
 
 ```json
-{"application_version":"0.3.2","commands":[{"changes_state":false,"description":"Takes control of a GUI session so that state-changing commands run. ...","method":"control.acquire","params_schema":{...},"result_schema":{...}}, ...],"host_mode":"headless","protocol_version":1}
+{"application_version":"0.3.3","commands":[{"changes_state":false,"description":"Takes control of a GUI session so that state-changing commands run. ...","method":"control.acquire","params_schema":{...},"result_schema":{...}}, ...],"host_mode":"headless","protocol_version":1}
 ```
 
 `alcedo-cli --json schema` prints only the `commands` array.

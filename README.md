@@ -23,20 +23,21 @@ What it does by default:
 
 ## Requirements
 
-- Alcedo Studio 0.3.2 or later with `alcedo-cli` (automation protocol 1). The packages after
-  0.3.2 contain `alcedo-cli` beside the Alcedo Studio program: `<install folder>\bin\alcedo-cli.exe`
-  on Windows and `AlcedoStudio.app/Contents/MacOS/alcedo-cli` on macOS. The installers do not
-  change `PATH`; the agent calls `alcedo-cli` by its full path. For 0.3.2, build `alcedo-cli`
-  from source (see
-  [Build from source](https://github.com/zidage/AlcedoStudio/blob/main/docs/build_from_source.md),
-  target `alcedo-cli`).
-- An agent that can read images, so that it can look at the previews.
+- Alcedo Studio 0.3.3 or later. Its Windows installer and macOS app contain `alcedo-cli` beside
+  the Alcedo Studio program: `<install folder>\bin\alcedo-cli.exe` on Windows and
+  `AlcedoStudio.app/Contents/MacOS/alcedo-cli` on macOS. The installers do not change `PATH`; the
+  agent finds the program itself (also in an install folder that you chose) and calls it by its
+  full path. An installed 0.3.2 gets `alcedo-cli` with the in-app update to 0.3.3
+  (the update check in Settings).
+- An agent that can read images and run shell commands, for example Claude Code or Codex.
 - Optional: Python 3.9+ with numpy and Pillow, for `scripts/analyze_preview.py`. The agent runs
   it only when you ask for measurements.
-- Optional: Python 3.9+ with Pillow, for `scripts/contact_sheet.py` (contact sheets), and an
-  `alcedo-cli` with the `batch` command and `library.info` and `library.thumbnails`.
+- Optional: Python 3.9+ with Pillow, for `scripts/contact_sheet.py` (contact sheets).
 
 ## Install
+
+The simplest way: open your agent and ask it, "Install the skill zidage/alcedo-skills". The
+agent follows the steps below.
 
 ### Claude Code
 
@@ -46,6 +47,19 @@ What it does by default:
 ```
 
 To update later: `/plugin marketplace update alcedo-skills`.
+
+### Codex
+
+Ask Codex: `$skill-installer install https://github.com/zidage/alcedo-skills/tree/main/skills/alcedo`.
+Or copy the folder `skills/alcedo` into `~/.agents/skills/alcedo`:
+
+```bash
+git clone https://github.com/zidage/alcedo-skills.git
+mkdir -p ~/.agents/skills
+cp -r alcedo-skills/skills/alcedo ~/.agents/skills/alcedo
+```
+
+Codex finds a new skill without a restart; if `alcedo` does not show, restart Codex.
 
 ### Other agents, or without the plugin system
 
@@ -57,11 +71,28 @@ git clone https://github.com/zidage/alcedo-skills.git
 cp -r alcedo-skills/skills/alcedo ~/.claude/skills/alcedo
 ```
 
+On Windows, `~` is your user folder (`%USERPROFILE%`). In PowerShell, use
+`Copy-Item -Recurse alcedo-skills\skills\alcedo $HOME\.claude\skills\alcedo`.
+
+### For the agent that installs this skill
+
+When a user asks you to install this skill:
+
+1. Install the folder `skills/alcedo` of this repository as the skill `alcedo`, in the user
+   skills folder of your agent: `~/.claude/skills/alcedo` for Claude Code (or the plugin
+   commands above), `~/.agents/skills/alcedo` for Codex. Copy the whole folder: `SKILL.md`,
+   `references/`, and `scripts/`.
+2. Find `alcedo-cli` as `skills/alcedo/references/installation.md` (Find alcedo-cli) says, and
+   run `alcedo-cli --version`. It must print 0.3.3 or later. If Alcedo Studio is missing or
+   older, tell the user to install or update it.
+3. Tell the user that the skill is ready, and that they can ask for edits in plain words, for
+   example "fix the exposure of the selected photos in Alcedo".
+
 ## Check it
 
-Ask the agent: "Use the alcedo skill to check that alcedo-cli works." It runs
-`alcedo-cli session list` and reports the sessions it finds. With the Alcedo Studio window open,
-a session named `gui` is listed.
+Ask the agent: "Use the alcedo skill to check that alcedo-cli works." It finds `alcedo-cli`,
+prints its version, runs `alcedo-cli session list`, and reports the sessions it finds. With the
+Alcedo Studio window open, a session named `gui` is listed.
 
 ## Contents
 
@@ -70,6 +101,7 @@ a session named `gui` is listed.
 | `skills/alcedo/SKILL.md` | The instructions of the agent. |
 | `skills/alcedo/references/` | The alcedo-cli documentation. |
 | `skills/alcedo/scripts/analyze_preview.py` | Optional measurements of a preview PNG. |
+| `skills/alcedo/scripts/contact_sheet.py` | Contact sheets of many photos for culling. |
 | `scripts/set_version.py` | Sets the plugin version. |
 
 ## The alcedo-cli documentation

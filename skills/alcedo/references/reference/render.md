@@ -5,7 +5,7 @@
 <!-- BEGIN GENERATED: render.preview -->
 Changes state: no.
 
-Renders the open image with the current edits and writes <file_stem>_current.png into out_dir. With compare 'root' (the default), it also renders the image as imported (the root) and writes <file_stem>_root.png; with compare 'none', it renders and writes only the current file. file_stem defaults to the photo file name without its extension. The long edge of each file is long_edge pixels at most. 'region' (x, y, w, h in 0..1 of the cropped image) renders only that part. Answers -32005 while the editor renders another image job, for example an open comparison; that job continues.
+Renders the open image with the current edits and writes <file_stem>_current.png into out_dir. With compare 'root' (the default), it also renders the image as imported (the root) and writes <file_stem>_root.png; with compare 'none', it renders and writes only the current file. file_stem defaults to the photo file name without its extension. The long edge of each file is long_edge pixels at most. 'region' (x, y, w, h in 0..1 of the cropped image) renders only that part. The files must not exist: the command creates new files and does not replace existing ones. Answers -32005 while the editor renders another image job, for example an open comparison; that job continues.
 
 **Parameters**
 
@@ -44,6 +44,8 @@ editor viewport. Use them to check an edit, or give them to an image analysis to
 - `-32602` `/region/<name>`: `region` takes `x`, `y`, `w`, and `h`, each 0 to 1.
 - `-32602` `/region`: the region is empty or goes past the edge of the image.
 - `-32602` `/file_stem`: `the file stem must not contain '/', '\', or ':'`.
+- `-32602` `/out_dir`: `<file_stem>_current.png` or `<file_stem>_root.png` exists in
+  `out_dir`. Nothing is rendered. Give a new `file_stem` or another folder.
 - `-32001`: `No editor image is open.`
 - `-32002`: the editor is not interactive (`Preview images require an interactive session`).
 - `-32005`: the editor renders another image job.

@@ -1,13 +1,13 @@
 # Known limits
 
-Behavior to know about in Alcedo Studio 0.3.2 (protocol version 1), and the open work.
+Behavior to know about in Alcedo Studio 0.3.3 (protocol version 1), and the open work.
 
 ## Installation
 
-- **The 0.3.2 packages do not contain `alcedo-cli`.** The packages after 0.3.2 have it beside
-  the Alcedo Studio program. With 0.3.2, build `alcedo-cli` from source (target `alcedo-cli`)
-  and give `--host-binary` to `session start` (see
-  [Installation](installation.md#where-the-programs-are)).
+- **The 0.3.2 packages do not contain `alcedo-cli`.** The packages of 0.3.3 and later have it
+  beside the Alcedo Studio program. With 0.3.2, ask the user to update Alcedo Studio, or build
+  `alcedo-cli` from source (target `alcedo-cli`) and give `--host-binary` to `session start`
+  (see [Installation](installation.md#where-the-programs-are)).
 - **`alcedo-cli` is not on `PATH`.** The installers do not change `PATH`. Call `alcedo-cli` by
   its full path (see [Installation](installation.md#find-alcedo-cli)).
 - **No switch in the settings page** for the GUI session. Change `automation/serverEnabled` in the

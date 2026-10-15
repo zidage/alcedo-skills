@@ -24,22 +24,30 @@ the first time:
 
 ## Before you start
 
-1. Find the program: `alcedo-cli` is in the folder of the Alcedo Studio program, not on the
-   PATH: `<install folder>\bin\alcedo-cli.exe` on Windows (default install folder
-   `C:\Program Files\Alcedo Studio`), `AlcedoStudio.app/Contents/MacOS/alcedo-cli` on macOS.
-   Call it by its full path. If it is not there, see `references/installation.md` (Find
-   alcedo-cli), and ask the user where Alcedo Studio is installed.
-2. Run `alcedo-cli session list`. A live session named `gui` is the user's open Alcedo Studio
+1. Find the program yourself: `alcedo-cli` is in the folder of the Alcedo Studio program, not on
+   the PATH: `<install folder>\bin\alcedo-cli.exe` on Windows (default install folder
+   `C:\Program Files\Alcedo Studio`; read the folder that the user chose from the registry),
+   `AlcedoStudio.app/Contents/MacOS/alcedo-cli` on macOS. Call it by its full path. Follow
+   `references/installation.md` (Find alcedo-cli) step by step; ask the user only when every step
+   fails.
+2. Run `alcedo-cli --version`. This skill is for Alcedo Studio 0.3.3 or later. When the program
+   is older, tell the user to update Alcedo Studio (the update check in Settings).
+3. Run `alcedo-cli session list`. A live session named `gui` is the user's open Alcedo Studio
    window.
-3. Choose the session:
+4. Choose the session:
    - The user talks about their open window, the selected photo, or "in Alcedo": use `--session
-     gui` and take agent control (below).
+     gui` and take agent control (below). When no `gui` session is live, open Alcedo Studio
+     yourself and wait for its session (`references/installation.md`, Open Alcedo Studio).
    - Batch work on a folder or a project file without the window: start a headless session with
      `alcedo-cli --session <name> session start --headless --project <file.alcd>` (or
      `--create <folder>,<name>`). Without `--session` the session is named `default`.
    - Not clear: ask the user.
-4. Run `alcedo-cli --json call session.describe` once if you need the exact schema of a command.
+5. Run `alcedo-cli --json call session.describe` once if you need the exact schema of a command.
    It lists `protocol_version` (this skill is for protocol 1).
+
+The scripts of this skill are in `scripts/` next to this file. `${CLAUDE_SKILL_DIR}` in the
+commands below is the folder of this file; when your agent does not set that variable (for
+example Codex), write the folder path in its place.
 
 ## Serve the user's request
 
@@ -107,6 +115,7 @@ alcedo-cli --json call render.preview '{"out_dir":"<tmp dir>","compare":"none","
 Open the `current.path` file of the result with your image reading tool and look at it. Use
 `"compare":"root"` to also get the photo as imported, and `region` (`x`, `y`, `w`, `h` in 0 to 1)
 to look at a detail. Write previews to a temporary folder, not next to the user's photos.
+`render.preview` does not replace a file that exists: give each preview a new `file_stem`.
 
 ## Default retouch: a light, natural correction
 
@@ -193,10 +202,10 @@ photo:
 python "${CLAUDE_SKILL_DIR}/scripts/contact_sheet.py" --session <name> --out-dir <tmp dir> [source] [options]
 ```
 
-It needs Python 3.9+ with Pillow. Give the full path of `alcedo-cli` with `--cli <path>` when
-it is not on the PATH. It sends all
-commands through one `alcedo-cli batch` process, so 600 photos are one call. Write the sheets to
-a temporary folder, not next to the user's photos.
+It needs Python 3.9+ with Pillow. Give the full path of `alcedo-cli` that you found with
+`--cli <path>`; without it, the script looks on the PATH and then in the Alcedo Studio install
+folder. It sends all commands through one `alcedo-cli batch` process, so 600 photos are one
+call. Write the sheets to a temporary folder, not next to the user's photos.
 
 - Source: every photo of the root folder by default, or `--ids 12,40,41`, `--ids-file <file>`,
   `--selection` (GUI), `--search <text>`, `--folder <folder_id or path>`.

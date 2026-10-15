@@ -12,18 +12,41 @@ installation of its own, and the installers do not add it to `PATH`. Call it by 
 | Windows build from source | `build/<preset>/alcedo_studio/src/alcedo-cli.exe` | `build/<preset>/alcedo_studio/src/alcedo_main.exe` |
 | macOS build from source | `build/<preset>/alcedo_studio/src/alcedo-cli` | `build/<preset>/alcedo_studio/src/alcedo_main` |
 
-- The default Windows install folder is `C:\Program Files\Alcedo Studio`. The usual macOS app
-  is `/Applications/AlcedoStudio.app`.
-- The packages of Alcedo Studio 0.3.2 and earlier do not contain `alcedo-cli`. With those
-  versions, build it from source (target `alcedo-cli`).
+- The default Windows install folder is `C:\Program Files\Alcedo Studio`, but the user can choose
+  another folder in the installer. The usual macOS app is `/Applications/AlcedoStudio.app`.
+- The packages of Alcedo Studio 0.3.3 and later contain `alcedo-cli`. The packages of 0.3.2 and
+  earlier do not; with those versions, ask the user to update Alcedo Studio (the update check in
+  Settings), or build `alcedo-cli` from source (target `alcedo-cli`).
 - `<preset>` is the build folder of the CMake preset, for example `release` or `macos-debug`.
   See [Build from source](https://github.com/zidage/AlcedoStudio/blob/main/docs/build_from_source.md).
 
 ## Find alcedo-cli
 
-1. Try `alcedo-cli help`. Some users put it on `PATH` themselves.
-2. Look in the default location of the table above.
-3. When Alcedo Studio is open, `alcedo-cli` is in the folder of the running program:
+Do these steps in order and stop at the first one that finds the program. Do not ask the user
+before you tried all of them.
+
+1. Try `alcedo-cli --version`. Some users put it on `PATH` themselves.
+2. Windows: read the install folder that the installer registered. This finds a folder that the
+   user chose in the installer:
+
+   ```powershell
+   $keys = 'HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\Alcedo Studio',
+           'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Alcedo Studio',
+           'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Alcedo Studio'
+   $entry = Get-ItemProperty $keys -ErrorAction SilentlyContinue | Select-Object -First 1
+   Join-Path (Split-Path $entry.UninstallString.Trim('"')) 'bin\alcedo-cli.exe'
+   ```
+
+   `DisplayVersion` of the same entry is the installed version.
+3. macOS: look in `/Applications/AlcedoStudio.app` and `~/Applications/AlcedoStudio.app`, then
+   ask Spotlight for the app:
+
+   ```bash
+   mdfind "kMDItemCFBundleIdentifier == 'studio.alcedo.Studio'"
+   ```
+
+   `alcedo-cli` is `Contents/MacOS/alcedo-cli` in the app that it finds.
+4. When Alcedo Studio is open, `alcedo-cli` is in the folder of the running program:
 
    ```powershell
    Split-Path (Get-Process alcedo_main).Path
@@ -33,7 +56,13 @@ installation of its own, and the installers do not add it to `PATH`. Call it by 
    dirname "$(ps -o comm= -p "$(pgrep -x AlcedoStudio)")"
    ```
 
-4. If you cannot find it, ask the user where Alcedo Studio is installed.
+5. If you cannot find it, ask the user where Alcedo Studio is installed. If Alcedo Studio is not
+   installed, tell the user to install Alcedo Studio 0.3.3 or later from
+   https://github.com/zidage/AlcedoStudio/releases.
+
+Then run `alcedo-cli --version`. It prints the Alcedo Studio version, for example `0.3.3`. A
+program that answers `unknown command '--version'` is older than 0.3.3; parts of these pages do
+not apply to it, so ask the user to update Alcedo Studio.
 
 The examples in these pages call `alcedo-cli` by name. Use its full path in its place, for
 example `"C:\Program Files\Alcedo Studio\bin\alcedo-cli.exe" session list` or
@@ -49,9 +78,33 @@ Give `--host-binary` only when `alcedo-cli` and the program are in different fol
 
 A GUI session needs no `session start`: the Alcedo Studio window starts its own session.
 
+## Open Alcedo Studio
+
+When the user wants you to work in the Alcedo Studio window and `session list` shows no live
+`gui` session, start the application yourself. It is the program beside `alcedo-cli`:
+
+```powershell
+Start-Process "<install folder>\bin\alcedo_main.exe"
+```
+
+```bash
+open "/Applications/AlcedoStudio.app"
+```
+
+Then run `alcedo-cli session list` every 2 seconds, for at most 60 seconds, until the `gui`
+session is `live`. The window can open on the welcome dialog with no project, or with the last
+project loaded but not entered. In both cases `-32001` answers the first project or library
+command: call `project.open` with the project path (`data.path` of the error names the loaded
+project), or `project.create` (see [project](reference/project.md)). Ask the user which project
+to use when the request does not name one.
+
+For batch work without the window, do not open the application: start a headless session with
+`session start --headless` (see [Concepts](concepts.md)).
+
 ## Check the setup
 
 ```bash
+alcedo-cli --version
 alcedo-cli help
 alcedo-cli session list
 ```

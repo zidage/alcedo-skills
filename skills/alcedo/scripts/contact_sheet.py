@@ -139,14 +139,61 @@ class AlcedoBatch:
             self.process.kill()
 
 
+def windows_install_folders() -> list[Path]:
+    """Install folders of Alcedo Studio from the uninstall entries of the Windows installer."""
+    try:
+        import winreg
+    except ImportError:
+        return []
+    folders = []
+    key_path = r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Alcedo Studio"
+    for root, view in ((winreg.HKEY_LOCAL_MACHINE, winreg.KEY_WOW64_32KEY),
+                       (winreg.HKEY_LOCAL_MACHINE, winreg.KEY_WOW64_64KEY),
+                       (winreg.HKEY_CURRENT_USER, 0)):
+        try:
+            with winreg.OpenKey(root, key_path, 0, winreg.KEY_READ | view) as key:
+                uninstall, _ = winreg.QueryValueEx(key, "UninstallString")
+        except OSError:
+            continue
+        folders.append(Path(str(uninstall).strip().strip('"')).parent)
+    program_files = os.environ.get("ProgramFiles")
+    if program_files:
+        folders.append(Path(program_files) / "Alcedo Studio")
+    return folders
+
+
+def packaged_cli_candidates() -> list[Path]:
+    """The places where the Alcedo Studio packages install alcedo-cli."""
+    if sys.platform == "win32":
+        return [folder / "bin" / "alcedo-cli.exe" for folder in windows_install_folders()]
+    if sys.platform == "darwin":
+        bundles = [Path("/Applications/AlcedoStudio.app"),
+                   Path.home() / "Applications" / "AlcedoStudio.app"]
+        return [bundle / "Contents" / "MacOS" / "alcedo-cli" for bundle in bundles]
+    return []
+
+
 def find_cli(explicit: Optional[str]) -> str:
     if explicit:
         # Windows CreateProcess does not resolve a relative path with forward slashes.
         return str(Path(explicit).resolve())
     found = shutil.which("alcedo-cli")
-    if not found:
-        raise CliError("alcedo-cli is not on the PATH; give it with --cli <path>")
-    return found
+    if found:
+        return found
+    for candidate in packaged_cli_candidates():
+        if candidate.is_file():
+            return str(candidate)
+    raise CliError("alcedo-cli is not on the PATH or in the Alcedo Studio install folder; "
+                   "give it with --cli <path>")
+
+
+def remove_previous_files(folder: Path, names: Iterable[str]) -> None:
+    """Removes the files of an earlier run: alcedo-cli does not replace an existing file."""
+    for name in names:
+        try:
+            (folder / name).unlink()
+        except FileNotFoundError:
+            pass
 
 
 def parse_ids(text: str) -> list[int]:
@@ -236,6 +283,7 @@ def sort_photos(photos: list[dict], key: str, descending: bool) -> list[dict]:
 
 
 def write_thumbnails(batch: AlcedoBatch, photos: list[dict], out_dir: Path, long_edge: int) -> None:
+    remove_previous_files(out_dir, (f"{photo['element_id']}.png" for photo in photos))
     for part in chunks(photos, MAX_IDS_PER_REQUEST):
         timeout_ms = max(MIN_TIMEOUT_MS, THUMBNAIL_TIMEOUT_MS_PER_PHOTO * len(part))
         result = batch.call("library.thumbnails", {
@@ -263,6 +311,7 @@ def detail_region(photo: dict, position: tuple[float, float], size_px: int) -> d
 def write_details(batch: AlcedoBatch, photos: list[dict], out_dir: Path,
                   position: tuple[float, float], size_px: int, previous: Optional[int]) -> None:
     """Writes the detail crops. Opens previous again at the end, or closes the editor."""
+    remove_previous_files(out_dir, (f"{photo['element_id']}_current.png" for photo in photos))
     try:
         for number, photo in enumerate(photos, 1):
             sys.stderr.write(f"\rdetail crop {number}/{len(photos)}")
@@ -466,7 +515,8 @@ def parse_args(argv: Optional[list[str]] = None) -> argparse.Namespace:
     parser.add_argument("--prefix", default="contact_sheet", help="First part of the file names.")
     parser.add_argument("--format", choices=("jpg", "png"), default="jpg")
     parser.add_argument("--quality", type=int, default=88, help="JPEG quality (default 88).")
-    parser.add_argument("--cli", help="The alcedo-cli program (default: on the PATH).")
+    parser.add_argument("--cli", help="The alcedo-cli program (default: on the PATH, then in "
+                                      "the Alcedo Studio install folder).")
     parser.add_argument("--session", help="The session name (as alcedo-cli --session).")
     parser.add_argument("--session-dir", help="The session directory (as alcedo-cli).")
     args = parser.parse_args(argv)

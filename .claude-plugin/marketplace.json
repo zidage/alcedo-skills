@@ -9,7 +9,7 @@
       "name": "alcedo",
       "source": "./",
       "description": "Edit, rate, search, and export photos in Alcedo Studio with alcedo-cli.",
-      "version": "0.3.2"
+      "version": "0.3.3"
     }
   ]
 }
