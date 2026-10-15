@@ -23,6 +23,7 @@ No parameters other than `timeout_ms`.
 | `tasks[].kind` | string | yes |  |
 | `tasks[].message` | string | no |  |
 | `tasks[].progress` | integer | no |  |
+| `tasks[].result` | object | no |  |
 | `tasks[].state` | string | yes |  |
 | `tasks[].task_id` | string | yes |  |
 <!-- END GENERATED: tasks.list -->
@@ -59,7 +60,9 @@ The schema lists no fields; see the description and the example.
 <!-- END GENERATED: tasks.wait -->
 
 A task that finished before the call answers at once with its final state. A finished task can
-end as `failed`; check `state` and `counts`, not only the exit code.
+end as `failed`; check `state` and `counts`, not only the exit code. A finished `adjustmentPaste`
+task has `result` with the pasted photos and each failed photo
+([adjustments.paste](adjustments.md#adjustmentspaste)).
 
 **Errors**
 

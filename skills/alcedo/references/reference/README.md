@@ -21,6 +21,7 @@ written by hand. The examples ran with the release build. Every command also acc
 | [Editor](editor.md) | `editor.open`, `editor.close`, `editor.catalog`, `editor.get`, `editor.set`, `editor.batch_set`, `editor.undo`, `editor.redo`, `editor.history`, `editor.actions` |
 | [Render](render.md) | `render.preview` |
 | [Versions](versions.md) | `versions.list`, `versions.create`, `versions.branch`, `versions.checkout`, `versions.rename`, `versions.remove` |
+| [Adjustments](adjustments.md) | `adjustments.items`, `adjustments.copy`, `adjustments.paste` |
 | [Export](export.md) | `export.options`, `export.run`, `export.status` |
 | [Search](search.md) | `search.query` |
 | [LUT](lut.md) | `lut.list` |

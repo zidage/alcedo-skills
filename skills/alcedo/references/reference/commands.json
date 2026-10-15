@@ -1,6 +1,341 @@
 [
   {
     "changes_state": false,
+    "description": "Copies adjustments of a photo, like Copy Adjustments: builds a package from the chosen items of a Version (the active Version without 'version_id') and returns its 'package_id' for adjustments.paste. Without 'items' every available item is copied, also crop_rotate and color_temp. An entry of 'items' names a node (adjustments.items) and one 'item' of it; an entry without 'item' copies every available item of the node. The package keeps the copied values for the session; later edits of the photo do not change it.",
+    "method": "adjustments.copy",
+    "params_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "element_id": {
+          "description": "The photo (library.list).",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "items": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "adjustment_id": {
+                "type": "string"
+              },
+              "item": {
+                "description": "enabled and mix: node values of a Color Grade. adjustment: one adjustment, with adjustment_id. masks: all Masks of a Color Grade. drt: the display transform. raw_decode, color_temp, lens_calib, crop_rotate: the Develop fields.",
+                "enum": [
+                  "enabled",
+                  "mix",
+                  "adjustment",
+                  "masks",
+                  "drt",
+                  "raw_decode",
+                  "color_temp",
+                  "lens_calib",
+                  "crop_rotate"
+                ],
+                "type": "string"
+              },
+              "node_id": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "node_id"
+            ],
+            "type": "object"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "timeout_ms": {
+          "default": 120000,
+          "description": "Time limit in milliseconds for the command to reach its terminal state.",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "version_id": {
+          "description": "Hex id of a Version (adjustments.items); the active Version without it.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "element_id"
+      ],
+      "type": "object"
+    },
+    "result_schema": {
+      "properties": {
+        "element_id": {
+          "type": "integer"
+        },
+        "items": {
+          "items": {
+            "properties": {
+              "adjustment_id": {
+                "type": "string"
+              },
+              "item": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "node_id": {
+                "type": "string"
+              },
+              "node_name": {
+                "type": "string"
+              },
+              "value": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "node_id",
+              "node_name",
+              "item",
+              "name",
+              "value"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "package_id": {
+          "type": "string"
+        },
+        "version_id": {
+          "type": "string"
+        },
+        "version_name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "package_id",
+        "element_id",
+        "version_id",
+        "version_name",
+        "items"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "changes_state": false,
+    "description": "Lists the Versions of a photo and the items of one Version that adjustments.copy can copy, like the Copy Adjustments dialog: the Develop node (raw_decode, color_temp, lens_calib, crop_rotate), each Color Grade (enabled, mix, each adjustment, masks), and the DRT/Post node (drt and each post adjustment). An item with 'available' false has nothing to copy (a Color Grade without Masks).",
+    "method": "adjustments.items",
+    "params_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "element_id": {
+          "description": "The photo (library.list).",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "timeout_ms": {
+          "default": 120000,
+          "description": "Time limit in milliseconds for the command to reach its terminal state.",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "version_id": {
+          "description": "Hex id of a Version (adjustments.items); the active Version without it.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "element_id"
+      ],
+      "type": "object"
+    },
+    "result_schema": {
+      "properties": {
+        "element_id": {
+          "type": "integer"
+        },
+        "nodes": {
+          "items": {
+            "properties": {
+              "default_grade": {
+                "type": "boolean"
+              },
+              "items": {
+                "items": {
+                  "properties": {
+                    "adjustment_id": {
+                      "type": "string"
+                    },
+                    "available": {
+                      "type": "boolean"
+                    },
+                    "item": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "section": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string"
+                    },
+                    "value": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "item",
+                    "name",
+                    "value",
+                    "section",
+                    "available"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "kind": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "node_id": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "node_id",
+              "kind",
+              "name",
+              "items"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "version_id": {
+          "type": "string"
+        },
+        "version_name": {
+          "type": "string"
+        },
+        "versions": {
+          "items": {
+            "properties": {
+              "active": {
+                "type": "boolean"
+              },
+              "name": {
+                "type": "string"
+              },
+              "version_id": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "version_id",
+              "name",
+              "active"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "element_id",
+        "version_id",
+        "version_name",
+        "versions",
+        "nodes"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "changes_state": true,
+    "description": "Pastes a package of adjustments.copy onto photos, like Paste Adjustments: each photo gets one new Version (named 'version_name', or Pasted Adjustments) with one commit by the agent. Without 'element_ids' the photos selected in the library (GUI host only). The photo open in the editor pastes first through the editor; 'editor' reports it. The other photos paste in a background task: wait for 'task_id' with tasks.wait; its 'result' lists the pasted photos and each failed photo with the reason. Busy while another Paste or an editor save runs.",
+    "method": "adjustments.paste",
+    "params_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "element_ids": {
+          "description": "The photos; the library selection without it.",
+          "items": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "note": {
+          "description": "Why the agent pastes; stored with each commit.",
+          "type": "string"
+        },
+        "package_id": {
+          "description": "A package id from adjustments.copy.",
+          "type": "string"
+        },
+        "timeout_ms": {
+          "default": 120000,
+          "description": "Time limit in milliseconds for the command to reach its terminal state.",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "version_name": {
+          "description": "Name of the new Versions. A name that a photo already has gets a number.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "package_id"
+      ],
+      "type": "object"
+    },
+    "result_schema": {
+      "properties": {
+        "editor": {
+          "properties": {
+            "element_id": {
+              "type": "integer"
+            },
+            "message": {
+              "type": "string"
+            },
+            "pasted": {
+              "type": "boolean"
+            },
+            "version_id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "element_id",
+            "pasted"
+          ],
+          "type": "object"
+        },
+        "target_count": {
+          "type": "integer"
+        },
+        "task_id": {
+          "description": "The background Paste task; null when only the editor photo was a target.",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "task_id",
+        "target_count"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "changes_state": false,
     "description": "Takes control of a GUI session so that state-changing commands run. While the agent holds control, the user cannot change the session state; the task island shows the agent task with each state-changing command and its note. Waits while the user drags an editor control. After the user stopped the agent, state-changing commands fail with -32004; call control.acquire again only after the user tells you to continue, and the agent task continues. Fails with -32005 while another holder holds control. The headless host always reports held.",
     "method": "control.acquire",
     "params_schema": {
@@ -2226,6 +2561,9 @@
               },
               "progress": {
                 "type": "integer"
+              },
+              "result": {
+                "type": "object"
               },
               "state": {
                 "type": "string"

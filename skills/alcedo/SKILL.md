@@ -168,10 +168,17 @@ to each photo under the chosen LUT.
 When the user asks to process every photo (of a project, a folder, or a selection):
 
 1. List them with `library.list` (pages of 100; use `offset`) or `library.selection.get`.
-2. Do the edit loop for each photo. Photos of the same scene usually need similar changes: start
-   from the values of the previous photo, then check the preview.
-3. Report a short list: photo, what changed, and the photos you left unchanged or could not fix.
-4. Export only when the user asked for it (`export.run`, then `tasks.wait`, then
+2. For one look on many photos, do not write the same fields on each photo with
+   `editor.batch_set`. Tune one representative photo, then `adjustments.items`,
+   `adjustments.copy` of the nodes you changed (usually the Color Grade; leave out `crop_rotate`
+   and `color_temp` unless they suit every photo), and one `adjustments.paste` onto the set.
+   `tasks.wait` the `task_id` and read `result` for the failed photos. Each photo gets one
+   Version and one commit. See `references/reference/adjustments.md`.
+3. Then do the edit loop on the photos that need their own correction. Photos of the same
+   scene usually need similar changes: start from the values of the previous photo, then check
+   the preview.
+4. Report a short list: photo, what changed, and the photos you left unchanged or could not fix.
+5. Export only when the user asked for it (`export.run`, then `tasks.wait`, then
    `export.status`).
 
 ## Contact sheets: cull and compare many photos
