@@ -79,6 +79,9 @@ The rules below protect the user's data. They do not limit the look.
 
 - Call `control.acquire` with `{"holder_name":"<your name>"}` before any command that changes
   state, and `control.release` when you are done, also after an error.
+- The window can start with the last project loaded but not open (the start screen shows).
+  `state.get` then reports `project.loaded: true` and `project.entered: false`, and project and
+  editor commands give `-32001`. Call `project.open` with `project.path` to open it.
 - `-32004` means the user clicked **Stop**. Stop at once, tell the user what you did and what
   is left, and end your turn. The window has no button that gives control back to you, so do not
   wait for `control.changed` and do not poll `control.get`: `revoked_by_user` stays `true` until
@@ -222,7 +225,7 @@ not whether it looks good.
 | Code | Meaning | What to do |
 | --- | --- | --- |
 | -32602 | A parameter is wrong; `data.pointer` names it | Fix the value (see the reference page). |
-| -32001 | Not ready: no project or no photo open | Open the project or the photo first. |
+| -32001 | Not ready: no project or no photo open | Open the project or the photo first. A loaded project that is not entered gives `data.path`: call `project.open` with it. |
 | -32002 | Rejected now, for example `Adjustments require an interactive image` | Read `state` from `editor.get`; open the photo or wait for loading. |
 | -32003 | GUI: no agent control | `control.acquire`. |
 | -32004 | GUI: the user stopped the agent | Stop and wait until the user tells you to continue. |
