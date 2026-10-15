@@ -24,9 +24,11 @@ the first time:
 
 ## Before you start
 
-1. Find the program: `alcedo-cli --help` on the PATH. If it is not there, see
-   `references/installation.md` (the packages do not contain it yet; it is built from source),
-   and ask the user where it is.
+1. Find the program: `alcedo-cli` is in the folder of the Alcedo Studio program, not on the
+   PATH: `<install folder>\bin\alcedo-cli.exe` on Windows (default install folder
+   `C:\Program Files\Alcedo Studio`), `AlcedoStudio.app/Contents/MacOS/alcedo-cli` on macOS.
+   Call it by its full path. If it is not there, see `references/installation.md` (Find
+   alcedo-cli), and ask the user where Alcedo Studio is installed.
 2. Run `alcedo-cli session list`. A live session named `gui` is the user's open Alcedo Studio
    window.
 3. Choose the session:
@@ -191,7 +193,8 @@ photo:
 python "${CLAUDE_SKILL_DIR}/scripts/contact_sheet.py" --session <name> --out-dir <tmp dir> [source] [options]
 ```
 
-It needs Python 3.9+ with Pillow and `alcedo-cli` on the PATH (or `--cli <path>`). It sends all
+It needs Python 3.9+ with Pillow. Give the full path of `alcedo-cli` with `--cli <path>` when
+it is not on the PATH. It sends all
 commands through one `alcedo-cli batch` process, so 600 photos are one call. Write the sheets to
 a temporary folder, not next to the user's photos.
 
