@@ -56,6 +56,7 @@ Exports the photos 'element_ids' into 'out_dir' with the given options (see expo
 | `file_name_pattern` | string | no |  | File name pattern, for example {source} or {date:yyyy MM dd}-{sequence:0000}. Fields: source, date, sequence, cameraMake, cameraModel, lens, iso, aperture, shutter, focal, rating. |
 | `format` | `JPEG` \| `PNG` \| `TIFF` \| `EXR` | no |  | Output format of SDR photos. HDR photos export as UltraHDR JPEG. |
 | `height` | integer | no |  | Bounds height in pixels, 1 to 100000. |
+| `include_gps` | boolean | no |  | Write the GPS location of the photo (with include_metadata). |
 | `include_metadata` | boolean | no |  | Write the photo metadata. |
 | `long_edge` | integer | no |  | Long edge in pixels, 256 to 16384. |
 | `out_dir` | string | yes |  | The output folder. It is created when it does not exist. |
@@ -68,6 +69,7 @@ Exports the photos 'element_ids' into 'out_dir' with the given options (see expo
 | `subfolder` | string | no |  | Write into this subfolder of out_dir. |
 | `tiff_compression` | `NONE` \| `LZW` \| `ZIP` | no |  | TIFF compression. |
 | `ultra_hdr_dither` | boolean | no |  | Dither the UltraHDR gain map. |
+| `ultra_hdr_long_edge` | integer | no |  | Longest edge of HDR photos in pixels, 256 to 8192. |
 | `ultra_hdr_quality` | integer | no |  | UltraHDR JPEG quality of HDR photos, 1 to 100. |
 | `width` | integer | no |  | Bounds width in pixels, 1 to 100000. |
 

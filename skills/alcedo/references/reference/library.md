@@ -128,7 +128,7 @@ alcedo-cli --json call library.list '{"limit":10}'
 <!-- BEGIN GENERATED: library.thumbnail -->
 Changes state: no.
 
-Renders the library thumbnail of a photo and writes it as a PNG file whose long edge is 'long_edge'.
+Renders the library thumbnail of a photo and writes it as a PNG file whose long edge is 'long_edge'. 'out' must end in .png and must not exist: the command creates a new file and does not replace an existing one.
 
 **Parameters**
 
@@ -136,7 +136,7 @@ Renders the library thumbnail of a photo and writes it as a PNG file whose long 
 | --- | --- | --- | --- | --- |
 | `element_id` | integer | yes |  | at least 1. |
 | `long_edge` | integer | no | `512` | 16 to 2048. |
-| `out` | string | yes |  | The PNG file. |
+| `out` | string | yes |  | The new PNG file; it must not exist. |
 
 **Result**
 
@@ -155,6 +155,9 @@ edits of the open photo, use `render.preview`.
 **Errors**
 
 - `-32602` `/element_id`: unknown element id.
+- `-32602` `/out`: the path does not end in `.png`, or a file, folder, or link has the path. The
+  command does not replace it and renders nothing. Give a new path.
+- `-32007`: the render or the PNG write failed. The command removes the file that it created.
 
 **Example**
 
@@ -171,7 +174,7 @@ alcedo-cli --json call library.thumbnail '{"element_id":2,"out":"D:/Photos/thumb
 <!-- BEGIN GENERATED: library.thumbnails -->
 Changes state: no.
 
-Renders the library thumbnails of 'element_ids' and writes each as the PNG file <element_id>.png in 'out_dir', with the long edge 'long_edge'. Answers when every thumbnail is written or has failed: each item has 'path', 'width', and 'height', or 'error'.
+Renders the library thumbnails of 'element_ids' and writes each as the PNG file <element_id>.png in 'out_dir', with the long edge 'long_edge'. Answers when every thumbnail is written or has failed: each item has 'path', 'width', and 'height', or 'error'. A file that exists is not replaced; its item has 'error'.
 
 **Parameters**
 
@@ -209,6 +212,9 @@ a RAW decode.
 - `-32602` `/out_dir`: the folder cannot be created.
 - `-32001`: no project is loaded.
 - `-32006`: the thumbnails did not finish within `timeout_ms`. The files written so far stay.
+
+A file `<element_id>.png` that exists in `out_dir` is not replaced: only the item of that photo
+has `error`, and the other items continue. Use a new folder, or remove the old files first.
 
 **Example**
 

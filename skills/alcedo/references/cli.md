@@ -147,7 +147,20 @@ gui	live	gui	pid 36984	D:/Photos/trip.alcd
 
 ### session prune
 
-Removes the stale session files and prints their paths.
+Removes the stale session records and prints their paths. A file is removed only when it is an
+Alcedo session record whose process does not run. Every other file in the session directory
+stays: the text output has one `skipped <path>: <reason>` line for each, and `--json` lists them
+in `skipped` (`path` and `reason`) next to `removed`.
+
+### version
+
+```text
+alcedo-cli --version
+alcedo-cli version
+```
+
+Prints the Alcedo Studio version of the program, for example `0.3.3`, and exits with 0. It needs
+no session. Programs older than 0.3.3 do not have this command and answer with exit code 4.
 
 ### watch
 

@@ -1170,6 +1170,10 @@
           "description": "Bounds height in pixels, 1 to 100000.",
           "type": "integer"
         },
+        "include_gps": {
+          "description": "Write the GPS location of the photo (with include_metadata).",
+          "type": "boolean"
+        },
         "include_metadata": {
           "description": "Write the photo metadata.",
           "type": "boolean"
@@ -1239,6 +1243,10 @@
         "ultra_hdr_dither": {
           "description": "Dither the UltraHDR gain map.",
           "type": "boolean"
+        },
+        "ultra_hdr_long_edge": {
+          "description": "Longest edge of HDR photos in pixels, 256 to 8192.",
+          "type": "integer"
         },
         "ultra_hdr_quality": {
           "description": "UltraHDR JPEG quality of HDR photos, 1 to 100.",
@@ -1759,7 +1767,7 @@
   },
   {
     "changes_state": false,
-    "description": "Renders the library thumbnail of a photo and writes it as a PNG file whose long edge is 'long_edge'.",
+    "description": "Renders the library thumbnail of a photo and writes it as a PNG file whose long edge is 'long_edge'. 'out' must end in .png and must not exist: the command creates a new file and does not replace an existing one.",
     "method": "library.thumbnail",
     "params_schema": {
       "additionalProperties": false,
@@ -1775,7 +1783,7 @@
           "type": "integer"
         },
         "out": {
-          "description": "The PNG file.",
+          "description": "The new PNG file; it must not exist.",
           "type": "string"
         },
         "timeout_ms": {
@@ -1813,7 +1821,7 @@
   },
   {
     "changes_state": false,
-    "description": "Renders the library thumbnails of 'element_ids' and writes each as the PNG file <element_id>.png in 'out_dir', with the long edge 'long_edge'. Answers when every thumbnail is written or has failed: each item has 'path', 'width', and 'height', or 'error'.",
+    "description": "Renders the library thumbnails of 'element_ids' and writes each as the PNG file <element_id>.png in 'out_dir', with the long edge 'long_edge'. Answers when every thumbnail is written or has failed: each item has 'path', 'width', and 'height', or 'error'. A file that exists is not replaced; its item has 'error'.",
     "method": "library.thumbnails",
     "params_schema": {
       "additionalProperties": false,
@@ -2138,7 +2146,7 @@
   },
   {
     "changes_state": false,
-    "description": "Renders the open image with the current edits and writes <file_stem>_current.png into out_dir. With compare 'root' (the default), it also renders the image as imported (the root) and writes <file_stem>_root.png; with compare 'none', it renders and writes only the current file. file_stem defaults to the photo file name without its extension. The long edge of each file is long_edge pixels at most. 'region' (x, y, w, h in 0..1 of the cropped image) renders only that part. Answers -32005 while the editor renders another image job, for example an open comparison; that job continues.",
+    "description": "Renders the open image with the current edits and writes <file_stem>_current.png into out_dir. With compare 'root' (the default), it also renders the image as imported (the root) and writes <file_stem>_root.png; with compare 'none', it renders and writes only the current file. file_stem defaults to the photo file name without its extension. The long edge of each file is long_edge pixels at most. 'region' (x, y, w, h in 0..1 of the cropped image) renders only that part. The files must not exist: the command creates new files and does not replace existing ones. Answers -32005 while the editor renders another image job, for example an open comparison; that job continues.",
     "method": "render.preview",
     "params_schema": {
       "additionalProperties": false,
