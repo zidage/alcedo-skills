@@ -5,7 +5,7 @@
 <!-- BEGIN GENERATED: search.query -->
 Changes state: no.
 
-Searches the photos of the current folder with the rules of the global search dialog. An empty text returns the recommendations. With 'mode' auto a natural language query uses the semantic path when natural language search is on; when that path is not available the result has 'semantic_unavailable' and no matches. 'mode' fuzzy always uses the text search. A query that is too long for the semantic path returns 'too_long'.
+Searches the photos of the current folder with the rules of the search palette. An empty text returns the recommendations. With 'mode' auto a natural language query uses the semantic path when natural language search is on; when that path is not available the result has 'semantic_unavailable' and no matches. 'mode' fuzzy always uses the text search. A query that is too long for the semantic path returns 'too_long'.
 
 **Parameters**
 
@@ -71,4 +71,43 @@ alcedo-cli --json call search.query '{"text":""}'
 
 ```json
 {"matches":[],"recommendations":[{"category":"camera","categoryLabel":"Camera","count":2,"label":"ILCE-7M3","query":"ILCE-7M3"},{"category":"date","categoryLabel":"Date","count":1,"label":"2023-10-22","query":"2023-10-22"},{"category":"lens","categoryLabel":"Lens","count":1,"label":"FE 28mm F2","query":"FE 28mm F2"}, ...],"route":"empty"}
+```
+
+## `search.prewarm`
+
+<!-- BEGIN GENERATED: search.prewarm -->
+Changes state: no.
+
+Does what the search palette does when it opens: when natural language search is on, starts the AI sidecar and embeds the neutral text in the background, so the next natural language query loads no model. Returns at once; a failure is written to the log only.
+
+**Parameters**
+
+No parameters other than `timeout_ms`.
+
+**Result**
+
+| Field | Type | Always | Notes |
+| --- | --- | --- | --- |
+| `natural_language_search` | boolean | yes |  |
+<!-- END GENERATED: search.prewarm -->
+
+Call it before a series of natural language queries, as the search palette does when it opens.
+It answers at once; the model loads in the background, so the first `search.query` after it does
+not wait for the load. `natural_language_search` is `false` when natural language search is off
+in Settings; then nothing loads, and `search.query` uses the text search.
+
+**Errors**
+
+- `-32001`: `No project is open.`
+
+**Example**
+
+```bash
+alcedo-cli --json call search.prewarm
+```
+
+With natural language search on:
+
+```json
+{"natural_language_search":true}
 ```

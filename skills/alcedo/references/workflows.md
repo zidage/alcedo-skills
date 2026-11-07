@@ -291,6 +291,61 @@ Render a preview after the write and judge the look as you see it. To remove the
 to `{}`. Do not search the disk for `.cube` files or read `lut-inventory.json`:
 `lut.list` gives the references that stay valid when the library moves or a package is updated.
 
+## Make a film print look
+
+Use Film Print when the user names a film stock that `film.list` has, or asks for a print look
+(a paper print, a cinema print, a slide, a lab scan). It simulates the film from its spectral
+data in the display transform. For a named LUT package, or a stock that `film.list` does not
+have, use a LUT ([Apply a LUT](#apply-a-lut)).
+
+1. Find the film and the print material:
+
+   ```bash
+   alcedo-cli --json call film.list '{"list":"negative","query":"portra 400"}'
+   alcedo-cli --json call film.list '{"list":"print","query":"2383"}'
+   ```
+
+   A colour reversal film (`"list":"reversal"`, for example Velvia 50) has no print material.
+   Print material `negative_scan` scans the negative in place of a print.
+
+2. Select them in one `odt` write with `"method": "film_print"` and the two `editor_value`
+   properties:
+
+   ```bash
+   alcedo-cli --json call editor.set '{"field":"odt","value":{"method":"film_print","negative":"kodak_portra_400","print_material":"kodak_2383"},"note":"agent: Portra 400 on Vision 2383"}'
+   ```
+
+   The write also turns on `film_grain` at 100 when it was 0: the result lists `odt` and
+   `film_grain` in `values`, and the history has two commits.
+
+3. Read the values back and look at the result:
+
+   ```bash
+   alcedo-cli --json call editor.get '{"fields":["odt","film_grain","film_format"]}'
+   alcedo-cli --json call render.preview '{"out_dir":"<tmp dir>","compare":"none","long_edge":1024,"file_stem":"p<element_id>-film"}'
+   ```
+
+   Open the PNG and judge the look. Fit `exposure` and the tone fields to the film: a film print
+   has its own tone curve, so the photo often needs a different exposure than with OpenDRT.
+
+4. Finish the look when the preview asks for it:
+   - `film_format`: `{"film_format":"16mm"}` for coarser grain and more halation, `70mm` for a
+     cleaner image.
+   - `film_grain`: 0 to 200; 100 is the grain of the datasheet.
+   - `odt` `halation` (0 to 8, 1 is standard) for the red glow around bright lights, and
+     `light_spread` for the sharpness.
+   - `odt` `scene_light` for the cast of a light, for example `tungsten` on a daylight film.
+   - For Negative Scan: the scan settings (`auto`, `scan_exposure_stops`, `scan_contrast`,
+     `cyan`, `magenta`, `yellow`, `black`) and the scanner (`scanner_red_nm`,
+     `scanner_green_nm`, `scanner_blue_nm`, `scanner_width_nm`, `scanner_light`).
+
+   Write these with `editor.set` on `odt` (the photo has method Film Print now, so a partial value
+   is enough) or with one `editor.batch_set`. Render a new preview after each change.
+
+To go back to the default display transform, write `{"method":"open_drt"}` to `odt`; it sets
+`film_grain` to 0. `adjustments.items` names the selection in the Display Transform item, for
+example `Film Print, Kodak Portra 400, Kodak Vision 2383`.
+
 ## Apply one look to many photos
 
 Tune one photo, then copy its adjustments and paste them onto the other photos with one call.

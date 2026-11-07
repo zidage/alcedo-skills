@@ -191,7 +191,7 @@ With `mode` `as_shot`, `color_temp` reports the white balance of the camera.
 <!-- BEGIN GENERATED: editor.set -->
 Changes state: yes. In a GUI session it needs agent control (`control.acquire`).
 
-Sets one field of the open image to a UI value, like releasing a panel control: one history commit. Answers after the commit and its rendered frame, with the value that the editor now shows (a crop can be constrained). A value equal to the current one makes no commit. The commit has the author agent and the optional 'note'. When the frame of the commit fails to render, the commit stays and the error data has 'reason' and 'head_commit'; editor.undo reverts it.
+Sets one field of the open image to a UI value, like releasing a panel control: one history commit. Answers after the commit and its rendered frame, with the value that the editor now shows (a crop can be constrained). A value equal to the current one makes no commit. The commit has the author agent and the optional 'note'. When the frame of the commit fails to render, the commit stays and the error data has 'reason' and 'head_commit'; editor.undo reverts it. A write of 'odt' that changes the method follows the rule of the Display Transform panel: method film_print turns on film_grain at 100 when it is 0, and another method on film_print sets film_grain to 0, in a second commit. 'values' lists each field that the call wrote.
 
 **Parameters**
 
@@ -208,7 +208,13 @@ Sets one field of the open image to a UI value, like releasing a panel control: 
 | `field` | string | yes |  |
 | `head_commit` | string or null | yes | Hex hash of the head commit; null at the root. |
 | `value` | number or object or null | yes |  |
+| `values` | object | yes |  |
 <!-- END GENERATED: editor.set -->
+
+`values` has each field that the call wrote. It is one field, except for a write of `odt` that
+changes the method: method `film_print` turns on `film_grain` at 100 when it is 0, and another
+method on Film Print sets `film_grain` to 0, in a second commit, as the Display Transform panel
+does. `values` then has `odt` and `film_grain`. See [Editor fields](editor_fields.md#film-print).
 
 **Errors**
 
@@ -229,7 +235,7 @@ alcedo-cli --json call editor.set '{"field":"exposure","value":0.5,"note":"darke
 ```
 
 ```json
-{"field":"exposure","head_commit":"ba09cf040425da711e4cb9b431effa64","value":0.5}
+{"field":"exposure","head_commit":"ba09cf040425da711e4cb9b431effa64","value":0.5,"values":{"exposure":0.5}}
 ```
 
 An object field takes some of its properties:
@@ -243,7 +249,7 @@ alcedo-cli --json call editor.set '{"field":"color_temp","value":{"mode":"custom
 <!-- BEGIN GENERATED: editor.batch_set -->
 Changes state: yes. In a GUI session it needs agent control (`control.acquire`).
 
-Sets several fields in order. Each change that alters a value is one history commit, applied after the frame of the previous one. The first change that fails stops the batch: the error data has 'applied' (the changes before it, which stay) and 'head_commit'. A change whose frame fails to render is committed and stays, so 'applied' counts it. Each commit has the author agent and the optional 'note'.
+Sets several fields in order. Each change that alters a value is one history commit, applied after the frame of the previous one. The first change that fails stops the batch: the error data has 'applied' (the changes before it, which stay) and 'head_commit'. A change whose frame fails to render is committed and stays, so 'applied' counts it. Each commit has the author agent and the optional 'note'. A change of the 'odt' method follows the film_grain rule of editor.set unless a change of the batch writes film_grain; the rule commit belongs to that change and 'values' then lists film_grain.
 
 **Parameters**
 
@@ -263,8 +269,14 @@ Sets several fields in order. Each change that alters a value is one history com
 | `values` | object | yes |  |
 <!-- END GENERATED: editor.batch_set -->
 
-All changes are checked before the first one is applied. In a GUI session, control is checked
-again before each change after the first.
+The shape of all changes (a `field` and a `value` each, at most 64) is checked before the first
+one is applied; the field and the value of each change are checked when it is applied. In a GUI
+session, control is checked again before each change after the first.
+
+A change of the `odt` method writes `film_grain` as `editor.set` does, unless a change of the
+batch writes `film_grain`: then the value of the batch is kept. The `film_grain` commit of the
+rule belongs to its `odt` change, so `applied` does not count it, and `values` lists
+`film_grain`.
 
 **Errors**
 
