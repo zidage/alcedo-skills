@@ -20,6 +20,7 @@ the first time:
 | Parameters, result, and errors of a command | `references/reference/<group>.md` |
 | What each editor field does, its range, its direction | `references/reference/editor_fields.md` |
 | Find a LUT of the user's LUT library and apply it | `references/reference/lut.md` |
+| Simulate a film stock and a print (Film Print) | `references/reference/film.md`, `references/workflows.md` (Make a film print look) |
 | Known limits | `references/limits.md` |
 
 ## Before you start
@@ -159,9 +160,29 @@ Tell the user what you changed in plain words (for example "exposure +0.3 EV, 30
 leveled by 1.5 degrees"). When the user wants a different result, continue the loop from the
 current state.
 
+## Film Print or a LUT
+
+A film look has two tools. Choose by the request:
+
+- **Film Print** (`film.list`, then `editor.set` on `odt`): the request names a film stock that
+  `film.list` lists (for example Portra 400, Vision3 500T, Velvia 50, Ektar 100), or asks for a
+  print look: a paper print, a cinema print, a slide on a light table, or a lab scan of a
+  negative. Film Print simulates the film and the print from their spectral data in the display
+  transform. Follow `references/workflows.md` (Make a film print look).
+- **A film simulation LUT** (`lut.list`): the request names a LUT or a LUT package, or a stock
+  that `film.list` does not list.
+- A request for "a film look" with no stock: try Film Print with one or two stocks that suit
+  the photo and a LUT, compare the previews, and keep the one that looks best.
+
+Select a film print with `{"method":"film_print","negative":"<id>","print_material":"<id>"}`
+from the `editor_value` of `film.list`. The write turns on `film_grain` at 100 when it is 0.
+Change the grain, the `film_format`, and `halation` after you look at the preview. Do not apply
+a LUT of the same stock on top of Film Print: the film is simulated twice. `film.list` needs
+Alcedo Studio 0.3.4 or later.
+
 ## LUTs
 
-When the user asks for a LUT or a film look, list the LUT library with `lut.list` (`query`,
+When the user asks for a LUT, list the LUT library with `lut.list` (`query`,
 `category` `film_simulation`, `package`). Give the `editor_value` of the LUT to `editor.set` on
 `lut` as is, and add `strength` (0 to 1) for a weaker look. To change only the strength of the
 current LUT, write the `lut` value from `editor.get` back with a new `strength`. Do not search

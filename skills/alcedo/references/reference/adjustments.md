@@ -106,6 +106,10 @@ Copies adjustments of a photo, like Copy Adjustments: builds a package from the 
 | `items[].node_name` | string | yes |  |
 | `items[].value` | string | yes |  |
 | `package_id` | string | yes |  |
+| `skipped_ai_masks` | array of object | yes | AI Masks of the copied Masks items. A package never holds an AI Mask: it describes the content of its own photo. |
+| `skipped_ai_masks[].mask_id` | string | yes |  |
+| `skipped_ai_masks[].name` | string | yes |  |
+| `skipped_ai_masks[].node_id` | string | yes |  |
 | `version_id` | string | yes |  |
 | `version_name` | string | yes |  |
 <!-- END GENERATED: adjustments.copy -->

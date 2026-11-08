@@ -102,6 +102,29 @@
         "package_id": {
           "type": "string"
         },
+        "skipped_ai_masks": {
+          "description": "AI Masks of the copied Masks items. A package never holds an AI Mask: it describes the content of its own photo.",
+          "items": {
+            "properties": {
+              "mask_id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "node_id": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "node_id",
+              "mask_id",
+              "name"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
         "version_id": {
           "type": "string"
         },
@@ -114,7 +137,8 @@
         "element_id",
         "version_id",
         "version_name",
-        "items"
+        "items",
+        "skipped_ai_masks"
       ],
       "type": "object"
     }
@@ -480,7 +504,7 @@
   },
   {
     "changes_state": true,
-    "description": "Sets several fields in order. Each change that alters a value is one history commit, applied after the frame of the previous one. The first change that fails stops the batch: the error data has 'applied' (the changes before it, which stay) and 'head_commit'. A change whose frame fails to render is committed and stays, so 'applied' counts it. Each commit has the author agent and the optional 'note'.",
+    "description": "Sets several fields in order. Each change that alters a value is one history commit, applied after the frame of the previous one. The first change that fails stops the batch: the error data has 'applied' (the changes before it, which stay) and 'head_commit'. A change whose frame fails to render is committed and stays, so 'applied' counts it. Each commit has the author agent and the optional 'note'. A change of the 'odt' method follows the film_grain rule of editor.set unless a change of the batch writes film_grain; the rule commit belongs to that change and 'values' then lists film_grain.",
     "method": "editor.batch_set",
     "params_schema": {
       "additionalProperties": false,
@@ -972,7 +996,7 @@
   },
   {
     "changes_state": true,
-    "description": "Sets one field of the open image to a UI value, like releasing a panel control: one history commit. Answers after the commit and its rendered frame, with the value that the editor now shows (a crop can be constrained). A value equal to the current one makes no commit. The commit has the author agent and the optional 'note'. When the frame of the commit fails to render, the commit stays and the error data has 'reason' and 'head_commit'; editor.undo reverts it.",
+    "description": "Sets one field of the open image to a UI value, like releasing a panel control: one history commit. Answers after the commit and its rendered frame, with the value that the editor now shows (a crop can be constrained). A value equal to the current one makes no commit. The commit has the author agent and the optional 'note'. When the frame of the commit fails to render, the commit stays and the error data has 'reason' and 'head_commit'; editor.undo reverts it. A write of 'odt' that changes the method follows the rule of the Display Transform panel: method film_print turns on film_grain at 100 when it is 0, and another method on film_print sets film_grain to 0, in a second commit. 'values' lists each field that the call wrote.",
     "method": "editor.set",
     "params_schema": {
       "additionalProperties": false,
@@ -1022,11 +1046,15 @@
             "object",
             "null"
           ]
+        },
+        "values": {
+          "type": "object"
         }
       },
       "required": [
         "field",
         "value",
+        "values",
         "head_commit"
       ],
       "type": "object"
@@ -1331,6 +1359,117 @@
         "error_summary",
         "items",
         "queue"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "changes_state": false,
+    "description": "Lists the films and print materials of the film print browser in browser order: the negatives, the colour reversal films, then the print materials, each list by brand and family. 'name' is the name of the option in editor.catalog, 'short_label' the name without the brand. A negative has 'balance_light', the light that the film is balanced for (D55 daylight or T3200 tungsten). 'editor_value' is the odt property that the entry sets; give it to editor.set on 'odt' with \"method\": \"film_print\" (a colour reversal film reads no print material). When the film print resources are not available, 'warnings' has film_resources_unavailable and no entry has 'balance_light'. Needs no open project.",
+    "method": "film.list",
+    "params_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "brand": {
+          "description": "Only the entries of this brand, for example Kodak (case-insensitive). An empty string selects negative_scan and cine_look, which have no brand.",
+          "type": "string"
+        },
+        "list": {
+          "description": "Only the entries of this list of the film print browser: the negatives, the colour reversal films, or the print materials.",
+          "enum": [
+            "negative",
+            "reversal",
+            "print"
+          ],
+          "type": "string"
+        },
+        "query": {
+          "description": "Case-insensitive text that the name, the short label, the family, or the identifier contains.",
+          "type": "string"
+        },
+        "timeout_ms": {
+          "default": 120000,
+          "description": "Time limit in milliseconds for the command to reach its terminal state.",
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "result_schema": {
+      "properties": {
+        "films": {
+          "items": {
+            "properties": {
+              "balance_light": {
+                "type": "string"
+              },
+              "brand": {
+                "type": "string"
+              },
+              "editor_value": {
+                "type": "object"
+              },
+              "family": {
+                "type": "string"
+              },
+              "id": {
+                "type": "string"
+              },
+              "list": {
+                "enum": [
+                  "negative",
+                  "reversal",
+                  "print"
+                ],
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "short_label": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "list",
+              "brand",
+              "family",
+              "short_label",
+              "editor_value"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "total": {
+          "type": "integer"
+        },
+        "warnings": {
+          "items": {
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "code",
+              "message"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "total",
+        "films",
+        "warnings"
       ],
       "type": "object"
     }
@@ -2267,7 +2406,35 @@
   },
   {
     "changes_state": false,
-    "description": "Searches the photos of the current folder with the rules of the global search dialog. An empty text returns the recommendations. With 'mode' auto a natural language query uses the semantic path when natural language search is on; when that path is not available the result has 'semantic_unavailable' and no matches. 'mode' fuzzy always uses the text search. A query that is too long for the semantic path returns 'too_long'.",
+    "description": "Does what the search palette does when it opens: when natural language search is on, starts the AI sidecar and embeds the neutral text in the background, so the next natural language query loads no model. Returns at once; a failure is written to the log only.",
+    "method": "search.prewarm",
+    "params_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "timeout_ms": {
+          "default": 120000,
+          "description": "Time limit in milliseconds for the command to reach its terminal state.",
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "result_schema": {
+      "properties": {
+        "natural_language_search": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "natural_language_search"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "changes_state": false,
+    "description": "Searches the photos of the current folder with the rules of the search palette. An empty text returns the recommendations. With 'mode' auto a natural language query uses the semantic path when natural language search is on; when that path is not available the result has 'semantic_unavailable' and no matches. 'mode' fuzzy always uses the text search. A query that is too long for the semantic path returns 'too_long'.",
     "method": "search.query",
     "params_schema": {
       "additionalProperties": false,

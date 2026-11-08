@@ -122,9 +122,37 @@
       "panel": "post",
       "ui_decimals": 0,
       "ui_default": 0,
-      "ui_max": 100,
+      "ui_max": 200,
       "ui_min": 0,
       "ui_step": 1
+    },
+    {
+      "field": "film_format",
+      "kind": "object",
+      "panel": "post",
+      "properties": [
+        {
+          "name": "film_format",
+          "options": [
+            {
+              "label": "16mm",
+              "value": "16mm"
+            },
+            {
+              "label": "35mm",
+              "value": "35mm"
+            },
+            {
+              "label": "70mm",
+              "value": "70mm"
+            }
+          ],
+          "type": "option"
+        }
+      ],
+      "ui_default": {
+        "film_format": "35mm"
+      }
     },
     {
       "field": "halation",
@@ -395,6 +423,10 @@
             {
               "label": "OpenDRT",
               "value": "open_drt"
+            },
+            {
+              "label": "Film Print",
+              "value": "film_print"
             }
           ],
           "type": "option"
@@ -606,17 +638,479 @@
             }
           ],
           "type": "option"
+        },
+        {
+          "name": "negative",
+          "options": [
+            {
+              "label": "Kodak Vision3 250D 5207",
+              "value": "kodak_5207"
+            },
+            {
+              "label": "Kodak Vision3 500T 5219",
+              "value": "kodak_5219"
+            },
+            {
+              "label": "Kodak Vision3 200T 5213",
+              "value": "kodak_5213"
+            },
+            {
+              "label": "Kodak Vision3 50D 5203",
+              "value": "kodak_5203"
+            },
+            {
+              "label": "Kodak Verita 200D 5206",
+              "value": "kodak_5206"
+            },
+            {
+              "label": "Kodak Portra 400",
+              "value": "kodak_portra_400"
+            },
+            {
+              "label": "Kodak Portra 160",
+              "value": "kodak_portra_160"
+            },
+            {
+              "label": "Kodak Portra 800",
+              "value": "kodak_portra_800"
+            },
+            {
+              "label": "Kodak Ektar 100",
+              "value": "kodak_ektar_100"
+            },
+            {
+              "label": "Kodak Gold 200",
+              "value": "kodak_gold_200"
+            },
+            {
+              "label": "Kodak Ultramax 400",
+              "value": "kodak_ultramax_400"
+            },
+            {
+              "label": "Fuji Eterna 500",
+              "value": "fuji_eterna_500"
+            },
+            {
+              "label": "Fuji Eterna 500 Vivid",
+              "value": "fuji_eterna_500_vivid"
+            },
+            {
+              "label": "Fuji Pro 400H",
+              "value": "fuji_pro_400h"
+            },
+            {
+              "label": "Fuji Pro 160C",
+              "value": "fuji_pro_160c"
+            },
+            {
+              "label": "Fuji Pro 160S",
+              "value": "fuji_pro_160s"
+            },
+            {
+              "label": "Fuji Natura 1600",
+              "value": "fuji_natura_1600"
+            },
+            {
+              "label": "Fuji Superia X-Tra 400",
+              "value": "fuji_superia_xtra_400"
+            },
+            {
+              "label": "Fuji Superia Reala",
+              "value": "fuji_superia_reala"
+            },
+            {
+              "label": "Fuji C200",
+              "value": "fuji_c200"
+            },
+            {
+              "label": "Kodak Vision 320T 5277",
+              "value": "kodak_5277"
+            },
+            {
+              "label": "Kodak EXR 200T 5293",
+              "value": "kodak_5293"
+            },
+            {
+              "label": "Kodak EXR 100T 5248",
+              "value": "kodak_exr_5248"
+            },
+            {
+              "label": "Kodak 5248",
+              "value": "kodak_5248"
+            },
+            {
+              "label": "Kodak 5247",
+              "value": "kodak_5247"
+            },
+            {
+              "label": "Kodak 5247 II",
+              "value": "kodak_5247_II"
+            },
+            {
+              "label": "Kodak 5250",
+              "value": "kodak_5250"
+            },
+            {
+              "label": "Kodak Vericolor III",
+              "value": "kodak_vericolor_iii"
+            },
+            {
+              "label": "Kodak Aerocolor IV 2460",
+              "value": "kodak_aerocolor"
+            },
+            {
+              "label": "Agfa Vista 100",
+              "value": "agfa_vista_100"
+            },
+            {
+              "label": "Fujichrome Velvia 50",
+              "value": "fuji_velvia_50"
+            },
+            {
+              "label": "Fujichrome Velvia 100",
+              "value": "fuji_velvia_100"
+            },
+            {
+              "label": "Fujichrome Provia 100F",
+              "value": "fuji_provia_100f"
+            },
+            {
+              "label": "Fujichrome Astia 100F",
+              "value": "fuji_astia_100f"
+            },
+            {
+              "label": "Kodak Ektachrome E100",
+              "value": "kodak_ektachrome_e100"
+            }
+          ],
+          "type": "option"
+        },
+        {
+          "name": "print_material",
+          "options": [
+            {
+              "label": "Negative Scan",
+              "value": "negative_scan"
+            },
+            {
+              "label": "Cine Look (2383)",
+              "value": "cine_look"
+            },
+            {
+              "label": "Kodak Vision 2383",
+              "value": "kodak_2383"
+            },
+            {
+              "label": "Kodak Endura Premier Paper",
+              "value": "kodak_endura_premier"
+            },
+            {
+              "label": "Kodak Portra Endura Paper",
+              "value": "kodak_portra_endura"
+            },
+            {
+              "label": "Kodak Supra Endura Paper",
+              "value": "kodak_supra_endura"
+            },
+            {
+              "label": "Kodak Vision Premier 2393",
+              "value": "kodak_2393"
+            },
+            {
+              "label": "Fuji Eterna-CP Type 3513DI",
+              "value": "fuji_3513di"
+            },
+            {
+              "label": "Fuji Eterna-CP 3523XD",
+              "value": "fuji_3523XD"
+            },
+            {
+              "label": "Fuji Crystal Archive Maxima",
+              "value": "fuji_ca_maxima"
+            },
+            {
+              "label": "Fuji Crystal Archive DPII",
+              "value": "fuji_ca_dpII"
+            },
+            {
+              "label": "Fuji Crystal Archive Pro PDII",
+              "value": "fuji_ca_pdII"
+            },
+            {
+              "label": "Fuji Crystal Archive Super Type C",
+              "value": "fuji_ca_super_c"
+            },
+            {
+              "label": "Fujiflex Crystal Archive New Version",
+              "value": "fujiflex_new"
+            },
+            {
+              "label": "Fujiflex Crystal Archive Old Version",
+              "value": "fujiflex_old"
+            },
+            {
+              "label": "Kodak Duraflex Plus",
+              "value": "kodak_duraflex_plus"
+            },
+            {
+              "label": "Kodak 5383",
+              "value": "kodak_5383"
+            },
+            {
+              "label": "Kodak 5384",
+              "value": "kodak_5384"
+            },
+            {
+              "label": "Kodak 5381",
+              "value": "kodak_5381"
+            },
+            {
+              "label": "Kodak EXR 5386",
+              "value": "kodak_exr_5386"
+            }
+          ],
+          "type": "option"
+        },
+        {
+          "name": "scene_light",
+          "options": [
+            {
+              "label": "Reference",
+              "value": "reference"
+            },
+            {
+              "label": "As Shot",
+              "value": "as_shot"
+            },
+            {
+              "label": "Daylight",
+              "value": "daylight"
+            },
+            {
+              "label": "Tungsten",
+              "value": "tungsten"
+            },
+            {
+              "label": "Fluorescent",
+              "value": "fluorescent"
+            },
+            {
+              "label": "LED",
+              "value": "led"
+            },
+            {
+              "label": "Sodium",
+              "value": "sodium"
+            },
+            {
+              "label": "Street Mixed",
+              "value": "street_mixed"
+            },
+            {
+              "label": "Street Sodium",
+              "value": "street_sodium"
+            },
+            {
+              "label": "Street LED",
+              "value": "street_led"
+            },
+            {
+              "label": "Interior Warm",
+              "value": "interior_warm"
+            },
+            {
+              "label": "Interior Office",
+              "value": "interior_office"
+            }
+          ],
+          "type": "option"
+        },
+        {
+          "name": "light_spread",
+          "type": "number",
+          "ui_decimals": 2,
+          "ui_max": 3,
+          "ui_min": 0,
+          "ui_step": 0.01
+        },
+        {
+          "name": "halation",
+          "type": "number",
+          "ui_decimals": 2,
+          "ui_max": 8,
+          "ui_min": 0,
+          "ui_step": 0.01
+        },
+        {
+          "name": "enlarger_flare",
+          "type": "number",
+          "ui_decimals": 3,
+          "ui_max": 0.1,
+          "ui_min": 0,
+          "ui_step": 0.001
+        },
+        {
+          "name": "auto",
+          "options": [
+            {
+              "label": "Off",
+              "value": "off"
+            },
+            {
+              "label": "Neutral",
+              "value": "neutral"
+            },
+            {
+              "label": "Warm",
+              "value": "warm"
+            },
+            {
+              "label": "Cool",
+              "value": "cool"
+            }
+          ],
+          "type": "option"
+        },
+        {
+          "name": "auto_strength",
+          "type": "number",
+          "ui_decimals": 2,
+          "ui_max": 1,
+          "ui_min": 0,
+          "ui_step": 0.05
+        },
+        {
+          "name": "auto_density",
+          "type": "number",
+          "ui_decimals": 2,
+          "ui_max": 1,
+          "ui_min": 0,
+          "ui_step": 0.05
+        },
+        {
+          "name": "scan_contrast",
+          "type": "number",
+          "ui_decimals": 2,
+          "ui_max": 1.5,
+          "ui_min": 0.5,
+          "ui_step": 0.05
+        },
+        {
+          "name": "scan_exposure_stops",
+          "type": "number",
+          "ui_decimals": 2,
+          "ui_max": 3,
+          "ui_min": -3,
+          "ui_step": 0.05
+        },
+        {
+          "name": "cyan",
+          "type": "number",
+          "ui_decimals": 2,
+          "ui_max": 0.30000001192092896,
+          "ui_min": -0.30000001192092896,
+          "ui_step": 0.01
+        },
+        {
+          "name": "magenta",
+          "type": "number",
+          "ui_decimals": 2,
+          "ui_max": 0.30000001192092896,
+          "ui_min": -0.30000001192092896,
+          "ui_step": 0.01
+        },
+        {
+          "name": "yellow",
+          "type": "number",
+          "ui_decimals": 2,
+          "ui_max": 0.30000001192092896,
+          "ui_min": -0.30000001192092896,
+          "ui_step": 0.01
+        },
+        {
+          "name": "black",
+          "type": "number",
+          "ui_decimals": 2,
+          "ui_max": 1.5,
+          "ui_min": 0,
+          "ui_step": 0.05
+        },
+        {
+          "name": "scanner_red_nm",
+          "type": "number",
+          "ui_decimals": 0,
+          "ui_max": 720,
+          "ui_min": 600,
+          "ui_step": 5
+        },
+        {
+          "name": "scanner_green_nm",
+          "type": "number",
+          "ui_decimals": 0,
+          "ui_max": 590,
+          "ui_min": 500,
+          "ui_step": 5
+        },
+        {
+          "name": "scanner_blue_nm",
+          "type": "number",
+          "ui_decimals": 0,
+          "ui_max": 490,
+          "ui_min": 400,
+          "ui_step": 5
+        },
+        {
+          "name": "scanner_width_nm",
+          "type": "number",
+          "ui_decimals": 0,
+          "ui_max": 120,
+          "ui_min": 10,
+          "ui_step": 5
+        },
+        {
+          "name": "scanner_light",
+          "options": [
+            {
+              "label": "Halogen",
+              "value": "halogen"
+            },
+            {
+              "label": "Equal Energy",
+              "value": "equal_energy"
+            }
+          ],
+          "type": "option"
         }
       ],
       "ui_default": {
+        "auto": "neutral",
+        "auto_density": 0,
+        "auto_strength": 0.5,
+        "black": 1,
         "creative_white": "use_look_preset",
+        "cyan": 0,
         "encoding_eotf": "gamma_2_2",
         "encoding_space": "rec709",
+        "enlarger_flare": 0.01,
+        "halation": 1,
+        "light_spread": 1,
         "limiting_space": "rec709",
         "look_preset": "standard",
+        "magenta": 0,
         "method": "open_drt",
+        "negative": "kodak_5207",
         "peak_luminance": 100,
-        "tonescale_preset": "use_look_preset"
+        "print_material": "kodak_endura_premier",
+        "scan_contrast": 1,
+        "scan_exposure_stops": 0,
+        "scanner_blue_nm": 450,
+        "scanner_green_nm": 545,
+        "scanner_light": "halogen",
+        "scanner_red_nm": 650,
+        "scanner_width_nm": 40,
+        "scene_light": "as_shot",
+        "tonescale_preset": "use_look_preset",
+        "yellow": 0
       }
     },
     {
@@ -823,10 +1317,10 @@
         {
           "name": "lift_master",
           "type": "number",
-          "ui_decimals": 0,
-          "ui_max": 800,
-          "ui_min": -800,
-          "ui_step": 1
+          "ui_decimals": 2,
+          "ui_max": 2,
+          "ui_min": -2,
+          "ui_step": 0.01
         },
         {
           "name": "gamma_x",
@@ -847,10 +1341,10 @@
         {
           "name": "gamma_master",
           "type": "number",
-          "ui_decimals": 0,
-          "ui_max": 800,
-          "ui_min": -800,
-          "ui_step": 1
+          "ui_decimals": 2,
+          "ui_max": 2,
+          "ui_min": -2,
+          "ui_step": 0.01
         },
         {
           "name": "gain_x",
@@ -871,10 +1365,34 @@
         {
           "name": "gain_master",
           "type": "number",
-          "ui_decimals": 0,
-          "ui_max": 800,
-          "ui_min": -800,
-          "ui_step": 1
+          "ui_decimals": 2,
+          "ui_max": 2,
+          "ui_min": -2,
+          "ui_step": 0.01
+        },
+        {
+          "name": "offset_x",
+          "type": "number",
+          "ui_decimals": 3,
+          "ui_max": 1,
+          "ui_min": -1,
+          "ui_step": 0.001
+        },
+        {
+          "name": "offset_y",
+          "type": "number",
+          "ui_decimals": 3,
+          "ui_max": 1,
+          "ui_min": -1,
+          "ui_step": 0.001
+        },
+        {
+          "name": "offset_master",
+          "type": "number",
+          "ui_decimals": 2,
+          "ui_max": 2,
+          "ui_min": -2,
+          "ui_step": 0.01
         }
       ],
       "ui_default": {
@@ -886,7 +1404,10 @@
         "gamma_y": 0,
         "lift_master": 0,
         "lift_x": 0,
-        "lift_y": 0
+        "lift_y": 0,
+        "offset_master": 0,
+        "offset_x": 0,
+        "offset_y": 0
       }
     },
     {

@@ -25,5 +25,6 @@ written by hand. The examples ran with the release build. Every command also acc
 | [Export](export.md) | `export.options`, `export.run`, `export.status` |
 | [Search](search.md) | `search.query` |
 | [LUT](lut.md) | `lut.list` |
+| [Film](film.md) | `film.list` |
 
 [Editor fields](editor_fields.md) lists every field of `editor.set`.
