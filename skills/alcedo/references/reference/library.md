@@ -529,7 +529,7 @@ alcedo-cli --json call library.color_label_name.set '{"code":"red","name":""}'
 <!-- BEGIN GENERATED: library.delete -->
 Changes state: yes. In a GUI session it needs agent control (`control.acquire`).
 
-Deletes 'element_ids'. With scope 'project' the photos leave the project; this needs the root folder as the current folder. With scope 'album' they leave the current album.
+Deletes 'element_ids'. With scope 'project' the photos leave the project; this needs the root folder as the current folder. With scope 'album' they leave the current album. Answers -32002 (rejected) while a task holds the photos: a mark, rating, or paste adjustments batch that is saving, or another delete. Send it again after tasks.wait. Other start failures answer -32007 (failed).
 
 **Parameters**
 
@@ -555,8 +555,14 @@ image files on the disk. To mark photos for a later delete that the user reviews
 - `-32602` `/element_ids`: unknown ids; `data.unknown_ids` lists them. Nothing is deleted.
 - `-32602` `/scope`: `scope` is missing.
 - `-32002`: the scope does not fit the current folder, for example `The current folder gives
-  the delete scope 'folder', not 'project'.`
-- `-32007`: no photo was deleted.
+  the delete scope 'album', not 'project'.` Change the current folder, then send the command
+  again.
+- `-32002`: a task holds the photos, for example `Image marks are being saved.` while a
+  `library.color_label`, `library.delete_mark`, or `library.rate` batch of these photos saves,
+  while an adjustments paste runs, or while another delete runs. Wait for the task (`tasks.wait {"idle": true}`), then send the
+  same command again.
+- `-32007`: the delete did not start for another reason, such as a running import or export,
+  or no photo was deleted. `data.reason` gives the reason.
 
 When some photos cannot be deleted, the command succeeds and `failed_ids` lists them.
 

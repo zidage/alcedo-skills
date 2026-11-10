@@ -1706,7 +1706,7 @@
   },
   {
     "changes_state": true,
-    "description": "Deletes 'element_ids'. With scope 'project' the photos leave the project; this needs the root folder as the current folder. With scope 'album' they leave the current album.",
+    "description": "Deletes 'element_ids'. With scope 'project' the photos leave the project; this needs the root folder as the current folder. With scope 'album' they leave the current album. Answers -32002 (rejected) while a task holds the photos: a mark, rating, or paste adjustments batch that is saving, or another delete. Send it again after tasks.wait. Other start failures answer -32007 (failed).",
     "method": "library.delete",
     "params_schema": {
       "additionalProperties": false,
