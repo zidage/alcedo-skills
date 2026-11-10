@@ -90,7 +90,7 @@ Returns one page of the photos of a folder (the root folder by default) in the o
 | `color_label` | `red` \| `orange` \| `yellow` \| `green` \| `blue` \| `purple` \| `gray` | no |  | Only photos with this code. |
 | `deleted` | boolean | no |  | Only photos with (true) or without (false) the Delete mark. |
 | `descending` | boolean | no | `false` |  |
-| `folder_id` | integer | no |  | at least 0. A folder id from library.folders. |
+| `folder_id` | integer | no |  | 0 to 4294967295. A folder id from library.folders. |
 | `limit` | integer | no | `100` | 1 to 1000. |
 | `offset` | integer | no | `0` | at least 0. |
 | `sort` | `none` \| `capture_time` \| `import_time` \| `camera_model` \| `lens` \| `rating` \| `labels` \| `edit_time` | no | `"none"` |  |
@@ -147,7 +147,7 @@ Renders the library thumbnail of a photo and writes it as a PNG file whose long 
 
 | Name | Type | Required | Default | Notes |
 | --- | --- | --- | --- | --- |
-| `element_id` | integer | yes |  | at least 1. |
+| `element_id` | integer | yes |  | 1 to 4294967295. |
 | `long_edge` | integer | no | `512` | 16 to 2048. |
 | `out` | string | yes |  | The new PNG file; it must not exist. |
 
@@ -480,7 +480,7 @@ alcedo-cli --json call library.color_labels
 <!-- BEGIN GENERATED: library.color_label_name.set -->
 Changes state: yes. In a GUI session it needs agent control (`control.acquire`).
 
-Sets the user name of a color label code for every project on the computer. The name is trimmed and cut to 40 characters; an empty name gives the code its color name back. Returns the library.color_labels item of the code.
+Sets the user name of a color label code for every project on the computer. Line breaks and tabs become spaces, other control characters and bidirectional controls are removed, and the name is trimmed and cut to 40 Unicode code points; an empty name gives the code its color name back. Returns the library.color_labels item of the code, whose name is the stored name.
 
 **Parameters**
 
@@ -502,8 +502,10 @@ Sets the user name of a color label code for every project on the computer. The 
 <!-- END GENERATED: library.color_label_name.set -->
 
 Renames a code for every project on the computer, like Settings > Library > Color Labels. Rename
-a code only when the user asks for it. The name is trimmed and cut to 40 characters. An empty
-name removes the user name, so the code shows its color name again.
+a code only when the user asks for it. A name is one line: line breaks and tabs become spaces,
+and other control characters are removed. The name is trimmed and cut to 40 Unicode code points,
+so a code point outside the Basic Multilingual Plane (most emoji) stays whole at the cut. The `name` of the answer is the stored name. An empty name removes
+the user name, so the code shows its color name again.
 
 **Errors**
 
