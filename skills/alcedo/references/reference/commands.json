@@ -1476,6 +1476,230 @@
   },
   {
     "changes_state": true,
+    "description": "Sets ('on': true) or clears ('on': false) one color label code on every photo of 'element_ids'. The other codes of each photo stay. The batch save runs as a task: the result holds its 'task_id' for tasks.wait. A batch while another mark batch saves, or a photo that a running delete holds, is rejected.",
+    "method": "library.color_label",
+    "params_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "description": "The color label code.",
+          "enum": [
+            "red",
+            "orange",
+            "yellow",
+            "green",
+            "blue",
+            "purple",
+            "gray"
+          ],
+          "type": "string"
+        },
+        "element_ids": {
+          "items": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "on": {
+          "type": "boolean"
+        },
+        "timeout_ms": {
+          "default": 120000,
+          "description": "Time limit in milliseconds for the command to reach its terminal state.",
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "element_ids",
+        "code",
+        "on"
+      ],
+      "type": "object"
+    },
+    "result_schema": {
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "marked_count": {
+          "type": "integer"
+        },
+        "on": {
+          "type": "boolean"
+        },
+        "task_id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "task_id",
+        "marked_count",
+        "code",
+        "on"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "changes_state": true,
+    "description": "Sets the user name of a color label code for every project on the computer. The name is trimmed and cut to 40 characters; an empty name gives the code its color name back. Returns the library.color_labels item of the code.",
+    "method": "library.color_label_name.set",
+    "params_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "description": "The color label code.",
+          "enum": [
+            "red",
+            "orange",
+            "yellow",
+            "green",
+            "blue",
+            "purple",
+            "gray"
+          ],
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "timeout_ms": {
+          "default": 120000,
+          "description": "Time limit in milliseconds for the command to reach its terminal state.",
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "code",
+        "name"
+      ],
+      "type": "object"
+    },
+    "result_schema": {
+      "properties": {
+        "code": {
+          "enum": [
+            "red",
+            "orange",
+            "yellow",
+            "green",
+            "blue",
+            "purple",
+            "gray"
+          ],
+          "type": "string"
+        },
+        "color": {
+          "description": "The display color as #RRGGBB.",
+          "type": "string"
+        },
+        "default_name": {
+          "description": "The color name in the application language.",
+          "type": "string"
+        },
+        "index": {
+          "description": "The position of the code, 0 (red) to 6 (gray).",
+          "type": "integer"
+        },
+        "name": {
+          "description": "The name that the Library shows: the user name, or the color name.",
+          "type": "string"
+        },
+        "renamed": {
+          "description": "True when the code has a user name.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "code",
+        "index",
+        "name",
+        "default_name",
+        "renamed",
+        "color"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "changes_state": false,
+    "description": "Returns the seven color label codes in code order (red, orange, yellow, green, blue, purple, gray) with their names. The name of a code is a setting of the computer that every project shares; the code key never changes.",
+    "method": "library.color_labels",
+    "params_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "timeout_ms": {
+          "default": 120000,
+          "description": "Time limit in milliseconds for the command to reach its terminal state.",
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "result_schema": {
+      "properties": {
+        "codes": {
+          "items": {
+            "properties": {
+              "code": {
+                "enum": [
+                  "red",
+                  "orange",
+                  "yellow",
+                  "green",
+                  "blue",
+                  "purple",
+                  "gray"
+                ],
+                "type": "string"
+              },
+              "color": {
+                "description": "The display color as #RRGGBB.",
+                "type": "string"
+              },
+              "default_name": {
+                "description": "The color name in the application language.",
+                "type": "string"
+              },
+              "index": {
+                "description": "The position of the code, 0 (red) to 6 (gray).",
+                "type": "integer"
+              },
+              "name": {
+                "description": "The name that the Library shows: the user name, or the color name.",
+                "type": "string"
+              },
+              "renamed": {
+                "description": "True when the code has a user name.",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "code",
+              "index",
+              "name",
+              "default_name",
+              "renamed",
+              "color"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "codes"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "changes_state": true,
     "description": "Deletes 'element_ids'. With scope 'project' the photos leave the project; this needs the root folder as the current folder. With scope 'album' they leave the current album.",
     "method": "library.delete",
     "params_schema": {
@@ -1521,6 +1745,57 @@
       "required": [
         "deleted_ids",
         "failed_ids"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "changes_state": true,
+    "description": "Sets ('on': true) or clears ('on': false) the Delete mark of every photo of 'element_ids'. The mark changes nothing on disk; library.delete is the separate step that deletes photos. The batch save runs as a task: the result holds its 'task_id' for tasks.wait. A batch while another mark batch saves, or a photo that a running delete holds, is rejected.",
+    "method": "library.delete_mark",
+    "params_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "element_ids": {
+          "items": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "on": {
+          "type": "boolean"
+        },
+        "timeout_ms": {
+          "default": 120000,
+          "description": "Time limit in milliseconds for the command to reach its terminal state.",
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "element_ids",
+        "on"
+      ],
+      "type": "object"
+    },
+    "result_schema": {
+      "properties": {
+        "marked_count": {
+          "type": "integer"
+        },
+        "on": {
+          "type": "boolean"
+        },
+        "task_id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "task_id",
+        "marked_count",
+        "on"
       ],
       "type": "object"
     }
@@ -1600,7 +1875,7 @@
   },
   {
     "changes_state": false,
-    "description": "Returns the source file and the capture values of 'element_ids', in that order. The capture values come from the metadata that the import read: capture_time, camera_make, camera_model, lens, focal_mm, aperture, shutter, shutter_seconds, iso, width, and height. A value that the metadata does not have is left out of the item.",
+    "description": "Returns the source file, the marks (rating, color_labels, delete_mark), and the capture values of 'element_ids', in that order. The capture values come from the metadata that the import read: capture_time, camera_make, camera_model, lens, focal_mm, aperture, shutter, shutter_seconds, iso, width, and height. A value that the metadata does not have is left out of the item.",
     "method": "library.info",
     "params_schema": {
       "additionalProperties": false,
@@ -1644,6 +1919,26 @@
               "capture_time": {
                 "description": "YYYY-MM-DD HH:MM:SS by the camera clock.",
                 "type": "string"
+              },
+              "color_labels": {
+                "description": "The color label codes of the photo in code order.",
+                "items": {
+                  "enum": [
+                    "red",
+                    "orange",
+                    "yellow",
+                    "green",
+                    "blue",
+                    "purple",
+                    "gray"
+                  ],
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "delete_mark": {
+                "description": "The Delete mark. The mark changes nothing on disk.",
+                "type": "boolean"
               },
               "element_id": {
                 "type": "integer"
@@ -1694,7 +1989,9 @@
               "element_id",
               "image_id",
               "file_name",
-              "rating"
+              "rating",
+              "color_labels",
+              "delete_mark"
             ],
             "type": "object"
           },
@@ -1709,11 +2006,28 @@
   },
   {
     "changes_state": false,
-    "description": "Returns one page of the photos of a folder (the root folder by default) in the order of 'sort', then by element id. 'total' is the photo count of the folder.",
+    "description": "Returns one page of the photos of a folder (the root folder by default) in the order of 'sort', then by element id. 'color_label' keeps the photos with that code and 'deleted' the photos with (true) or without (false) the Delete mark; both together keep the photos that match both. 'total' is the photo count of the folder that matches.",
     "method": "library.list",
     "params_schema": {
       "additionalProperties": false,
       "properties": {
+        "color_label": {
+          "description": "Only photos with this code.",
+          "enum": [
+            "red",
+            "orange",
+            "yellow",
+            "green",
+            "blue",
+            "purple",
+            "gray"
+          ],
+          "type": "string"
+        },
+        "deleted": {
+          "description": "Only photos with (true) or without (false) the Delete mark.",
+          "type": "boolean"
+        },
         "descending": {
           "default": false,
           "type": "boolean"
@@ -1762,6 +2076,26 @@
         "items": {
           "items": {
             "properties": {
+              "color_labels": {
+                "description": "The color label codes of the photo in code order.",
+                "items": {
+                  "enum": [
+                    "red",
+                    "orange",
+                    "yellow",
+                    "green",
+                    "blue",
+                    "purple",
+                    "gray"
+                  ],
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "delete_mark": {
+                "description": "The Delete mark. The mark changes nothing on disk.",
+                "type": "boolean"
+              },
               "element_id": {
                 "type": "integer"
               },
@@ -1779,7 +2113,9 @@
               "element_id",
               "image_id",
               "file_name",
-              "rating"
+              "rating",
+              "color_labels",
+              "delete_mark"
             ],
             "type": "object"
           },

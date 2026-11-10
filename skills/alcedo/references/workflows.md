@@ -40,7 +40,7 @@ alcedo-cli call library.list '{"sort":"capture_time"}'
 ```
 
 ```json
-{"items":[{"element_id":1,"file_name":"DSC0027.ARW","image_id":1,"rating":0},{"element_id":2,"file_name":"DSC00800.ARW","image_id":2,"rating":0},{"element_id":3,"file_name":"DSC06683.dng","image_id":3,"rating":0}],"offset":0,"total":3}
+{"items":[{"color_labels":[],"delete_mark":false,"element_id":1,"file_name":"DSC0027.ARW","image_id":1,"rating":0},{"color_labels":[],"delete_mark":false,"element_id":2,"file_name":"DSC00800.ARW","image_id":2,"rating":0},{"color_labels":[],"delete_mark":false,"element_id":3,"file_name":"DSC06683.dng","image_id":3,"rating":0}],"offset":0,"total":3}
 ```
 
 Use the `element_id` in the other commands. To rate photos:
@@ -53,7 +53,7 @@ alcedo-cli call library.list '{"sort":"rating","descending":true,"limit":2}'
 
 ```json
 {"rated_count":2,"rating":4,"task_id":"bgtask-1"}
-{"items":[{"element_id":1,"file_name":"DSC0027.ARW","image_id":1,"rating":4},{"element_id":3,"file_name":"DSC06683.dng","image_id":3,"rating":4}],"offset":0,"total":3}
+{"items":[{"color_labels":[],"delete_mark":false,"element_id":1,"file_name":"DSC0027.ARW","image_id":1,"rating":4},{"color_labels":[],"delete_mark":false,"element_id":3,"file_name":"DSC06683.dng","image_id":3,"rating":4}],"offset":0,"total":3}
 ```
 
 ## Cull many photos with contact sheets
@@ -83,6 +83,24 @@ commands:
 ```bash
 alcedo-cli call library.rate '{"element_ids":[12,15,40],"rating":4}'
 ```
+
+### Mark picks and rejects
+
+Use color labels for the groups that the user names and the Delete mark for rejects. Read the
+names of the codes first: the user may have renamed `red` to "Client picks".
+
+```bash
+alcedo-cli call library.color_labels
+alcedo-cli call library.color_label '{"element_ids":[12,15,40],"code":"red","on":true}'
+alcedo-cli call library.delete_mark '{"element_ids":[13,14],"on":true}'
+alcedo-cli call tasks.wait '{"idle":true}'
+alcedo-cli call library.list '{"deleted":true}'
+alcedo-cli call library.list '{"color_label":"red"}'
+```
+
+The Delete mark changes nothing on disk and keeps the photos in the project; the user reviews
+them in the Library under By Custom Label > Deleted. `library.delete` removes photos from the
+project only when the user asks for that step.
 
 The source is every photo of the root folder unless you give `--ids`, `--ids-file`,
 `--selection`, `--search <text>`, or `--folder <id or path>`. The photos are in capture time

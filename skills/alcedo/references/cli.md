@@ -32,7 +32,7 @@ alcedo-cli --json call library.list '{"limit":2}'
 ```
 
 ```json
-{"items":[{"element_id":1,"file_name":"DSC0027.ARW","image_id":1,"rating":0},{"element_id":2,"file_name":"DSC00800.ARW","image_id":2,"rating":0}],"offset":0,"total":3}
+{"items":[{"color_labels":[],"delete_mark":false,"element_id":1,"file_name":"DSC0027.ARW","image_id":1,"rating":0},{"color_labels":[],"delete_mark":false,"element_id":2,"file_name":"DSC00800.ARW","image_id":2,"rating":0}],"offset":0,"total":3}
 ```
 
 Without `--json` the result is printed as indented JSON, and an error is printed to stderr as
@@ -76,7 +76,7 @@ printf '%s\n' '{"method":"session.ping"}' '{"method":"library.list","params":{"l
 
 ```json
 {"id":1,"result":{"pong":true}}
-{"id":2,"result":{"items":[{"element_id":1,"file_name":"DSC0027.ARW","image_id":1,"rating":0}],"offset":0,"total":3}}
+{"id":2,"result":{"items":[{"color_labels":[],"delete_mark":false,"element_id":1,"file_name":"DSC0027.ARW","image_id":1,"rating":0}],"offset":0,"total":3}}
 ```
 
 A script can write a request, read its answer line, and decide the next request: `batch` answers
