@@ -2015,11 +2015,19 @@
   },
   {
     "changes_state": false,
-    "description": "Returns one page of the photos of a folder (the root folder by default) in the order of 'sort', then by element id. 'color_label' keeps the photos with that code and 'deleted' the photos with (true) or without (false) the Delete mark; both together keep the photos that match both. 'total' is the photo count of the folder that matches.",
+    "description": "Returns one page of the photos of a folder (the root folder by default) in the order of 'sort', then by element id. 'color_label' keeps the photos with that code and 'deleted' the photos with (true) or without (false) the Delete mark. 'camera', 'lens', 'capture_date', 'rating', 'import_date', and 'label' keep the photos of that library.stats bucket. Together the parameters keep the photos that match all of them. 'total' is the photo count of the folder that matches.",
     "method": "library.list",
     "params_schema": {
       "additionalProperties": false,
       "properties": {
+        "camera": {
+          "description": "Only photos of this library.stats camera bucket; '(unknown)' is the bucket without a camera model.",
+          "type": "string"
+        },
+        "capture_date": {
+          "description": "Only photos of this library.stats capture_date bucket (YYYY-MM-DD); the empty text is the bucket without a capture date.",
+          "type": "string"
+        },
         "color_label": {
           "description": "Only photos with this code.",
           "enum": [
@@ -2047,6 +2055,18 @@
           "minimum": 0,
           "type": "integer"
         },
+        "import_date": {
+          "description": "Only photos of this library.stats import_date bucket (YYYY-MM-DD in 'time_zone'); the empty text is the bucket without an import time. Needs 'time_zone'.",
+          "type": "string"
+        },
+        "label": {
+          "description": "Only photos of this library.stats label bucket: a semantic label key of the active model.",
+          "type": "string"
+        },
+        "lens": {
+          "description": "Only photos of this library.stats lens bucket; '(unknown)' is the bucket without a lens.",
+          "type": "string"
+        },
         "limit": {
           "default": 100,
           "maximum": 1000,
@@ -2057,6 +2077,10 @@
           "default": 0,
           "minimum": 0,
           "type": "integer"
+        },
+        "rating": {
+          "description": "Only photos of this library.stats rating bucket; a text that is not a number is the bucket without a rating.",
+          "type": "string"
         },
         "sort": {
           "default": "none",
@@ -2070,6 +2094,10 @@
             "labels",
             "edit_time"
           ],
+          "type": "string"
+        },
+        "time_zone": {
+          "description": "The IANA time zone of the import days: 'import_date' and the import_date buckets of library.stats need it.",
           "type": "string"
         },
         "timeout_ms": {
@@ -2248,6 +2276,239 @@
       },
       "required": [
         "items"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "changes_state": false,
+    "description": "Returns the statistics of the photos of a folder (the root folder by default) that the Library statistics bar shows: the photos of each capture_date, camera, lens, label, and rating bucket, of each color label code, and with the Delete mark. With 'time_zone' it also returns the import_date buckets. The filter parameters are the ones of library.list. A bucket label selects its photos in the bucket parameter of library.list and library.stats.",
+    "method": "library.stats",
+    "params_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "camera": {
+          "description": "Only photos of this library.stats camera bucket; '(unknown)' is the bucket without a camera model.",
+          "type": "string"
+        },
+        "capture_date": {
+          "description": "Only photos of this library.stats capture_date bucket (YYYY-MM-DD); the empty text is the bucket without a capture date.",
+          "type": "string"
+        },
+        "color_label": {
+          "description": "Only photos with this code.",
+          "enum": [
+            "red",
+            "orange",
+            "yellow",
+            "green",
+            "blue",
+            "purple",
+            "gray"
+          ],
+          "type": "string"
+        },
+        "deleted": {
+          "description": "Only photos with (true) or without (false) the Delete mark.",
+          "type": "boolean"
+        },
+        "folder_id": {
+          "description": "A folder id from library.folders.",
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "import_date": {
+          "description": "Only photos of this library.stats import_date bucket (YYYY-MM-DD in 'time_zone'); the empty text is the bucket without an import time. Needs 'time_zone'.",
+          "type": "string"
+        },
+        "label": {
+          "description": "Only photos of this library.stats label bucket: a semantic label key of the active model.",
+          "type": "string"
+        },
+        "lens": {
+          "description": "Only photos of this library.stats lens bucket; '(unknown)' is the bucket without a lens.",
+          "type": "string"
+        },
+        "rating": {
+          "description": "Only photos of this library.stats rating bucket; a text that is not a number is the bucket without a rating.",
+          "type": "string"
+        },
+        "time_zone": {
+          "description": "The IANA time zone of the import days: 'import_date' and the import_date buckets of library.stats need it.",
+          "type": "string"
+        },
+        "timeout_ms": {
+          "default": 120000,
+          "description": "Time limit in milliseconds for the command to reach its terminal state.",
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "result_schema": {
+      "properties": {
+        "camera": {
+          "description": "Camera models; '(unknown)' is the photos without a camera model.",
+          "items": {
+            "properties": {
+              "count": {
+                "type": "integer"
+              },
+              "label": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "label",
+              "count"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "capture_date": {
+          "description": "Capture days (YYYY-MM-DD); the empty label is the photos without a capture date.",
+          "items": {
+            "properties": {
+              "count": {
+                "type": "integer"
+              },
+              "label": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "label",
+              "count"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "color_labels": {
+          "description": "The photos of each color label code, in code order.",
+          "items": {
+            "properties": {
+              "code": {
+                "enum": [
+                  "red",
+                  "orange",
+                  "yellow",
+                  "green",
+                  "blue",
+                  "purple",
+                  "gray"
+                ],
+                "type": "string"
+              },
+              "count": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "code",
+              "count"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "delete_mark": {
+          "description": "The photos with the Delete mark.",
+          "type": "integer"
+        },
+        "import_date": {
+          "description": "Import days (YYYY-MM-DD) in 'time_zone'; only with 'time_zone'.",
+          "items": {
+            "properties": {
+              "count": {
+                "type": "integer"
+              },
+              "label": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "label",
+              "count"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "label": {
+          "description": "Semantic label keys of the active model.",
+          "items": {
+            "properties": {
+              "count": {
+                "type": "integer"
+              },
+              "label": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "label",
+              "count"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "lens": {
+          "description": "Lenses; '(unknown)' is the photos without a lens.",
+          "items": {
+            "properties": {
+              "count": {
+                "type": "integer"
+              },
+              "label": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "label",
+              "count"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "rating": {
+          "description": "Ratings.",
+          "items": {
+            "properties": {
+              "count": {
+                "type": "integer"
+              },
+              "label": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "label",
+              "count"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "total": {
+          "description": "The photos of the folder that match.",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "total",
+        "capture_date",
+        "camera",
+        "lens",
+        "label",
+        "rating",
+        "color_labels",
+        "delete_mark"
       ],
       "type": "object"
     }
