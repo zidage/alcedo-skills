@@ -246,6 +246,18 @@ index JSON lists `photos` in sequence order with `seq`, `sheet`, `row`, `column`
 `file_path`, and the metadata. Name photos to the user by file name, and act on them by
 `element_id` (for example `library.rate`). Rate or delete only what the user asked for.
 
+Mark the result of a cull with the marks the user sees in the Library:
+
+- Rating (`library.rate`) for quality.
+- Color labels (`library.color_label`) for groups that the user names, for example "client
+  picks" or "print". Read `library.color_labels` first: it maps the names that the user gave the
+  codes to the code keys (`red` ... `gray`). A photo can have several codes.
+- The Delete mark (`library.delete_mark`) for rejects. Review them with `library.list` and
+  `deleted: true`. The Delete mark never deletes files or photos; `library.delete` is a
+  separate step that you run only when the user asks for it explicitly.
+
+Each mark command returns a `task_id`; call `tasks.wait` before you read the marks back.
+
 ## Measurements (only on request)
 
 Do not measure photos by default; judge them by looking. When the user asks for numbers (for

@@ -81,12 +81,14 @@ alcedo-cli --json call library.folders
 <!-- BEGIN GENERATED: library.list -->
 Changes state: no.
 
-Returns one page of the photos of a folder (the root folder by default) in the order of 'sort', then by element id. 'total' is the photo count of the folder.
+Returns one page of the photos of a folder (the root folder by default) in the order of 'sort', then by element id. 'color_label' keeps the photos with that code and 'deleted' the photos with (true) or without (false) the Delete mark; both together keep the photos that match both. 'total' is the photo count of the folder that matches.
 
 **Parameters**
 
 | Name | Type | Required | Default | Notes |
 | --- | --- | --- | --- | --- |
+| `color_label` | `red` \| `orange` \| `yellow` \| `green` \| `blue` \| `purple` \| `gray` | no |  | Only photos with this code. |
+| `deleted` | boolean | no |  | Only photos with (true) or without (false) the Delete mark. |
 | `descending` | boolean | no | `false` |  |
 | `folder_id` | integer | no |  | at least 0. A folder id from library.folders. |
 | `limit` | integer | no | `100` | 1 to 1000. |
@@ -98,6 +100,8 @@ Returns one page of the photos of a folder (the root folder by default) in the o
 | Field | Type | Always | Notes |
 | --- | --- | --- | --- |
 | `items` | array of object | yes |  |
+| `items[].color_labels` | array of `red` \| `orange` \| `yellow` \| `green` \| `blue` \| `purple` \| `gray` | yes | The color label codes of the photo in code order. |
+| `items[].delete_mark` | boolean | yes | The Delete mark. The mark changes nothing on disk. |
 | `items[].element_id` | integer | yes |  |
 | `items[].file_name` | string | yes |  |
 | `items[].image_id` | integer | yes |  |
@@ -109,18 +113,27 @@ Returns one page of the photos of a folder (the root folder by default) in the o
 An unknown `folder_id` gives an empty page. To read all photos, repeat with `offset` until
 `offset` + the item count reaches `total`.
 
+Each item carries the marks of the photo: `rating`, `color_labels` (the code keys in code order,
+see `library.color_labels`), and `delete_mark`. `color_label` keeps the photos with one code;
+`deleted: true` keeps the photos with the Delete mark and `deleted: false` the photos without
+it. With both, a photo must match both. `total` counts the photos that match.
+
 **Errors**
 
+- `-32602` `/color_label`: an unknown code key. Keys are lower case: `red`, `orange`, `yellow`,
+  `green`, `blue`, `purple`, `gray`.
 - `-32001`: no project is loaded.
 
 **Example**
 
 ```bash
 alcedo-cli --json call library.list '{"limit":10}'
+alcedo-cli --json call library.list '{"deleted":true}'
 ```
 
 ```json
-{"items":[{"element_id":1,"file_name":"DSC0027.ARW","image_id":1,"rating":0},{"element_id":2,"file_name":"DSC00800.ARW","image_id":2,"rating":0},{"element_id":3,"file_name":"DSC06683.dng","image_id":3,"rating":0}],"offset":0,"total":3}
+{"items":[{"color_labels":[],"delete_mark":false,"element_id":1,"file_name":"DSC0027.ARW","image_id":1,"rating":0},{"color_labels":["red","blue"],"delete_mark":false,"element_id":2,"file_name":"DSC00800.ARW","image_id":2,"rating":0},{"color_labels":[],"delete_mark":true,"element_id":3,"file_name":"DSC06683.dng","image_id":3,"rating":0}],"offset":0,"total":3}
+{"items":[{"color_labels":[],"delete_mark":true,"element_id":3,"file_name":"DSC06683.dng","image_id":3,"rating":0}],"offset":0,"total":1}
 ```
 
 ## `library.thumbnail`
@@ -231,7 +244,7 @@ alcedo-cli --json call library.thumbnails '{"element_ids":[2,6],"out_dir":"D:/Ph
 <!-- BEGIN GENERATED: library.info -->
 Changes state: no.
 
-Returns the source file and the capture values of 'element_ids', in that order. The capture values come from the metadata that the import read: capture_time, camera_make, camera_model, lens, focal_mm, aperture, shutter, shutter_seconds, iso, width, and height. A value that the metadata does not have is left out of the item.
+Returns the source file, the marks (rating, color_labels, delete_mark), and the capture values of 'element_ids', in that order. The capture values come from the metadata that the import read: capture_time, camera_make, camera_model, lens, focal_mm, aperture, shutter, shutter_seconds, iso, width, and height. A value that the metadata does not have is left out of the item.
 
 **Parameters**
 
@@ -248,6 +261,8 @@ Returns the source file and the capture values of 'element_ids', in that order. 
 | `items[].camera_make` | string | no |  |
 | `items[].camera_model` | string | no |  |
 | `items[].capture_time` | string | no | YYYY-MM-DD HH:MM:SS by the camera clock. |
+| `items[].color_labels` | array of `red` \| `orange` \| `yellow` \| `green` \| `blue` \| `purple` \| `gray` | yes | The color label codes of the photo in code order. |
+| `items[].delete_mark` | boolean | yes | The Delete mark. The mark changes nothing on disk. |
 | `items[].element_id` | integer | yes |  |
 | `items[].file_name` | string | yes |  |
 | `items[].file_path` | string | no | The source file of the photo. |
@@ -270,7 +285,9 @@ time zone. `width` and `height` are the size of the image as the metadata gives 
 gives no focus point: each camera maker records it in its own way.
 
 When the metadata of a photo cannot be read, its item has only the library fields and
-`metadata_error`.
+`metadata_error`. The library fields are `element_id`, `image_id`, `file_name`, and the marks
+`rating`, `color_labels`, and `delete_mark` (see `library.color_label` and
+`library.delete_mark`).
 
 **Errors**
 
@@ -284,7 +301,7 @@ alcedo-cli --json call library.info '{"element_ids":[2,6]}'
 ```
 
 ```json
-{"items":[{"aperture":2,"camera_make":"Sony","camera_model":"ILCE-7M3","capture_time":"2022-09-18 21:36:18","element_id":2,"file_name":"DSC0027.ARW","file_path":"D:/Photos/2022-canada/DSC0027.ARW","focal_mm":28,"height":6024,"image_id":2,"iso":80,"lens":"FE 28mm F2","rating":0,"shutter":"1/1000s","shutter_seconds":0.001,"width":4024},{"aperture":6.3,"camera_make":"Sony","camera_model":"Sony ILCE-1","capture_time":"2023-10-22 21:08:01","element_id":6,"file_name":"DSC06683.dng","file_path":"D:/Photos/2023-yosemite/DSC06683.dng","focal_mm":50,"height":8672,"image_id":6,"iso":200,"lens":"FE 20-70mm F4 G","rating":0,"shutter":"1/800s","shutter_seconds":0.00125,"width":5784}]}
+{"items":[{"aperture":2,"camera_make":"Sony","camera_model":"ILCE-7M3","capture_time":"2022-09-18 21:36:18","color_labels":["red"],"delete_mark":false,"element_id":2,"file_name":"DSC0027.ARW","file_path":"D:/Photos/2022-canada/DSC0027.ARW","focal_mm":28,"height":6024,"image_id":2,"iso":80,"lens":"FE 28mm F2","rating":0,"shutter":"1/1000s","shutter_seconds":0.001,"width":4024},{"aperture":6.3,"camera_make":"Sony","camera_model":"Sony ILCE-1","capture_time":"2023-10-22 21:08:01","color_labels":[],"delete_mark":true,"element_id":6,"file_name":"DSC06683.dng","file_path":"D:/Photos/2023-yosemite/DSC06683.dng","focal_mm":50,"height":8672,"image_id":6,"iso":200,"lens":"FE 20-70mm F4 G","rating":0,"shutter":"1/800s","shutter_seconds":0.00125,"width":5784}]}
 ```
 
 For many photos at once, see the contact sheet script in the skill (`scripts/contact_sheet.py`).
@@ -325,6 +342,186 @@ alcedo-cli --json call library.rate '{"element_ids":[1,2],"rating":4}'
 {"rated_count":2,"rating":4,"task_id":"bgtask-2"}
 ```
 
+## `library.color_label`
+
+<!-- BEGIN GENERATED: library.color_label -->
+Changes state: yes. In a GUI session it needs agent control (`control.acquire`).
+
+Sets ('on': true) or clears ('on': false) one color label code on every photo of 'element_ids'. The other codes of each photo stay. The batch save runs as a task: the result holds its 'task_id' for tasks.wait. A batch while another mark batch saves, or a photo that a running delete holds, is rejected.
+
+**Parameters**
+
+| Name | Type | Required | Default | Notes |
+| --- | --- | --- | --- | --- |
+| `code` | `red` \| `orange` \| `yellow` \| `green` \| `blue` \| `purple` \| `gray` | yes |  | The color label code. |
+| `element_ids` | array of integer | yes |  | at least 1 item(s); each item at least 1. |
+| `on` | boolean | yes |  |  |
+
+**Result**
+
+| Field | Type | Always | Notes |
+| --- | --- | --- | --- |
+| `code` | string | yes |  |
+| `marked_count` | integer | yes |  |
+| `on` | boolean | yes |  |
+| `task_id` | string | yes |  |
+<!-- END GENERATED: library.color_label -->
+
+A photo can have any number of the seven color label codes. The command adds (`on: true`) or
+removes (`on: false`) one code on every photo and keeps the other codes of each photo. The
+project stores the codes only; the name of a code (`library.color_labels`) is a setting of
+the computer. The Library shows the new codes at once; wait for the `task_id` before you read
+them back with `library.list` or `library.info`.
+
+**Errors**
+
+- `-32602` `/code`: an unknown code key. Keys are lower case.
+- `-32602` `/element_ids`: unknown ids; `data.unknown_ids` lists them. Nothing changes.
+- `-32002`: another mark batch (color label or Delete mark) is still saving, or a running delete
+  holds one of the photos. `data.reason` names it, for example `Image marks are still being
+  saved.` Wait for the earlier task and try again. Nothing changes.
+
+**Example**
+
+```bash
+alcedo-cli --json call library.color_label '{"element_ids":[2,5],"code":"red","on":true}'
+alcedo-cli --json call tasks.wait '{"task_id":"bgtask-3"}'
+```
+
+```json
+{"code":"red","marked_count":2,"on":true,"task_id":"bgtask-3"}
+```
+
+## `library.delete_mark`
+
+<!-- BEGIN GENERATED: library.delete_mark -->
+Changes state: yes. In a GUI session it needs agent control (`control.acquire`).
+
+Sets ('on': true) or clears ('on': false) the Delete mark of every photo of 'element_ids'. The mark changes nothing on disk; library.delete is the separate step that deletes photos. The batch save runs as a task: the result holds its 'task_id' for tasks.wait. A batch while another mark batch saves, or a photo that a running delete holds, is rejected.
+
+**Parameters**
+
+| Name | Type | Required | Default | Notes |
+| --- | --- | --- | --- | --- |
+| `element_ids` | array of integer | yes |  | at least 1 item(s); each item at least 1. |
+| `on` | boolean | yes |  |  |
+
+**Result**
+
+| Field | Type | Always | Notes |
+| --- | --- | --- | --- |
+| `marked_count` | integer | yes |  |
+| `on` | boolean | yes |  |
+| `task_id` | string | yes |  |
+<!-- END GENERATED: library.delete_mark -->
+
+The Delete mark marks photos for a later delete. It changes nothing on disk and keeps the photo
+in the project; the Library shows it under a dark cover with a trash icon. `library.delete` is
+the separate step that removes photos from the project.
+
+**Errors**
+
+- `-32602` `/element_ids`: unknown ids; `data.unknown_ids` lists them. Nothing changes.
+- `-32002`: another mark batch is still saving, or a running delete holds one of the photos.
+  Nothing changes.
+
+**Example**
+
+```bash
+alcedo-cli --json call library.delete_mark '{"element_ids":[6],"on":true}'
+```
+
+```json
+{"marked_count":1,"on":true,"task_id":"bgtask-4"}
+```
+
+## `library.color_labels`
+
+<!-- BEGIN GENERATED: library.color_labels -->
+Changes state: no.
+
+Returns the seven color label codes in code order (red, orange, yellow, green, blue, purple, gray) with their names. The name of a code is a setting of the computer that every project shares; the code key never changes.
+
+**Parameters**
+
+No parameters other than `timeout_ms`.
+
+**Result**
+
+| Field | Type | Always | Notes |
+| --- | --- | --- | --- |
+| `codes` | array of object | yes |  |
+| `codes[].code` | `red` \| `orange` \| `yellow` \| `green` \| `blue` \| `purple` \| `gray` | yes |  |
+| `codes[].color` | string | yes | The display color as #RRGGBB. |
+| `codes[].default_name` | string | yes | The color name in the application language. |
+| `codes[].index` | integer | yes | The position of the code, 0 (red) to 6 (gray). |
+| `codes[].name` | string | yes | The name that the Library shows: the user name, or the color name. |
+| `codes[].renamed` | boolean | yes | True when the code has a user name. |
+<!-- END GENERATED: library.color_labels -->
+
+The seven codes in code order: `red`, `orange`, `yellow`, `green`, `blue`, `purple`, `gray`. The
+key of a code never changes. `name` is what the Library shows: the user name of the code, or the
+color name in the application language when the code has no user name (`renamed: false`). The
+names are shared by every project on the computer. Use the names to understand what the user
+means by a label, for example "Client picks", and the keys in the other commands.
+
+**Example**
+
+```bash
+alcedo-cli --json call library.color_labels
+```
+
+```json
+{"codes":[{"code":"red","color":"#E5534B","default_name":"Red","index":0,"name":"Client picks","renamed":true},{"code":"orange","color":"#E8863A","default_name":"Orange","index":1,"name":"Orange","renamed":false},{"code":"yellow","color":"#D8B43A","default_name":"Yellow","index":2,"name":"Yellow","renamed":false},{"code":"green","color":"#4FAE6B","default_name":"Green","index":3,"name":"Green","renamed":false},{"code":"blue","color":"#4C8DDB","default_name":"Blue","index":4,"name":"Blue","renamed":false},{"code":"purple","color":"#9B6BD3","default_name":"Purple","index":5,"name":"Purple","renamed":false},{"code":"gray","color":"#8C8C8C","default_name":"Gray","index":6,"name":"Gray","renamed":false}]}
+```
+
+## `library.color_label_name.set`
+
+<!-- BEGIN GENERATED: library.color_label_name.set -->
+Changes state: yes. In a GUI session it needs agent control (`control.acquire`).
+
+Sets the user name of a color label code for every project on the computer. The name is trimmed and cut to 40 characters; an empty name gives the code its color name back. Returns the library.color_labels item of the code.
+
+**Parameters**
+
+| Name | Type | Required | Default | Notes |
+| --- | --- | --- | --- | --- |
+| `code` | `red` \| `orange` \| `yellow` \| `green` \| `blue` \| `purple` \| `gray` | yes |  | The color label code. |
+| `name` | string | yes |  |  |
+
+**Result**
+
+| Field | Type | Always | Notes |
+| --- | --- | --- | --- |
+| `code` | `red` \| `orange` \| `yellow` \| `green` \| `blue` \| `purple` \| `gray` | yes |  |
+| `color` | string | yes | The display color as #RRGGBB. |
+| `default_name` | string | yes | The color name in the application language. |
+| `index` | integer | yes | The position of the code, 0 (red) to 6 (gray). |
+| `name` | string | yes | The name that the Library shows: the user name, or the color name. |
+| `renamed` | boolean | yes | True when the code has a user name. |
+<!-- END GENERATED: library.color_label_name.set -->
+
+Renames a code for every project on the computer, like Settings > Library > Color Labels. Rename
+a code only when the user asks for it. The name is trimmed and cut to 40 characters. An empty
+name removes the user name, so the code shows its color name again.
+
+**Errors**
+
+- `-32602` `/code`: an unknown code key.
+- `-32003`, `-32004`: GUI session without agent control.
+
+**Example**
+
+```bash
+alcedo-cli --json call library.color_label_name.set '{"code":"red","name":"Client picks"}'
+alcedo-cli --json call library.color_label_name.set '{"code":"red","name":""}'
+```
+
+```json
+{"code":"red","color":"#E5534B","default_name":"Red","index":0,"name":"Client picks","renamed":true}
+{"code":"red","color":"#E5534B","default_name":"Red","index":0,"name":"Red","renamed":false}
+```
+
 ## `library.delete`
 
 <!-- BEGIN GENERATED: library.delete -->
@@ -348,7 +545,8 @@ Deletes 'element_ids'. With scope 'project' the photos leave the project; this n
 <!-- END GENERATED: library.delete -->
 
 `library.delete` removes the photos from the project or the album. It does not delete the
-image files on the disk.
+image files on the disk. To mark photos for a later delete that the user reviews first, use
+`library.delete_mark`.
 
 **Errors**
 
