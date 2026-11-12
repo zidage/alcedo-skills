@@ -81,19 +81,26 @@ alcedo-cli --json call library.folders
 <!-- BEGIN GENERATED: library.list -->
 Changes state: no.
 
-Returns one page of the photos of a folder (the root folder by default) in the order of 'sort', then by element id. 'color_label' keeps the photos with that code and 'deleted' the photos with (true) or without (false) the Delete mark; both together keep the photos that match both. 'total' is the photo count of the folder that matches.
+Returns one page of the photos of a folder (the root folder by default) in the order of 'sort', then by element id. 'color_label' keeps the photos with that code and 'deleted' the photos with (true) or without (false) the Delete mark. 'camera', 'lens', 'capture_date', 'rating', 'import_date', and 'label' keep the photos of that library.stats bucket. Together the parameters keep the photos that match all of them. 'total' is the photo count of the folder that matches.
 
 **Parameters**
 
 | Name | Type | Required | Default | Notes |
 | --- | --- | --- | --- | --- |
+| `camera` | string | no |  | Only photos of this library.stats camera bucket; '(unknown)' is the bucket without a camera model. |
+| `capture_date` | string | no |  | Only photos of this library.stats capture_date bucket (YYYY-MM-DD); the empty text is the bucket without a capture date. |
 | `color_label` | `red` \| `orange` \| `yellow` \| `green` \| `blue` \| `purple` \| `gray` | no |  | Only photos with this code. |
 | `deleted` | boolean | no |  | Only photos with (true) or without (false) the Delete mark. |
 | `descending` | boolean | no | `false` |  |
 | `folder_id` | integer | no |  | 0 to 4294967295. A folder id from library.folders. |
+| `import_date` | string | no |  | Only photos of this library.stats import_date bucket (YYYY-MM-DD in 'time_zone'); the empty text is the bucket without an import time. Needs 'time_zone'. |
+| `label` | string | no |  | Only photos of this library.stats label bucket: a semantic label key of the active model. |
+| `lens` | string | no |  | Only photos of this library.stats lens bucket; '(unknown)' is the bucket without a lens. |
 | `limit` | integer | no | `100` | 1 to 1000. |
 | `offset` | integer | no | `0` | at least 0. |
+| `rating` | string | no |  | Only photos of this library.stats rating bucket; a text that is not a number is the bucket without a rating. |
 | `sort` | `none` \| `capture_time` \| `import_time` \| `camera_model` \| `lens` \| `rating` \| `labels` \| `edit_time` | no | `"none"` |  |
+| `time_zone` | string | no |  | The IANA time zone of the import days: 'import_date' and the import_date buckets of library.stats need it. |
 
 **Result**
 
@@ -116,12 +123,20 @@ An unknown `folder_id` gives an empty page. To read all photos, repeat with `off
 Each item carries the marks of the photo: `rating`, `color_labels` (the code keys in code order,
 see `library.color_labels`), and `delete_mark`. `color_label` keeps the photos with one code;
 `deleted: true` keeps the photos with the Delete mark and `deleted: false` the photos without
-it. With both, a photo must match both. `total` counts the photos that match.
+it.
+
+`camera`, `lens`, `capture_date`, `rating`, `import_date`, and `label` keep the photos of one
+`library.stats` bucket: pass the `label` of the bucket as `library.stats` returns it. The
+filter is the one of the Library statistics bar, so a bucket label selects `count` photos.
+`import_date` needs `time_zone`, the IANA zone of the import days. All filter parameters
+together keep the photos that match each of them. `total` counts the photos that match.
 
 **Errors**
 
 - `-32602` `/color_label`: an unknown code key. Keys are lower case: `red`, `orange`, `yellow`,
   `green`, `blue`, `purple`, `gray`.
+- `-32602`: `import_date` without `time_zone`, or an `import_date` that is not a
+  `YYYY-MM-DD` day.
 - `-32001`: no project is loaded.
 
 **Example**
@@ -129,11 +144,89 @@ it. With both, a photo must match both. `total` counts the photos that match.
 ```bash
 alcedo-cli --json call library.list '{"limit":10}'
 alcedo-cli --json call library.list '{"deleted":true}'
+alcedo-cli --json call library.list '{"camera":"ILCE-7M3","limit":10}'
 ```
 
 ```json
 {"items":[{"color_labels":[],"delete_mark":false,"element_id":1,"file_name":"DSC0027.ARW","image_id":1,"rating":0},{"color_labels":["red","blue"],"delete_mark":false,"element_id":2,"file_name":"DSC00800.ARW","image_id":2,"rating":0},{"color_labels":[],"delete_mark":true,"element_id":3,"file_name":"DSC06683.dng","image_id":3,"rating":0}],"offset":0,"total":3}
 {"items":[{"color_labels":[],"delete_mark":true,"element_id":3,"file_name":"DSC06683.dng","image_id":3,"rating":0}],"offset":0,"total":1}
+{"items":[{"color_labels":[],"delete_mark":false,"element_id":1,"file_name":"DSC0135.ARW","image_id":1,"rating":0}],"offset":0,"total":1}
+```
+
+## `library.stats`
+
+<!-- BEGIN GENERATED: library.stats -->
+Changes state: no.
+
+Returns the statistics of the photos of a folder (the root folder by default) that the Library statistics bar shows: the photos of each capture_date, camera, lens, label, and rating bucket, of each color label code, and with the Delete mark. With 'time_zone' it also returns the import_date buckets. The filter parameters are the ones of library.list. A bucket label selects its photos in the bucket parameter of library.list and library.stats.
+
+**Parameters**
+
+| Name | Type | Required | Default | Notes |
+| --- | --- | --- | --- | --- |
+| `camera` | string | no |  | Only photos of this library.stats camera bucket; '(unknown)' is the bucket without a camera model. |
+| `capture_date` | string | no |  | Only photos of this library.stats capture_date bucket (YYYY-MM-DD); the empty text is the bucket without a capture date. |
+| `color_label` | `red` \| `orange` \| `yellow` \| `green` \| `blue` \| `purple` \| `gray` | no |  | Only photos with this code. |
+| `deleted` | boolean | no |  | Only photos with (true) or without (false) the Delete mark. |
+| `folder_id` | integer | no |  | 0 to 4294967295. A folder id from library.folders. |
+| `import_date` | string | no |  | Only photos of this library.stats import_date bucket (YYYY-MM-DD in 'time_zone'); the empty text is the bucket without an import time. Needs 'time_zone'. |
+| `label` | string | no |  | Only photos of this library.stats label bucket: a semantic label key of the active model. |
+| `lens` | string | no |  | Only photos of this library.stats lens bucket; '(unknown)' is the bucket without a lens. |
+| `rating` | string | no |  | Only photos of this library.stats rating bucket; a text that is not a number is the bucket without a rating. |
+| `time_zone` | string | no |  | The IANA time zone of the import days: 'import_date' and the import_date buckets of library.stats need it. |
+
+**Result**
+
+| Field | Type | Always | Notes |
+| --- | --- | --- | --- |
+| `camera` | array of object | yes | Camera models; '(unknown)' is the photos without a camera model. |
+| `camera[].count` | integer | yes |  |
+| `camera[].label` | string | yes |  |
+| `capture_date` | array of object | yes | Capture days (YYYY-MM-DD); the empty label is the photos without a capture date. |
+| `capture_date[].count` | integer | yes |  |
+| `capture_date[].label` | string | yes |  |
+| `color_labels` | array of object | yes | The photos of each color label code, in code order. |
+| `color_labels[].code` | `red` \| `orange` \| `yellow` \| `green` \| `blue` \| `purple` \| `gray` | yes |  |
+| `color_labels[].count` | integer | yes |  |
+| `delete_mark` | integer | yes | The photos with the Delete mark. |
+| `import_date` | array of object | no | Import days (YYYY-MM-DD) in 'time_zone'; only with 'time_zone'. |
+| `import_date[].count` | integer | yes |  |
+| `import_date[].label` | string | yes |  |
+| `label` | array of object | yes | Semantic label keys of the active model. |
+| `label[].count` | integer | yes |  |
+| `label[].label` | string | yes |  |
+| `lens` | array of object | yes | Lenses; '(unknown)' is the photos without a lens. |
+| `lens[].count` | integer | yes |  |
+| `lens[].label` | string | yes |  |
+| `rating` | array of object | yes | Ratings. |
+| `rating[].count` | integer | yes |  |
+| `rating[].label` | string | yes |  |
+| `total` | integer | yes | The photos of the folder that match. |
+<!-- END GENERATED: library.stats -->
+
+Each dimension lists its buckets in the order of the statistics bar, each with its `label` and
+its photo `count`. A `label` selects the photos of its bucket in the parameter of the same name
+of `library.list` and `library.stats`. `(unknown)` is the camera or lens bucket of the photos
+without that value; the empty `label` is the capture day or import day bucket of the photos
+without that value. `label` holds the semantic label keys of the active model of the project.
+`color_labels` lists the seven codes in code order. The filter parameters are the ones of
+`library.list`; `total` and every bucket count the photos that match them.
+
+**Errors**
+
+- `-32602`: `import_date` without `time_zone`, or an `import_date` that is not a
+  `YYYY-MM-DD` day.
+- `-32007`: a `time_zone` that the database does not know.
+- `-32001`: no project is loaded.
+
+**Example**
+
+```bash
+alcedo-cli --json call library.stats '{"time_zone":"America/New_York"}'
+```
+
+```json
+{"camera":[{"count":1,"label":"ILCE-7M3"}],"capture_date":[{"count":1,"label":"2022-09-18"}],"color_labels":[{"code":"red","count":0},{"code":"orange","count":0},{"code":"yellow","count":0},{"code":"green","count":0},{"code":"blue","count":0},{"code":"purple","count":0},{"code":"gray","count":0}],"delete_mark":0,"import_date":[{"count":1,"label":"2026-10-04"}],"label":[],"lens":[{"count":1,"label":"FE 28mm F2"}],"rating":[{"count":1,"label":"0"}],"total":1}
 ```
 
 ## `library.thumbnail`
