@@ -15,7 +15,7 @@ Opens a photo in the editor, like a double-click in the library. An open image i
 
 | Name | Type | Required | Default | Notes |
 | --- | --- | --- | --- | --- |
-| `element_id` | integer | yes |  | at least 1. |
+| `element_id` | integer | yes |  | 1 to 4294967295. |
 
 **Result**
 

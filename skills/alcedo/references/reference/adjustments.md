@@ -20,7 +20,7 @@ Lists the Versions of a photo and the items of one Version that adjustments.copy
 
 | Name | Type | Required | Default | Notes |
 | --- | --- | --- | --- | --- |
-| `element_id` | integer | yes |  | at least 1. The photo (library.list). |
+| `element_id` | integer | yes |  | 1 to 4294967295. The photo (library.list). |
 | `version_id` | string | no |  | Hex id of a Version (adjustments.items); the active Version without it. |
 
 **Result**
@@ -86,7 +86,7 @@ Copies adjustments of a photo, like Copy Adjustments: builds a package from the 
 
 | Name | Type | Required | Default | Notes |
 | --- | --- | --- | --- | --- |
-| `element_id` | integer | yes |  | at least 1. The photo (library.list). |
+| `element_id` | integer | yes |  | 1 to 4294967295. The photo (library.list). |
 | `items` | array of object | no |  | at least 1 item(s). |
 | `items[].adjustment_id` | string | no |  |  |
 | `items[].item` | `enabled` \| `mix` \| `adjustment` \| `masks` \| `drt` \| `raw_decode` \| `color_temp` \| `lens_calib` \| `crop_rotate` | no |  | enabled and mix: node values of a Color Grade. adjustment: one adjustment, with adjustment_id. masks: all Masks of a Color Grade. drt: the display transform. raw_decode, color_temp, lens_calib, crop_rotate: the Develop fields. |

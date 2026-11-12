@@ -8,6 +8,7 @@
       "properties": {
         "element_id": {
           "description": "The photo (library.list).",
+          "maximum": 4294967295,
           "minimum": 1,
           "type": "integer"
         },
@@ -152,6 +153,7 @@
       "properties": {
         "element_id": {
           "description": "The photo (library.list).",
+          "maximum": 4294967295,
           "minimum": 1,
           "type": "integer"
         },
@@ -287,6 +289,7 @@
         "element_ids": {
           "description": "The photos; the library selection without it.",
           "items": {
+            "maximum": 4294967295,
             "minimum": 1,
             "type": "integer"
           },
@@ -911,6 +914,7 @@
       "additionalProperties": false,
       "properties": {
         "element_id": {
+          "maximum": 4294967295,
           "minimum": 1,
           "type": "integer"
         },
@@ -1170,6 +1174,7 @@
         "element_ids": {
           "description": "The photos to export.",
           "items": {
+            "maximum": 4294967295,
             "minimum": 1,
             "type": "integer"
           },
@@ -1496,6 +1501,7 @@
         },
         "element_ids": {
           "items": {
+            "maximum": 4294967295,
             "minimum": 1,
             "type": "integer"
           },
@@ -1545,7 +1551,7 @@
   },
   {
     "changes_state": true,
-    "description": "Sets the user name of a color label code for every project on the computer. The name is trimmed and cut to 40 characters; an empty name gives the code its color name back. Returns the library.color_labels item of the code.",
+    "description": "Sets the user name of a color label code for every project on the computer. Line breaks and tabs become spaces, other control characters and bidirectional controls are removed, and the name is trimmed and cut to 40 Unicode code points; an empty name gives the code its color name back. Returns the library.color_labels item of the code, whose name is the stored name.",
     "method": "library.color_label_name.set",
     "params_schema": {
       "additionalProperties": false,
@@ -1707,6 +1713,7 @@
       "properties": {
         "element_ids": {
           "items": {
+            "maximum": 4294967295,
             "minimum": 1,
             "type": "integer"
           },
@@ -1758,6 +1765,7 @@
       "properties": {
         "element_ids": {
           "items": {
+            "maximum": 4294967295,
             "minimum": 1,
             "type": "integer"
           },
@@ -1882,6 +1890,7 @@
       "properties": {
         "element_ids": {
           "items": {
+            "maximum": 4294967295,
             "minimum": 1,
             "type": "integer"
           },
@@ -2034,6 +2043,7 @@
         },
         "folder_id": {
           "description": "A folder id from library.folders.",
+          "maximum": 4294967295,
           "minimum": 0,
           "type": "integer"
         },
@@ -2145,6 +2155,7 @@
       "properties": {
         "element_ids": {
           "items": {
+            "maximum": 4294967295,
             "minimum": 1,
             "type": "integer"
           },
@@ -2211,6 +2222,7 @@
       "properties": {
         "element_ids": {
           "items": {
+            "maximum": 4294967295,
             "minimum": 1,
             "type": "integer"
           },
@@ -2248,6 +2260,7 @@
       "additionalProperties": false,
       "properties": {
         "element_id": {
+          "maximum": 4294967295,
           "minimum": 1,
           "type": "integer"
         },
@@ -2303,6 +2316,7 @@
       "properties": {
         "element_ids": {
           "items": {
+            "maximum": 4294967295,
             "minimum": 1,
             "type": "integer"
           },

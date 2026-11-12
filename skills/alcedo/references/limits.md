@@ -59,3 +59,6 @@ Behavior to know about in Alcedo Studio 0.3.3 (protocol version 1), and the open
 
 - **No MCP server.** Agents call `alcedo-cli` from a shell.
 - **Local only.** The socket accepts connections from the same OS user on the same computer.
+- **Ids are 32-bit.** An element id or folder id is an integer from 0 to 4294967295 (photos start
+  at 1). A larger id is a `-32602` error whose `data.pointer` names the id, such as
+  `/element_ids/0`.
