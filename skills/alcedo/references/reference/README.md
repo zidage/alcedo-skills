@@ -26,5 +26,6 @@ written by hand. The examples ran with the release build. Every command also acc
 | [Search](search.md) | `search.query` |
 | [LUT](lut.md) | `lut.list` |
 | [Film](film.md) | `film.list` |
+| [Tone Curve](curve.md) | `curve.presets` |
 
 [Editor fields](editor_fields.md) lists every field of `editor.set`.
