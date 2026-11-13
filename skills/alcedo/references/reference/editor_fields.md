@@ -36,7 +36,9 @@ fields at their reset values. Read the values with `editor.get` before you chang
   identity. The render applies the RGB curve to each channel, then the curve of the channel. A
   write gives one or more of the four curves and keeps the others: `{"points":[...]}` changes
   only the RGB curve, and `{"blue":[...]}` changes only the blue curve. `editor.get` gives
-  `points` always and a channel curve only when it is not the identity. The reset value resets
+  `points` always and a channel curve only when it is not the identity. In a write, a curve can
+  also be the id of a Tone Curve preset, for example `{"points":"film_like"}`: the write stores
+  the points of the preset ([curve.presets](curve.md)). The reset value resets
   the four curves.
 - **LUTs** (`lut`): a write gives the complete value. Use the `editor_value` of the LUT that
   [`lut.list`](lut.md) returns. `editor.get` gives `lut` in the same shape, with `strength`, so
@@ -278,7 +280,7 @@ A `lut` write gives the complete value. A `curve` write gives one or more of its
 
 #### `curve` (tone panel)
 
-{"points": [{"x": number, "y": number}, ...], "red": [...], "green": [...], "blue": [...]}: the RGB curve (points) and the red, green, and blue curves, each 2 to 16 control points in the unit square with x strictly increasing. A write needs one or more of the four keys and leaves the other curves as they are. The render applies the RGB curve to each channel, then the curve of the channel
+{"points": [{"x": number, "y": number}, ...], "red": [...], "green": [...], "blue": [...]}: the RGB curve (points) and the red, green, and blue curves, each 2 to 16 control points in the unit square with x strictly increasing. A write needs one or more of the four keys and leaves the other curves as they are; in a write, the value of a key can be the id of a Tone Curve preset (curve.presets), which writes the points of the preset. The render applies the RGB curve to each channel, then the curve of the channel
 
 Reset value: `{"blue": [{"x": 0, "y": 0}, {"x": 1, "y": 1}], "green": [{"x": 0, "y": 0}, {"x": 1, "y": 1}], "points": [{"x": 0, "y": 0}, {"x": 1, "y": 1}], "red": [{"x": 0, "y": 0}, {"x": 1, "y": 1}]}`
 

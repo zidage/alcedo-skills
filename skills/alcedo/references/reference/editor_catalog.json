@@ -1413,7 +1413,7 @@
     {
       "field": "curve",
       "kind": "model",
-      "model_shape": "{\"points\": [{\"x\": number, \"y\": number}, ...], \"red\": [...], \"green\": [...], \"blue\": [...]}: the RGB curve (points) and the red, green, and blue curves, each 2 to 16 control points in the unit square with x strictly increasing. A write needs one or more of the four keys and leaves the other curves as they are. The render applies the RGB curve to each channel, then the curve of the channel",
+      "model_shape": "{\"points\": [{\"x\": number, \"y\": number}, ...], \"red\": [...], \"green\": [...], \"blue\": [...]}: the RGB curve (points) and the red, green, and blue curves, each 2 to 16 control points in the unit square with x strictly increasing. A write needs one or more of the four keys and leaves the other curves as they are; in a write, the value of a key can be the id of a Tone Curve preset (curve.presets), which writes the points of the preset. The render applies the RGB curve to each channel, then the curve of the channel",
       "panel": "tone",
       "ui_default": {
         "blue": [

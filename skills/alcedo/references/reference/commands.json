@@ -479,6 +479,86 @@
   },
   {
     "changes_state": false,
+    "description": "Lists the Tone Curve presets in the order of the preset menu: Linear, the contrast shapes, the rendering looks (Film-like is the curve of the RAW import look), and the films. 'points' are the control points that a preset writes, on the curve axis (ACEScc, 18% grey at 0.41359). 'editor_value' applies the preset to the RGB curve: give it to editor.set on 'curve'. The id also applies to a channel curve, for example {\"red\": \"kodak_2383\"}. The document stores the points, not the id. Needs no open project.",
+    "method": "curve.presets",
+    "params_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "timeout_ms": {
+          "default": 120000,
+          "description": "Time limit in milliseconds for the command to reach its terminal state.",
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "result_schema": {
+      "properties": {
+        "presets": {
+          "items": {
+            "properties": {
+              "editor_value": {
+                "type": "object"
+              },
+              "group": {
+                "enum": [
+                  "",
+                  "Contrast",
+                  "Rendering",
+                  "Film"
+                ],
+                "type": "string"
+              },
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "points": {
+                "items": {
+                  "properties": {
+                    "x": {
+                      "type": "number"
+                    },
+                    "y": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "x",
+                    "y"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "group",
+              "points",
+              "editor_value"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "total": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "total",
+        "presets"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "changes_state": false,
     "description": "Returns which editor actions the session admits now, with the reason for each refused one. The GUI enables its controls from the same decisions.",
     "method": "editor.actions",
     "params_schema": {
@@ -1475,6 +1555,297 @@
         "total",
         "films",
         "warnings"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "changes_state": true,
+    "description": "Activates the installed AI label model 'profile_id' for the project, as the AI Models settings page does, and answers when the activation finished. The answer is the result of labels.status.",
+    "method": "labels.activate_model",
+    "params_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "profile_id": {
+          "description": "The model profile, for example siglip2-b32-256-multilingual.",
+          "type": "string"
+        },
+        "timeout_ms": {
+          "default": 120000,
+          "description": "Time limit in milliseconds for the command to reach its terminal state.",
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "profile_id"
+      ],
+      "type": "object"
+    },
+    "result_schema": {
+      "properties": {
+        "active_model_key": {
+          "type": "string"
+        },
+        "active_model_profile_id": {
+          "type": "string"
+        },
+        "album_labeled": {
+          "type": "integer"
+        },
+        "album_total": {
+          "type": "integer"
+        },
+        "album_unlabeled": {
+          "type": "integer"
+        },
+        "canceled": {
+          "type": "integer"
+        },
+        "embedded": {
+          "type": "integer"
+        },
+        "failed": {
+          "type": "integer"
+        },
+        "model_activation_running": {
+          "type": "boolean"
+        },
+        "remaining_seconds": {
+          "type": "integer"
+        },
+        "running": {
+          "type": "boolean"
+        },
+        "skipped": {
+          "type": "integer"
+        },
+        "status_text": {
+          "type": "string"
+        },
+        "total": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "active_model_profile_id",
+        "running",
+        "status_text"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "changes_state": true,
+    "description": "Cancels the running label generation. Labels of the photos that finished stay. The answer is the result of labels.status.",
+    "method": "labels.cancel",
+    "params_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "timeout_ms": {
+          "default": 120000,
+          "description": "Time limit in milliseconds for the command to reach its terminal state.",
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "result_schema": {
+      "properties": {
+        "active_model_key": {
+          "type": "string"
+        },
+        "active_model_profile_id": {
+          "type": "string"
+        },
+        "album_labeled": {
+          "type": "integer"
+        },
+        "album_total": {
+          "type": "integer"
+        },
+        "album_unlabeled": {
+          "type": "integer"
+        },
+        "canceled": {
+          "type": "integer"
+        },
+        "embedded": {
+          "type": "integer"
+        },
+        "failed": {
+          "type": "integer"
+        },
+        "model_activation_running": {
+          "type": "boolean"
+        },
+        "remaining_seconds": {
+          "type": "integer"
+        },
+        "running": {
+          "type": "boolean"
+        },
+        "skipped": {
+          "type": "integer"
+        },
+        "status_text": {
+          "type": "string"
+        },
+        "total": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "active_model_profile_id",
+        "running",
+        "status_text"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "changes_state": true,
+    "description": "Generates AI labels for the photos of the project that have none, as the Generate button of the AI label settings does. With 'force' true every photo gets new labels. Answers with the background task id when the generation runs (use tasks.wait), or with 'task_id' null and the status text when nothing runs.",
+    "method": "labels.generate",
+    "params_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "force": {
+          "description": "Generate labels for every photo. Default false.",
+          "type": "boolean"
+        },
+        "timeout_ms": {
+          "default": 120000,
+          "description": "Time limit in milliseconds for the command to reach its terminal state.",
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "result_schema": {
+      "properties": {
+        "status_text": {
+          "type": "string"
+        },
+        "task_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "task_id",
+        "status_text"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "changes_state": true,
+    "description": "Downloads the AI label model 'profile_id' into the model folder of the AI Models settings page, as its Install button does, and answers with the download's task id (use tasks.wait). The download statement of the AI Models page must be accepted. A model that is installed answers with 'task_id' null.",
+    "method": "labels.install_model",
+    "params_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "profile_id": {
+          "description": "The model profile.",
+          "type": "string"
+        },
+        "timeout_ms": {
+          "default": 120000,
+          "description": "Time limit in milliseconds for the command to reach its terminal state.",
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "profile_id"
+      ],
+      "type": "object"
+    },
+    "result_schema": {
+      "properties": {
+        "task_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "task_id"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "changes_state": false,
+    "description": "Returns the active AI label model of the project, the photo counts with and without labels, and the progress of a running label generation. 'remaining_seconds' is present when the running generation has a time estimate.",
+    "method": "labels.status",
+    "params_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "timeout_ms": {
+          "default": 120000,
+          "description": "Time limit in milliseconds for the command to reach its terminal state.",
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "result_schema": {
+      "properties": {
+        "active_model_key": {
+          "type": "string"
+        },
+        "active_model_profile_id": {
+          "type": "string"
+        },
+        "album_labeled": {
+          "type": "integer"
+        },
+        "album_total": {
+          "type": "integer"
+        },
+        "album_unlabeled": {
+          "type": "integer"
+        },
+        "canceled": {
+          "type": "integer"
+        },
+        "embedded": {
+          "type": "integer"
+        },
+        "failed": {
+          "type": "integer"
+        },
+        "model_activation_running": {
+          "type": "boolean"
+        },
+        "remaining_seconds": {
+          "type": "integer"
+        },
+        "running": {
+          "type": "boolean"
+        },
+        "skipped": {
+          "type": "integer"
+        },
+        "status_text": {
+          "type": "string"
+        },
+        "total": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "active_model_profile_id",
+        "running",
+        "status_text"
       ],
       "type": "object"
     }
