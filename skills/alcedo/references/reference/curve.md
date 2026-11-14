@@ -5,7 +5,7 @@
 <!-- BEGIN GENERATED: curve.presets -->
 Changes state: no.
 
-Lists the Tone Curve presets in the order of the preset menu: Linear, the contrast shapes, the rendering looks (Film-like is the curve of the RAW import look), and the films. 'points' are the control points that a preset writes, on the curve axis (ACEScc, 18% grey at 0.41359). 'editor_value' applies the preset to the RGB curve: give it to editor.set on 'curve'. The id also applies to a channel curve, for example {"red": "kodak_2383"}. The document stores the points, not the id. Needs no open project.
+Lists the Tone Curve presets in the order of the preset menu: Linear, the contrast shapes, Default (Film-like) (the curve of the RAW import look), and the films. 'points' are the control points that a preset writes, on the curve axis (ACEScc, 18% grey at 0.41359). 'editor_value' applies the preset to the RGB curve: give it to editor.set on 'curve'. The id also applies to a channel curve, for example {"red": "kodak_2383"}. The document stores the points, not the id. Needs no open project.
 
 **Parameters**
 
@@ -33,12 +33,11 @@ needs no open project. Alcedo Studio 0.3.6 and later have this command.
 | --- | --- | --- |
 | | `linear` | The identity curve |
 | `Contrast` | `soft_contrast`, `medium_contrast`, `strong_contrast` | S curves around 18% grey |
-| `Rendering` | `film_like` | The Adobe default tone curve on top of the ACES 2.0 display transform |
-| `Rendering` | `filmic` | darktable filmic rgb with its default settings |
+| `Rendering` | `film_like` | Default (Film-like): one S curve of 7 points, shadows below the identity line, a soft shoulder into white |
 | `Film` | `kodak_2383`, `fuji_velvia_50`, `kodak_ektachrome_e100` | The neutral tone of the film from the film print data |
 
 Each preset keeps 18% grey where it is and changes the contrast, the shadows, and the highlights.
-Film-like is the RGB curve of a newly imported RAW photo. The film presets give only the tone of
+Default (Film-like) is the RGB curve of a newly imported RAW photo. The film presets give only the tone of
 the film; for the colour of the film use Film Print ([film.list](film.md)).
 
 Each item of `presets` has these fields:
