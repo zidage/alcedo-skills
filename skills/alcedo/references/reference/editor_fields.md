@@ -37,7 +37,7 @@ fields at their reset values. Read the values with `editor.get` before you chang
   write gives one or more of the four curves and keeps the others: `{"points":[...]}` changes
   only the RGB curve, and `{"blue":[...]}` changes only the blue curve. `editor.get` gives
   `points` always and a channel curve only when it is not the identity. In a write, a curve can
-  also be the id of a Tone Curve preset, for example `{"points":"film_like"}`: the write stores
+  also be the id of a Tone Curve preset, for example `{"points":"cl_digital"}`: the write stores
   the points of the preset ([curve.presets](curve.md)). The reset value resets
   the four curves.
 - **LUTs** (`lut`): a write gives the complete value. Use the `editor_value` of the LUT that

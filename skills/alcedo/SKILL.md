@@ -182,11 +182,11 @@ Alcedo Studio 0.3.4 or later.
 
 ## Tone curve presets
 
-A newly imported RAW photo has the Default (Film-like) tone curve (one S curve on the display
-transform) with contrast 0. For a different overall tone, list the presets with
+A newly imported RAW photo has the Cl. Digit tone curve (`cl_digital`, one S curve on the
+display transform) with contrast 0. For a different overall tone, list the presets with
 `curve.presets` and give the `editor_value` of one to `editor.set` on `curve`: the contrast
-shapes for more or less mid-tone contrast, `film_like` to return to the default look, `linear`
-for the plain display transform. Film Print resets a Film-like curve to Linear by itself.
+shapes for more or less mid-tone contrast, `cl_digital` to return to the default look, `linear`
+for the plain display transform. Film Print resets a Cl. Digit curve to Linear by itself.
 
 ## LUTs
 
