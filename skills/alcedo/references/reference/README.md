@@ -20,6 +20,7 @@ written by hand. The examples ran with the release build. Every command also acc
 | [Tasks](tasks.md) | `tasks.list`, `tasks.wait` |
 | [Editor](editor.md) | `editor.open`, `editor.close`, `editor.catalog`, `editor.get`, `editor.set`, `editor.batch_set`, `editor.undo`, `editor.redo`, `editor.history`, `editor.actions` |
 | [Render](render.md) | `render.preview` |
+| [Nodes](nodes.md) | `nodes.list`, `nodes.set_visibility` |
 | [Versions](versions.md) | `versions.list`, `versions.create`, `versions.branch`, `versions.checkout`, `versions.rename`, `versions.remove` |
 | [Adjustments](adjustments.md) | `adjustments.items`, `adjustments.copy`, `adjustments.paste` |
 | [Export](export.md) | `export.options`, `export.run`, `export.status` |

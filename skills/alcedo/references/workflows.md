@@ -235,6 +235,26 @@ work. Use Versions to keep alternatives.
   {"head_commit":"7060ad9cfd466e5caa51a66f8c0750af","name":"Default","version_id":"3fdfa0facee012d4f8f233b6a9bea1f0"}
   ```
 
+## Compare with a Color Grade hidden
+
+Hide a Color Grade to see the photo without it, then show it again. Each change is one history
+commit, and the Color Grade keeps its parameters and Masks.
+
+```bash
+alcedo-cli call nodes.list
+alcedo-cli call nodes.set_visibility '{"node_id":"grade.primary","visible":false}'
+alcedo-cli call render.preview '{"out_dir":"D:/Photos/previews","file_stem":"without_grade"}'
+alcedo-cli call nodes.set_visibility '{"node_id":"grade.primary","visible":true}'
+```
+
+```json
+{"color_grades":[{"backbone_index":0,"deletion_protected":false,"detached":false,"hidden":false,"mask_count":0,"name":"Color Grade 1","node_id":"grade.primary"}]}
+{"backbone_index":0,"deletion_protected":false,"detached":false,"hidden":true,"mask_count":0,"name":"Color Grade 1","node_id":"grade.primary"}
+```
+
+`nodes.list` also lists the detached Color Grades (`"detached":true`) after the Color Grades on
+the image path.
+
 ## Export
 
 Close the editor first, so that the last edits are committed, then export. Export runs as a
