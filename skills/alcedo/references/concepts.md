@@ -145,6 +145,19 @@ active Version is the current state of the photo.
 - `editor.close`, `editor.open` of another photo, `project.save`, and `session.shutdown` save the
   open edits.
 
+## Color Grades
+
+A **Color Grade** is a node of the image that holds color adjustments and the Masks of one Mask
+Group. The image runs from the Develop node through the Color Grades to the display transform;
+this is the image path. `nodes.list` lists the Color Grades in that order.
+
+- A **hidden** Color Grade stays on the image path, and the render skips it in the preview, the
+  thumbnails, and the export. Its parameters and Masks stay in the document and stay editable.
+  `nodes.set_visibility` shows or hides one Color Grade as one history commit.
+- A **detached** Color Grade has no scene-image edge. It stays in the document with its
+  parameters and Masks, outside the image path and outside the render. `nodes.list` lists the
+  detached Color Grades after the Color Grades on the image path.
+
 ## UI values
 
 All editor values are **UI values**: the values that the editor panels show, in the same
