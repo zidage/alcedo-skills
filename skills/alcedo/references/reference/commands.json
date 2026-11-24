@@ -558,6 +558,207 @@
     }
   },
   {
+    "changes_state": true,
+    "description": "Turns AI Denoise on or off for the photo that the editor has open, as the switch of the RAW Decode panel does: one history commit of 'raw_decode' with the author agent and the optional 'note'; on records the installed model version. Answers after the commit and its rendered frame. The frame of a full-size render runs the model, so it takes longer. Turning on is refused (-32002, data.refusal platform_unavailable, model_not_installed, model_unreadable, or sensor_not_supported) before any change. When the frame fails, the commit stays and the error data has 'head_commit', 'enabled', and 'ai_denoise_error' (kind, text); turn AI Denoise off again with enabled false. For several photos, copy the raw_decode item with adjustments.copy and paste it.",
+    "method": "denoise.set",
+    "params_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "description": "true turns AI Denoise on.",
+          "type": "boolean"
+        },
+        "note": {
+          "description": "Note of the history commit.",
+          "type": "string"
+        },
+        "timeout_ms": {
+          "default": 120000,
+          "description": "Time limit in milliseconds for the command to reach its terminal state.",
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "enabled"
+      ],
+      "type": "object"
+    },
+    "result_schema": {
+      "properties": {
+        "head_commit": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "photo": {
+          "properties": {
+            "element_id": {
+              "type": "integer"
+            },
+            "enabled": {
+              "type": "boolean"
+            },
+            "error": {
+              "description": "The AI Denoise error of the last frame (kind, text); null after a frame without one.",
+              "type": [
+                "object",
+                "null"
+              ]
+            },
+            "image_id": {
+              "type": "integer"
+            },
+            "model_version": {
+              "description": "The model version that the switch recorded when it was turned on; null while it is off.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "sensor": {
+              "description": "The sensor of the RAW file. AI Denoise supports bayer only; unknown while the file is read or when it cannot be read.",
+              "enum": [
+                "bayer",
+                "xtrans",
+                "other",
+                "unknown"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "element_id",
+            "image_id",
+            "sensor",
+            "enabled",
+            "model_version",
+            "error"
+          ],
+          "type": "object"
+        }
+      },
+      "required": [
+        "photo",
+        "head_commit"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "changes_state": false,
+    "description": "Returns whether this computer can run AI Denoise ('available': a supported device), the installed model ('installed', 'version', or 'problem' model_not_installed or model_unreadable with 'reason'), and for the photo that the editor has open ('photo', null without one): its sensor, whether AI Denoise is on, the model version that the switch recorded, and the AI Denoise error of its last frame. AI Denoise runs a neural network on the RAW mosaic in place of the demosaic of the full-size render (editor, render.preview, export); thumbnails do not show it.",
+    "method": "denoise.status",
+    "params_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "timeout_ms": {
+          "default": 120000,
+          "description": "Time limit in milliseconds for the command to reach its terminal state.",
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "result_schema": {
+      "properties": {
+        "available": {
+          "type": "boolean"
+        },
+        "model": {
+          "properties": {
+            "installed": {
+              "type": "boolean"
+            },
+            "problem": {
+              "description": "model_not_installed or model_unreadable; null when the model is installed.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "reason": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "version": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "installed",
+            "version",
+            "problem",
+            "reason"
+          ],
+          "type": "object"
+        },
+        "photo": {
+          "properties": {
+            "element_id": {
+              "type": "integer"
+            },
+            "enabled": {
+              "type": "boolean"
+            },
+            "error": {
+              "description": "The AI Denoise error of the last frame (kind, text); null after a frame without one.",
+              "type": [
+                "object",
+                "null"
+              ]
+            },
+            "image_id": {
+              "type": "integer"
+            },
+            "model_version": {
+              "description": "The model version that the switch recorded when it was turned on; null while it is off.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "sensor": {
+              "description": "The sensor of the RAW file. AI Denoise supports bayer only; unknown while the file is read or when it cannot be read.",
+              "enum": [
+                "bayer",
+                "xtrans",
+                "other",
+                "unknown"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "element_id",
+            "image_id",
+            "sensor",
+            "enabled",
+            "model_version",
+            "error"
+          ],
+          "type": [
+            "object",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "available",
+        "model",
+        "photo"
+      ],
+      "type": "object"
+    }
+  },
+  {
     "changes_state": false,
     "description": "Returns which editor actions the session admits now, with the reason for each refused one. The GUI enables its controls from the same decisions.",
     "method": "editor.actions",

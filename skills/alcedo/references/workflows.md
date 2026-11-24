@@ -405,6 +405,53 @@ Each photo gets one new Version with one commit, not one commit per field.
 5. Render previews of a few pasted photos and fix the photos that need their own exposure or
    white balance with the edit loop.
 
+## Remove noise with AI Denoise
+
+Use AI Denoise when the user asks for noise reduction, or on your own only for a high ISO photo
+whose noise clearly hurts the picture (`SKILL.md`, "AI Denoise: only for real noise").
+
+1. Read the ISO and check that AI Denoise can run:
+
+   ```bash
+   alcedo-cli --json call library.info '{"element_ids":[12]}'
+   alcedo-cli --json call editor.open '{"element_id":12}'
+   alcedo-cli --json call denoise.status
+   ```
+
+   `available` true, `model.installed` true, and `photo.sensor` `bayer` are needed.
+
+2. Look at a detail at about full resolution, for example the shadows of the lower left
+   quarter of a 6000 x 4000 photo (1500 x 1000 pixels):
+
+   ```bash
+   alcedo-cli --json call render.preview '{"out_dir":"D:/tmp/previews","compare":"none","long_edge":1500,"file_stem":"p12-noise-before","region":{"x":0,"y":0.5,"w":0.25,"h":0.25}}'
+   ```
+
+3. When the noise clearly hurts the picture, turn AI Denoise on and look at the same region:
+
+   ```bash
+   alcedo-cli --json call denoise.set '{"enabled":true,"note":"agent: AI Denoise, ISO 6400 shadow noise"}'
+   alcedo-cli --json call render.preview '{"out_dir":"D:/tmp/previews","compare":"none","long_edge":1500,"file_stem":"p12-noise-after","region":{"x":0,"y":0.5,"w":0.25,"h":0.25}}'
+   ```
+
+   Keep it when the detail looks cleaner and natural; otherwise `editor.undo`.
+
+4. When `denoise.set` answers `-32007` with `data.ai_denoise_error`, turn it off and tell the
+   user the `kind`:
+
+   ```bash
+   alcedo-cli --json call denoise.set '{"enabled":false,"note":"agent: AI Denoise failed, device_too_slow"}'
+   ```
+
+5. For other high ISO photos of the same scene with the same noise, copy the `raw_decode` item
+   and paste it onto them (see "Apply one look to many photos"):
+
+   ```bash
+   alcedo-cli --json call adjustments.copy '{"element_id":12,"items":[{"node_id":"develop","item":"raw_decode"}]}'
+   alcedo-cli --json call adjustments.paste '{"package_id":"package-1","element_ids":[13,14],"note":"agent: AI Denoise, ISO 6400"}'
+   alcedo-cli --json call tasks.wait '{"task_id":"bgtask-2"}'
+   ```
+
 ## Retouch every photo
 
 Do the edit loop for each photo of `library.list`. A Bash example that opens each photo and
