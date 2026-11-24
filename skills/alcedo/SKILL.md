@@ -214,6 +214,9 @@ When the user asks to process every photo (of a project, a folder, or a selectio
    and `color_temp` unless they suit every photo), and one `adjustments.paste` onto the set.
    `tasks.wait` the `task_id` and read `result` for the failed photos. Each photo gets one
    Version and one commit. See `references/reference/adjustments.md`.
+   When the user names a preset or asks for one of their presets, use it in place of a copy:
+   `presets.list`, then one `presets.apply` with its `preset_id` onto the set. Save a preset
+   (`presets.save`) only when the user asks for one. See `references/reference/presets.md`.
 3. Then do the edit loop on the photos that need their own correction. Photos of the same
    scene usually need similar changes: start from the values of the previous photo, then check
    the preview.
