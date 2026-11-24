@@ -674,7 +674,7 @@ alcedo-cli --json call library.delete '{"element_ids":[3],"scope":"project"}'
 <!-- BEGIN GENERATED: library.mounts -->
 Changes state: no.
 
-Returns the mounted folders of the open project: the mount id, the folder id of the mount root collection, the disk directory, the volume identity, the state of the last scan of this session ('not_scanned', 'online', 'offline'), the counts of present and missing photos, and the end of the last complete scan (UTC).
+Returns the mounted folders of the open project: the mount id, the folder id of the mount root collection, the disk directory, the volume identity, the last read display name of the volume (empty when it has none), the mount point of the volume when a scan of this session reached it (empty otherwise), the state of the last scan of this session ('not_scanned', 'online', 'offline'), the counts of present and missing photos, and the end of the last complete scan (UTC).
 
 **Parameters**
 
@@ -693,6 +693,11 @@ last scan of this session: `offline` when the directory cannot be reached (for e
 unplugged drive). A photo whose file the last scan did not find counts in `missing_count`; it
 keeps its edits.
 
+`volume_name` is the display name of the volume, as the mount or the last scan that reached the
+volume read it; an offline mount keeps it. It is empty for a volume without a name.
+`volume_mount_point` is the drive (`D:\`) or the mount path of the volume while the mount is
+`online`, and empty otherwise.
+
 **Example**
 
 ```bash
@@ -700,7 +705,7 @@ alcedo-cli --json call library.mounts
 ```
 
 ```json
-{"mounts":[{"mount_id":1,"folder_id":42,"path":"D:/Photos/2026 Japan","volume_identity":"\\\\?\\Volume{0b6c...}\\","state":"online","present_count":842,"missing_count":0,"last_scan_at":"2026-11-20T18:02:11Z"}]}
+{"mounts":[{"mount_id":1,"folder_id":42,"path":"D:/Photos/2026 Japan","volume_identity":"\\\\?\\Volume{0b6c...}\\","volume_name":"Photos SSD","volume_mount_point":"D:\\","state":"online","present_count":842,"missing_count":0,"last_scan_at":"2026-11-20T18:02:11Z"}]}
 ```
 
 ## `library.mount`
@@ -708,13 +713,12 @@ alcedo-cli --json call library.mounts
 <!-- BEGIN GENERATED: library.mount -->
 Changes state: yes. In a GUI session it needs agent control (`control.acquire`).
 
-Mounts the disk directory 'path' as a new collection in the folder 'parent_id' (the root folder without it), then waits for the first scan, which imports the supported files of the directory and its subdirectories by reference. Alcedo Studio never writes to the directory. Returns the mount id, the folder id of the new collection, and the scan counts. A large directory needs a larger 'timeout_ms'; after a timeout the scan continues and library.mounts shows its result. A refused mount answers -32002 (rejected) with data.error 'nested_mount', 'parent_is_mounted', 'parent_is_not_a_folder', or 'directory_unreachable'.
+Mounts the disk directory 'path' as a new collection in the library root, then waits for the first scan, which imports the supported files of the directory and its subdirectories by reference. Alcedo Studio never writes to the directory. Returns the mount id, the folder id of the new collection, and the scan counts. A large directory needs a larger 'timeout_ms'; after a timeout the scan continues and library.mounts shows its result. A refused mount answers -32002 (rejected) with data.error 'nested_mount' or 'directory_unreachable'.
 
 **Parameters**
 
 | Name | Type | Required | Default | Notes |
 | --- | --- | --- | --- | --- |
-| `parent_id` | integer | no |  | 1 to 4294967295. |
 | `path` | string | yes |  |  |
 
 **Result**
@@ -736,8 +740,9 @@ Mounts the disk directory 'path' as a new collection in the folder 'parent_id' (
 | `scan.status` | `complete` \| `offline` \| `canceled` \| `storage_failure` | yes |  |
 <!-- END GENERATED: library.mount -->
 
-The new collection takes the name of the directory. The command answers after the first scan,
-so the photos are in the library when it returns. Use `folder_id` as the `folder_id` of
+The new collection takes the name of the directory and is a child of the library root: a
+collection never holds a mount. The command answers after the first scan, so the photos are in
+the library when it returns. Use `folder_id` as the `folder_id` of
 `library.list`.
 
 **Errors**
@@ -745,8 +750,6 @@ so the photos are in the library when it returns. Use `folder_id` as the `folder
 - `-32602` `/path`: the path is not a local path.
 - `-32002` with `data.error`:
   - `nested_mount`: the directory is inside a mounted directory, or holds one.
-  - `parent_is_mounted`: `parent_id` is a mounted folder.
-  - `parent_is_not_a_folder`: `parent_id` is not a folder of the library.
   - `directory_unreachable`: the directory does not exist.
 - `-32002`: an import is running. Wait for it (`tasks.wait {"idle": true}`), then send the
   command again.

@@ -3024,16 +3024,11 @@
   },
   {
     "changes_state": true,
-    "description": "Mounts the disk directory 'path' as a new collection in the folder 'parent_id' (the root folder without it), then waits for the first scan, which imports the supported files of the directory and its subdirectories by reference. Alcedo Studio never writes to the directory. Returns the mount id, the folder id of the new collection, and the scan counts. A large directory needs a larger 'timeout_ms'; after a timeout the scan continues and library.mounts shows its result. A refused mount answers -32002 (rejected) with data.error 'nested_mount', 'parent_is_mounted', 'parent_is_not_a_folder', or 'directory_unreachable'.",
+    "description": "Mounts the disk directory 'path' as a new collection in the library root, then waits for the first scan, which imports the supported files of the directory and its subdirectories by reference. Alcedo Studio never writes to the directory. Returns the mount id, the folder id of the new collection, and the scan counts. A large directory needs a larger 'timeout_ms'; after a timeout the scan continues and library.mounts shows its result. A refused mount answers -32002 (rejected) with data.error 'nested_mount' or 'directory_unreachable'.",
     "method": "library.mount",
     "params_schema": {
       "additionalProperties": false,
       "properties": {
-        "parent_id": {
-          "maximum": 4294967295,
-          "minimum": 1,
-          "type": "integer"
-        },
         "path": {
           "type": "string"
         },
@@ -3119,7 +3114,7 @@
   },
   {
     "changes_state": false,
-    "description": "Returns the mounted folders of the open project: the mount id, the folder id of the mount root collection, the disk directory, the volume identity, the state of the last scan of this session ('not_scanned', 'online', 'offline'), the counts of present and missing photos, and the end of the last complete scan (UTC).",
+    "description": "Returns the mounted folders of the open project: the mount id, the folder id of the mount root collection, the disk directory, the volume identity, the last read display name of the volume (empty when it has none), the mount point of the volume when a scan of this session reached it (empty otherwise), the state of the last scan of this session ('not_scanned', 'online', 'offline'), the counts of present and missing photos, and the end of the last complete scan (UTC).",
     "method": "library.mounts",
     "params_schema": {
       "additionalProperties": false,
