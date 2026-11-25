@@ -622,7 +622,7 @@ alcedo-cli --json call library.color_label_name.set '{"code":"red","name":""}'
 <!-- BEGIN GENERATED: library.delete -->
 Changes state: yes. In a GUI session it needs agent control (`control.acquire`).
 
-Deletes 'element_ids'. With scope 'project' the photos leave the project; this needs the root folder as the current folder. With scope 'album' they leave the current album. Answers -32002 (rejected) while a task holds the photos: a mark, rating, or paste adjustments batch that is saving, or another delete. Send it again after tasks.wait. Other start failures answer -32007 (failed).
+Deletes 'element_ids'. With scope 'project' the photos leave the project; this needs the root folder as the current folder. With scope 'album' they leave the current album. A photo that a task holds (a mark, rating, or paste adjustments batch that is saving) and a mounted photo in a delete from the project stay; 'skipped_ids' lists them, and the other photos are deleted. Answers -32002 (rejected) when a task holds every photo or another delete runs. Send it again after tasks.wait. A delete that the mounted folder rules refuse for every photo answers -32002 with data.error 'mounted_folder_structure_is_read_only', 'mounted_photo_is_present', or 'mounted_photo_is_missing'; the Delete mark stays available. Other start failures answer -32007 (failed).
 
 **Parameters**
 
@@ -637,6 +637,7 @@ Deletes 'element_ids'. With scope 'project' the photos leave the project; this n
 | --- | --- | --- | --- |
 | `deleted_ids` | array | yes |  |
 | `failed_ids` | array | yes |  |
+| `skipped_ids` | array | yes |  |
 <!-- END GENERATED: library.delete -->
 
 `library.delete` removes the photos from the project or the album. It does not delete the
@@ -650,23 +651,33 @@ image files on the disk. To mark photos for a later delete that the user reviews
 - `-32002`: the scope does not fit the current folder, for example `The current folder gives
   the delete scope 'album', not 'project'.` Change the current folder, then send the command
   again.
-- `-32002`: a task holds the photos, for example `Image marks are being saved.` while a
-  `library.color_label`, `library.delete_mark`, or `library.rate` batch of these photos saves,
-  while an adjustments paste runs, or while another delete runs. Wait for the task (`tasks.wait {"idle": true}`), then send the
-  same command again.
+- `-32002`: a task holds every photo of the request, for example `Image marks are being saved.`
+  while a `library.color_label`, `library.delete_mark`, or `library.rate` batch of these photos
+  saves, while an adjustments paste runs, or while another delete runs. Wait for the task
+  (`tasks.wait {"idle": true}`), then send the same command again.
+- `-32002` with `data.error` `mounted_photo_is_present` or `mounted_photo_is_missing`: every
+  photo of a delete from the project is a mounted photo. Use `library.delete_mark` instead.
 - `-32007`: the delete did not start for another reason, such as a running import or export,
   or no photo was deleted. `data.reason` gives the reason.
 
-When some photos cannot be deleted, the command succeeds and `failed_ids` lists them.
+The command deletes the photos it can and keeps the others:
+
+| Field | Photos |
+| --- | --- |
+| `deleted_ids` | Deleted. |
+| `skipped_ids` | Kept: a mounted photo in a delete from the project, or a photo that a running task holds. Send the held photos again after `tasks.wait`. |
+| `failed_ids` | Not deleted for another reason. |
 
 **Example**
 
 ```bash
-alcedo-cli --json call library.delete '{"element_ids":[3],"scope":"project"}'
+alcedo-cli --json call library.delete '{"element_ids":[3,8],"scope":"project"}'
 ```
 
+Photo 8 is a mounted photo, so it stays:
+
 ```json
-{"deleted_ids":[3],"failed_ids":[],"message":"Deleted 1 image(s)."}
+{"deleted_ids":[3],"failed_ids":[],"skipped_ids":[8],"message":"Deleted 1 image(s). 1 mounted photo(s) stay in the library."}
 ```
 
 ## `library.selection.get`

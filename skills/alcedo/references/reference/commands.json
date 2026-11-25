@@ -2077,7 +2077,7 @@
   },
   {
     "changes_state": true,
-    "description": "Deletes 'element_ids'. With scope 'project' the photos leave the project; this needs the root folder as the current folder. With scope 'album' they leave the current album. Answers -32002 (rejected) while a task holds the photos: a mark, rating, or paste adjustments batch that is saving, or another delete. Send it again after tasks.wait. Other start failures answer -32007 (failed).",
+    "description": "Deletes 'element_ids'. With scope 'project' the photos leave the project; this needs the root folder as the current folder. With scope 'album' they leave the current album. A photo that a task holds (a mark, rating, or paste adjustments batch that is saving) and a mounted photo in a delete from the project stay; 'skipped_ids' lists them, and the other photos are deleted. Answers -32002 (rejected) when a task holds every photo or another delete runs. Send it again after tasks.wait. A delete that the mounted folder rules refuse for every photo answers -32002 with data.error 'mounted_folder_structure_is_read_only', 'mounted_photo_is_present', or 'mounted_photo_is_missing'; the Delete mark stays available. Other start failures answer -32007 (failed).",
     "method": "library.delete",
     "params_schema": {
       "additionalProperties": false,
@@ -2118,11 +2118,15 @@
         },
         "failed_ids": {
           "type": "array"
+        },
+        "skipped_ids": {
+          "type": "array"
         }
       },
       "required": [
         "deleted_ids",
-        "failed_ids"
+        "failed_ids",
+        "skipped_ids"
       ],
       "type": "object"
     }
