@@ -558,6 +558,207 @@
     }
   },
   {
+    "changes_state": true,
+    "description": "Turns AI Denoise on or off for the photo that the editor has open, as the switch of the RAW Decode panel does: one history commit of 'raw_decode' with the author agent and the optional 'note'; on records the installed model version. Answers after the commit and its rendered frame. The frame of a full-size render runs the model, so it takes longer. Turning on is refused (-32002, data.refusal platform_unavailable, model_not_installed, model_unreadable, or sensor_not_supported) before any change. When the frame fails, the commit stays and the error data has 'head_commit', 'enabled', and 'ai_denoise_error' (kind, text); turn AI Denoise off again with enabled false. For several photos, copy the raw_decode item with adjustments.copy and paste it.",
+    "method": "denoise.set",
+    "params_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "description": "true turns AI Denoise on.",
+          "type": "boolean"
+        },
+        "note": {
+          "description": "Note of the history commit.",
+          "type": "string"
+        },
+        "timeout_ms": {
+          "default": 120000,
+          "description": "Time limit in milliseconds for the command to reach its terminal state.",
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "enabled"
+      ],
+      "type": "object"
+    },
+    "result_schema": {
+      "properties": {
+        "head_commit": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "photo": {
+          "properties": {
+            "element_id": {
+              "type": "integer"
+            },
+            "enabled": {
+              "type": "boolean"
+            },
+            "error": {
+              "description": "The AI Denoise error of the last frame (kind, text); null after a frame without one.",
+              "type": [
+                "object",
+                "null"
+              ]
+            },
+            "image_id": {
+              "type": "integer"
+            },
+            "model_version": {
+              "description": "The model version that the switch recorded when it was turned on; null while it is off.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "sensor": {
+              "description": "The sensor of the RAW file. AI Denoise supports bayer only; unknown while the file is read or when it cannot be read.",
+              "enum": [
+                "bayer",
+                "xtrans",
+                "other",
+                "unknown"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "element_id",
+            "image_id",
+            "sensor",
+            "enabled",
+            "model_version",
+            "error"
+          ],
+          "type": "object"
+        }
+      },
+      "required": [
+        "photo",
+        "head_commit"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "changes_state": false,
+    "description": "Returns whether this computer can run AI Denoise ('available': a supported device), the installed model ('installed', 'version', or 'problem' model_not_installed or model_unreadable with 'reason'), and for the photo that the editor has open ('photo', null without one): its sensor, whether AI Denoise is on, the model version that the switch recorded, and the AI Denoise error of its last frame. AI Denoise runs a neural network on the RAW mosaic in place of the demosaic of the full-size render (editor, render.preview, export); thumbnails do not show it.",
+    "method": "denoise.status",
+    "params_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "timeout_ms": {
+          "default": 120000,
+          "description": "Time limit in milliseconds for the command to reach its terminal state.",
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "result_schema": {
+      "properties": {
+        "available": {
+          "type": "boolean"
+        },
+        "model": {
+          "properties": {
+            "installed": {
+              "type": "boolean"
+            },
+            "problem": {
+              "description": "model_not_installed or model_unreadable; null when the model is installed.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "reason": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "version": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "installed",
+            "version",
+            "problem",
+            "reason"
+          ],
+          "type": "object"
+        },
+        "photo": {
+          "properties": {
+            "element_id": {
+              "type": "integer"
+            },
+            "enabled": {
+              "type": "boolean"
+            },
+            "error": {
+              "description": "The AI Denoise error of the last frame (kind, text); null after a frame without one.",
+              "type": [
+                "object",
+                "null"
+              ]
+            },
+            "image_id": {
+              "type": "integer"
+            },
+            "model_version": {
+              "description": "The model version that the switch recorded when it was turned on; null while it is off.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "sensor": {
+              "description": "The sensor of the RAW file. AI Denoise supports bayer only; unknown while the file is read or when it cannot be read.",
+              "enum": [
+                "bayer",
+                "xtrans",
+                "other",
+                "unknown"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "element_id",
+            "image_id",
+            "sensor",
+            "enabled",
+            "model_version",
+            "error"
+          ],
+          "type": [
+            "object",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "available",
+        "model",
+        "photo"
+      ],
+      "type": "object"
+    }
+  },
+  {
     "changes_state": false,
     "description": "Returns which editor actions the session admits now, with the reason for each refused one. The GUI enables its controls from the same decisions.",
     "method": "editor.actions",
@@ -2213,7 +2414,7 @@
   },
   {
     "changes_state": true,
-    "description": "Imports the files 'paths', or the supported files of 'folder' (with its subfolders when 'recursive', the default), into the current folder of the open project. Returns a task id for tasks.wait as soon as the import starts.",
+    "description": "Imports the files 'paths', or the supported files of 'folder' (with its subfolders when 'recursive', the default), into the current folder of the open project. Returns a task id for tasks.wait as soon as the import starts. A mounted current folder answers -32002 (rejected) with data.error 'mounted_folder_structure_is_read_only': a mounted folder takes its files from its disk directory.",
     "method": "library.import",
     "params_schema": {
       "additionalProperties": false,
@@ -3027,6 +3228,248 @@
     }
   },
   {
+    "changes_state": true,
+    "description": "Mounts the disk directory 'path' as a new collection in the library root, then waits for the first scan, which imports the supported files of the directory and its subdirectories by reference. Alcedo Studio never writes to the directory. Returns the mount id, the folder id of the new collection, and the scan counts. A large directory needs a larger 'timeout_ms'; after a timeout the scan continues and library.mounts shows its result. A refused mount answers -32002 (rejected) with data.error 'nested_mount' or 'directory_unreachable'.",
+    "method": "library.mount",
+    "params_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "timeout_ms": {
+          "default": 120000,
+          "description": "Time limit in milliseconds for the command to reach its terminal state.",
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "path"
+      ],
+      "type": "object"
+    },
+    "result_schema": {
+      "properties": {
+        "folder_id": {
+          "type": "integer"
+        },
+        "mount_id": {
+          "type": "integer"
+        },
+        "scan": {
+          "properties": {
+            "changed": {
+              "type": "integer"
+            },
+            "error": {
+              "type": "string"
+            },
+            "missing": {
+              "type": "integer"
+            },
+            "mount_id": {
+              "type": "integer"
+            },
+            "moved": {
+              "type": "integer"
+            },
+            "new": {
+              "type": "integer"
+            },
+            "not_imported": {
+              "type": "integer"
+            },
+            "relocated_root": {
+              "type": "string"
+            },
+            "returned": {
+              "type": "integer"
+            },
+            "status": {
+              "enum": [
+                "complete",
+                "offline",
+                "canceled",
+                "storage_failure"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "mount_id",
+            "status",
+            "new",
+            "moved",
+            "changed",
+            "missing",
+            "returned",
+            "not_imported"
+          ],
+          "type": "object"
+        }
+      },
+      "required": [
+        "mount_id",
+        "folder_id",
+        "scan"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "changes_state": false,
+    "description": "Returns the mounted folders of the open project: the mount id, the folder id of the mount root collection, the disk directory, the volume identity, the last read display name of the volume (empty when it has none), the mount point of the volume when a scan of this session reached it (empty otherwise), the state of the last scan of this session ('not_scanned', 'online', 'offline'), the counts of present and missing photos, and the end of the last complete scan (UTC).",
+    "method": "library.mounts",
+    "params_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "timeout_ms": {
+          "default": 120000,
+          "description": "Time limit in milliseconds for the command to reach its terminal state.",
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "result_schema": {
+      "properties": {
+        "mounts": {
+          "type": "array"
+        }
+      },
+      "required": [
+        "mounts"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "changes_state": true,
+    "description": "Scans the mounted folder 'mount_id', or each mounted folder without it, and waits for the scans. A scan makes the collection equal to its directory: new files are imported, moved and renamed files keep their photo, and a file that is gone makes its photo missing. Returns the counts of each scan. A scan of an unreachable directory has the status 'offline' and changes nothing.",
+    "method": "library.sync",
+    "params_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "mount_id": {
+          "maximum": 4294967295,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "timeout_ms": {
+          "default": 120000,
+          "description": "Time limit in milliseconds for the command to reach its terminal state.",
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "result_schema": {
+      "properties": {
+        "scans": {
+          "items": {
+            "properties": {
+              "changed": {
+                "type": "integer"
+              },
+              "error": {
+                "type": "string"
+              },
+              "missing": {
+                "type": "integer"
+              },
+              "mount_id": {
+                "type": "integer"
+              },
+              "moved": {
+                "type": "integer"
+              },
+              "new": {
+                "type": "integer"
+              },
+              "not_imported": {
+                "type": "integer"
+              },
+              "relocated_root": {
+                "type": "string"
+              },
+              "returned": {
+                "type": "integer"
+              },
+              "status": {
+                "enum": [
+                  "complete",
+                  "offline",
+                  "canceled",
+                  "storage_failure"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "mount_id",
+              "status",
+              "new",
+              "moved",
+              "changed",
+              "missing",
+              "returned",
+              "not_imported"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "scans"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "changes_state": true,
+    "description": "Removes the mounted folder 'mount_id'. Its photos stay in the project as ordinary photos with their edits, marks, and collection links; the mounted collections are removed. Nothing changes on the disk.",
+    "method": "library.unmount",
+    "params_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "mount_id": {
+          "maximum": 4294967295,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "timeout_ms": {
+          "default": 120000,
+          "description": "Time limit in milliseconds for the command to reach its terminal state.",
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "mount_id"
+      ],
+      "type": "object"
+    },
+    "result_schema": {
+      "properties": {
+        "mount_id": {
+          "type": "integer"
+        },
+        "unmounted": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "mount_id",
+        "unmounted"
+      ],
+      "type": "object"
+    }
+  },
+  {
     "changes_state": false,
     "description": "Lists the LUTs of the LUT library with the rules of the LUT browser. A 'query' matches the name, file name, aliases, source, film, print, and path, and sorts the matches by search rank; without a query the LUTs are sorted by name. 'editor_value' of a LUT is the value for editor.set on the 'lut' field that the LUT browser applies: the reference, the name, and the remembered encodings. A LUT that the grade cannot apply has 'applicable' false and no 'editor_value'. Waits while the library loads or refreshes its inventory. Needs no open project.",
     "method": "lut.list",
@@ -3105,6 +3548,395 @@
         "limit",
         "has_more",
         "luts"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "changes_state": false,
+    "description": "Returns the Color Grades of the open image with their visibility: first the Color Grades on the image path from Develop to the display transform, in that order, then the detached Color Grades in document order.",
+    "method": "nodes.list",
+    "params_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "timeout_ms": {
+          "default": 120000,
+          "description": "Time limit in milliseconds for the command to reach its terminal state.",
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "result_schema": {
+      "properties": {
+        "color_grades": {
+          "items": {
+            "properties": {
+              "backbone_index": {
+                "description": "Position among the Color Grades on the image path from Develop to the display transform, from 0 at the Develop side; null for a Color Grade off that path.",
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "deletion_protected": {
+                "description": "True when the Color Grade is locked against deletion.",
+                "type": "boolean"
+              },
+              "detached": {
+                "description": "True when the Color Grade has no scene-image edge: it stays in the document outside the render.",
+                "type": "boolean"
+              },
+              "hidden": {
+                "description": "True when the Color Grade is hidden: the render skips it, and its parameters and Masks stay in the document.",
+                "type": "boolean"
+              },
+              "mask_count": {
+                "description": "Number of Masks of the Color Grade.",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "name": {
+                "description": "Name of the Color Grade, as the editor shows it.",
+                "type": "string"
+              },
+              "node_id": {
+                "description": "Id of the Color Grade node.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "node_id",
+              "name",
+              "hidden",
+              "detached",
+              "deletion_protected",
+              "mask_count",
+              "backbone_index"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "color_grades"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "changes_state": true,
+    "description": "Shows or hides one Color Grade, like the visibility button of its Mask Group: one history commit (Show Color Grade or Hide Color Grade). A hidden Color Grade keeps its parameters and Masks, and the render skips it in the preview and the export. A value equal to the current one makes no commit and succeeds. Answers after the commit and its rendered frame with the new state of the Color Grade. When the frame of the commit fails to render, the commit stays and the error data has 'reason' and 'head_commit'; editor.undo reverts it.",
+    "method": "nodes.set_visibility",
+    "params_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "node_id": {
+          "description": "Id of a Color Grade (nodes.list).",
+          "type": "string"
+        },
+        "timeout_ms": {
+          "default": 120000,
+          "description": "Time limit in milliseconds for the command to reach its terminal state.",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "visible": {
+          "description": "true shows the Color Grade; false hides it.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "node_id",
+        "visible"
+      ],
+      "type": "object"
+    },
+    "result_schema": {
+      "properties": {
+        "backbone_index": {
+          "description": "Position among the Color Grades on the image path from Develop to the display transform, from 0 at the Develop side; null for a Color Grade off that path.",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "deletion_protected": {
+          "description": "True when the Color Grade is locked against deletion.",
+          "type": "boolean"
+        },
+        "detached": {
+          "description": "True when the Color Grade has no scene-image edge: it stays in the document outside the render.",
+          "type": "boolean"
+        },
+        "hidden": {
+          "description": "True when the Color Grade is hidden: the render skips it, and its parameters and Masks stay in the document.",
+          "type": "boolean"
+        },
+        "mask_count": {
+          "description": "Number of Masks of the Color Grade.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "name": {
+          "description": "Name of the Color Grade, as the editor shows it.",
+          "type": "string"
+        },
+        "node_id": {
+          "description": "Id of the Color Grade node.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "node_id",
+        "name",
+        "hidden",
+        "detached",
+        "deletion_protected",
+        "mask_count",
+        "backbone_index"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "changes_state": true,
+    "description": "Applies a preset onto photos, like Apply Preset...: each photo gets one new Version, named 'version_name' or after the preset, with one commit by the agent. Give 'preset_id' (presets.list) or 'file', a preset file that is applied one time and does not enter the preset folder. Without 'element_ids' the photos selected in the library (GUI host only). The photo open in the editor applies first through the editor; 'editor' reports it. The other photos apply in a background Paste task: wait for 'task_id' with tasks.wait; its 'result' lists the applied photos and each failed photo with the reason. Busy while another Paste or an editor save runs.",
+    "method": "presets.apply",
+    "params_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "element_ids": {
+          "description": "The photos; the library selection without it.",
+          "items": {
+            "maximum": 4294967295,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "file": {
+          "description": "Path of a .alcpreset file to apply one time, instead of preset_id.",
+          "type": "string"
+        },
+        "note": {
+          "description": "Why the agent pastes; stored with each commit.",
+          "type": "string"
+        },
+        "preset_id": {
+          "description": "A preset id from presets.list.",
+          "type": "string"
+        },
+        "timeout_ms": {
+          "default": 120000,
+          "description": "Time limit in milliseconds for the command to reach its terminal state.",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "version_name": {
+          "description": "Name of the new Versions. A name that a photo already has gets a number.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "result_schema": {
+      "properties": {
+        "editor": {
+          "properties": {
+            "element_id": {
+              "type": "integer"
+            },
+            "message": {
+              "type": "string"
+            },
+            "pasted": {
+              "type": "boolean"
+            },
+            "version_id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "element_id",
+            "pasted"
+          ],
+          "type": "object"
+        },
+        "target_count": {
+          "type": "integer"
+        },
+        "task_id": {
+          "description": "The background Paste task; null when only the editor photo was a target.",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "task_id",
+        "target_count"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "changes_state": false,
+    "description": "Lists the presets of the preset folder, like the preset browser: the presets directly in the folder first, then each subfolder (its 'group'). 'preset_id' is the path below the folder. A preset with 'available' false cannot be applied; 'reason' says why. With 'details' each available preset also lists its items by node. Scans the folder first, like the preset browser when it opens, so a file copied into the folder is listed. Needs no open project.",
+    "method": "presets.list",
+    "params_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "details": {
+          "description": "List the items of each preset; reads each file.",
+          "type": "boolean"
+        },
+        "timeout_ms": {
+          "default": 120000,
+          "description": "Time limit in milliseconds for the command to reach its terminal state.",
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "result_schema": {
+      "properties": {
+        "error": {
+          "type": "string"
+        },
+        "folder": {
+          "type": "string"
+        },
+        "presets": {
+          "items": {
+            "properties": {
+              "available": {
+                "type": "boolean"
+              },
+              "group": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "nodes": {
+                "items": {
+                  "properties": {
+                    "items": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "items"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "preset_id": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "preset_id",
+              "name",
+              "group",
+              "available"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "folder",
+        "presets"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "changes_state": true,
+    "description": "Saves a Version of a photo (the active Version without 'version_id') as a preset in the preset folder, like a drag of the Version onto the preset part of the Versions panel: every transferable item except crop_rotate and lens_calib. The name is 'name', or the Version name made a valid file name; a name that exists gets a number. Answers when the file is written.",
+    "method": "presets.save",
+    "params_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "element_id": {
+          "description": "The photo (library.list).",
+          "maximum": 4294967295,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "name": {
+          "description": "Preset name: no path separator, control character, or one of <>:\"|?*, at most 120 characters.",
+          "type": "string"
+        },
+        "timeout_ms": {
+          "default": 120000,
+          "description": "Time limit in milliseconds for the command to reach its terminal state.",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "version_id": {
+          "description": "Hex id of a Version (adjustments.items).",
+          "type": "string"
+        }
+      },
+      "required": [
+        "element_id"
+      ],
+      "type": "object"
+    },
+    "result_schema": {
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "nodes": {
+          "items": {
+            "properties": {
+              "items": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "name",
+              "items"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "preset_id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "preset_id",
+        "name",
+        "nodes"
       ],
       "type": "object"
     }
