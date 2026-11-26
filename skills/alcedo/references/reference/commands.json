@@ -2077,7 +2077,7 @@
   },
   {
     "changes_state": true,
-    "description": "Deletes 'element_ids'. With scope 'project' the photos leave the project; this needs the root folder as the current folder. With scope 'album' they leave the current album. Answers -32002 (rejected) while a task holds the photos: a mark, rating, or paste adjustments batch that is saving, or another delete. Send it again after tasks.wait. Other start failures answer -32007 (failed).",
+    "description": "Deletes 'element_ids'. With scope 'project' the photos leave the project; this needs the root folder as the current folder. With scope 'album' they leave the current album. Answers -32002 (rejected) while a task holds the photos: a mark, rating, or paste adjustments batch that is saving, or another delete. Send it again after tasks.wait. A delete that the mounted folder rules refuse answers -32002 with data.error 'mounted_folder_structure_is_read_only', 'mounted_photo_is_present', or 'mounted_photo_is_missing'; the Delete mark stays available. Other start failures answer -32007 (failed).",
     "method": "library.delete",
     "params_schema": {
       "additionalProperties": false,
@@ -2209,7 +2209,7 @@
   },
   {
     "changes_state": true,
-    "description": "Imports the files 'paths', or the supported files of 'folder' (with its subfolders when 'recursive', the default), into the current folder of the open project. Returns a task id for tasks.wait as soon as the import starts.",
+    "description": "Imports the files 'paths', or the supported files of 'folder' (with its subfolders when 'recursive', the default), into the current folder of the open project. Returns a task id for tasks.wait as soon as the import starts. A mounted current folder answers -32002 (rejected) with data.error 'mounted_folder_structure_is_read_only': a mounted folder takes its files from its disk directory.",
     "method": "library.import",
     "params_schema": {
       "additionalProperties": false,
@@ -3018,6 +3018,253 @@
         "items",
         "written_count",
         "failed_count"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "changes_state": true,
+    "description": "Mounts the disk directory 'path' as a new collection in the folder 'parent_id' (the root folder without it), then waits for the first scan, which imports the supported files of the directory and its subdirectories by reference. Alcedo Studio never writes to the directory. Returns the mount id, the folder id of the new collection, and the scan counts. A large directory needs a larger 'timeout_ms'; after a timeout the scan continues and library.mounts shows its result. A refused mount answers -32002 (rejected) with data.error 'nested_mount', 'parent_is_mounted', 'parent_is_not_a_folder', or 'directory_unreachable'.",
+    "method": "library.mount",
+    "params_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "parent_id": {
+          "maximum": 4294967295,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "path": {
+          "type": "string"
+        },
+        "timeout_ms": {
+          "default": 120000,
+          "description": "Time limit in milliseconds for the command to reach its terminal state.",
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "path"
+      ],
+      "type": "object"
+    },
+    "result_schema": {
+      "properties": {
+        "folder_id": {
+          "type": "integer"
+        },
+        "mount_id": {
+          "type": "integer"
+        },
+        "scan": {
+          "properties": {
+            "changed": {
+              "type": "integer"
+            },
+            "error": {
+              "type": "string"
+            },
+            "missing": {
+              "type": "integer"
+            },
+            "mount_id": {
+              "type": "integer"
+            },
+            "moved": {
+              "type": "integer"
+            },
+            "new": {
+              "type": "integer"
+            },
+            "not_imported": {
+              "type": "integer"
+            },
+            "relocated_root": {
+              "type": "string"
+            },
+            "returned": {
+              "type": "integer"
+            },
+            "status": {
+              "enum": [
+                "complete",
+                "offline",
+                "canceled",
+                "storage_failure"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "mount_id",
+            "status",
+            "new",
+            "moved",
+            "changed",
+            "missing",
+            "returned",
+            "not_imported"
+          ],
+          "type": "object"
+        }
+      },
+      "required": [
+        "mount_id",
+        "folder_id",
+        "scan"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "changes_state": false,
+    "description": "Returns the mounted folders of the open project: the mount id, the folder id of the mount root collection, the disk directory, the volume identity, the state of the last scan of this session ('not_scanned', 'online', 'offline'), the counts of present and missing photos, and the end of the last complete scan (UTC).",
+    "method": "library.mounts",
+    "params_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "timeout_ms": {
+          "default": 120000,
+          "description": "Time limit in milliseconds for the command to reach its terminal state.",
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "result_schema": {
+      "properties": {
+        "mounts": {
+          "type": "array"
+        }
+      },
+      "required": [
+        "mounts"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "changes_state": true,
+    "description": "Scans the mounted folder 'mount_id', or each mounted folder without it, and waits for the scans. A scan makes the collection equal to its directory: new files are imported, moved and renamed files keep their photo, and a file that is gone makes its photo missing. Returns the counts of each scan. A scan of an unreachable directory has the status 'offline' and changes nothing.",
+    "method": "library.sync",
+    "params_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "mount_id": {
+          "maximum": 4294967295,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "timeout_ms": {
+          "default": 120000,
+          "description": "Time limit in milliseconds for the command to reach its terminal state.",
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "result_schema": {
+      "properties": {
+        "scans": {
+          "items": {
+            "properties": {
+              "changed": {
+                "type": "integer"
+              },
+              "error": {
+                "type": "string"
+              },
+              "missing": {
+                "type": "integer"
+              },
+              "mount_id": {
+                "type": "integer"
+              },
+              "moved": {
+                "type": "integer"
+              },
+              "new": {
+                "type": "integer"
+              },
+              "not_imported": {
+                "type": "integer"
+              },
+              "relocated_root": {
+                "type": "string"
+              },
+              "returned": {
+                "type": "integer"
+              },
+              "status": {
+                "enum": [
+                  "complete",
+                  "offline",
+                  "canceled",
+                  "storage_failure"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "mount_id",
+              "status",
+              "new",
+              "moved",
+              "changed",
+              "missing",
+              "returned",
+              "not_imported"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "scans"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "changes_state": true,
+    "description": "Removes the mounted folder 'mount_id'. Its photos stay in the project as ordinary photos with their edits, marks, and collection links; the mounted collections are removed. Nothing changes on the disk.",
+    "method": "library.unmount",
+    "params_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "mount_id": {
+          "maximum": 4294967295,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "timeout_ms": {
+          "default": 120000,
+          "description": "Time limit in milliseconds for the command to reach its terminal state.",
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "mount_id"
+      ],
+      "type": "object"
+    },
+    "result_schema": {
+      "properties": {
+        "mount_id": {
+          "type": "integer"
+        },
+        "unmounted": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "mount_id",
+        "unmounted"
       ],
       "type": "object"
     }

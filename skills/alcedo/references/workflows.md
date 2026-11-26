@@ -56,6 +56,28 @@ alcedo-cli call library.list '{"sort":"rating","descending":true,"limit":2}'
 {"items":[{"color_labels":[],"delete_mark":false,"element_id":1,"file_name":"DSC0027.ARW","image_id":1,"rating":4},{"color_labels":[],"delete_mark":false,"element_id":3,"file_name":"DSC06683.dng","image_id":3,"rating":4}],"offset":0,"total":3}
 ```
 
+## Follow a disk folder (mounted folder)
+
+`library.mount` makes a collection that follows a disk directory: its subdirectories become
+collections, and its supported files become photos. Alcedo Studio never writes to the directory.
+The command answers after the first scan; give a large directory a larger `timeout_ms`.
+
+```bash
+alcedo-cli call library.mount '{"path":"D:/Photos/2026 Japan","timeout_ms":600000}'
+alcedo-cli call library.list '{"folder_id":42}'
+```
+
+The application scans the directory again when it changes. To have the result now, call
+`library.sync`. A renamed or moved file keeps its photo and its edits; a deleted file makes its
+photo missing (`missing` in the scan, `missing_count` in `library.mounts`). `library.unmount`
+keeps the photos as ordinary photos.
+
+```bash
+alcedo-cli call library.sync '{"mount_id":1}'
+alcedo-cli call library.mounts
+```
+
+
 ## Cull many photos with contact sheets
 
 To look at a whole set of photos (cull, pick the best of similar frames, find the sharp ones),
