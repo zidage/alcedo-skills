@@ -136,8 +136,9 @@ active Version is the current state of the photo.
 - `editor.set` makes one commit when the value changes. `editor.batch_set` makes one commit for
   each changed field. The author of an agent commit is `agent`; the History panel shows the
   `note` of the call.
-- `adjustments.paste` gives each photo one new Version with one commit. The Version starts at
-  the photo as imported; the earlier edits of the photo stay in its earlier Version.
+- `adjustments.paste` and `presets.apply` give each photo one new Version with one commit. The
+  Version starts at the photo as imported; the earlier edits of the photo stay in its earlier
+  Version.
 - `editor.undo` and `editor.redo` move the head along the commits of the active Version.
 - `versions.create` starts a new Version at the image as imported. `versions.branch` starts a
   new Version at a commit of the active Version. `versions.checkout` switches the active

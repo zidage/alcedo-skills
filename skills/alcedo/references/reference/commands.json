@@ -3699,6 +3699,246 @@
   },
   {
     "changes_state": true,
+    "description": "Applies a preset onto photos, like Apply Preset...: each photo gets one new Version, named 'version_name' or after the preset, with one commit by the agent. Give 'preset_id' (presets.list) or 'file', a preset file that is applied one time and does not enter the preset folder. Without 'element_ids' the photos selected in the library (GUI host only). The photo open in the editor applies first through the editor; 'editor' reports it. The other photos apply in a background Paste task: wait for 'task_id' with tasks.wait; its 'result' lists the applied photos and each failed photo with the reason. Busy while another Paste or an editor save runs.",
+    "method": "presets.apply",
+    "params_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "element_ids": {
+          "description": "The photos; the library selection without it.",
+          "items": {
+            "maximum": 4294967295,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "file": {
+          "description": "Path of a .alcpreset file to apply one time, instead of preset_id.",
+          "type": "string"
+        },
+        "note": {
+          "description": "Why the agent pastes; stored with each commit.",
+          "type": "string"
+        },
+        "preset_id": {
+          "description": "A preset id from presets.list.",
+          "type": "string"
+        },
+        "timeout_ms": {
+          "default": 120000,
+          "description": "Time limit in milliseconds for the command to reach its terminal state.",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "version_name": {
+          "description": "Name of the new Versions. A name that a photo already has gets a number.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "result_schema": {
+      "properties": {
+        "editor": {
+          "properties": {
+            "element_id": {
+              "type": "integer"
+            },
+            "message": {
+              "type": "string"
+            },
+            "pasted": {
+              "type": "boolean"
+            },
+            "version_id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "element_id",
+            "pasted"
+          ],
+          "type": "object"
+        },
+        "target_count": {
+          "type": "integer"
+        },
+        "task_id": {
+          "description": "The background Paste task; null when only the editor photo was a target.",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "task_id",
+        "target_count"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "changes_state": false,
+    "description": "Lists the presets of the preset folder, like the preset browser: the presets directly in the folder first, then each subfolder (its 'group'). 'preset_id' is the path below the folder. A preset with 'available' false cannot be applied; 'reason' says why. With 'details' each available preset also lists its items by node. Scans the folder first, like the preset browser when it opens, so a file copied into the folder is listed. Needs no open project.",
+    "method": "presets.list",
+    "params_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "details": {
+          "description": "List the items of each preset; reads each file.",
+          "type": "boolean"
+        },
+        "timeout_ms": {
+          "default": 120000,
+          "description": "Time limit in milliseconds for the command to reach its terminal state.",
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "result_schema": {
+      "properties": {
+        "error": {
+          "type": "string"
+        },
+        "folder": {
+          "type": "string"
+        },
+        "presets": {
+          "items": {
+            "properties": {
+              "available": {
+                "type": "boolean"
+              },
+              "group": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "nodes": {
+                "items": {
+                  "properties": {
+                    "items": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "items"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "preset_id": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "preset_id",
+              "name",
+              "group",
+              "available"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "folder",
+        "presets"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "changes_state": true,
+    "description": "Saves a Version of a photo (the active Version without 'version_id') as a preset in the preset folder, like a drag of the Version onto the preset part of the Versions panel: every transferable item except crop_rotate and lens_calib. The name is 'name', or the Version name made a valid file name; a name that exists gets a number. Answers when the file is written.",
+    "method": "presets.save",
+    "params_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "element_id": {
+          "description": "The photo (library.list).",
+          "maximum": 4294967295,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "name": {
+          "description": "Preset name: no path separator, control character, or one of <>:\"|?*, at most 120 characters.",
+          "type": "string"
+        },
+        "timeout_ms": {
+          "default": 120000,
+          "description": "Time limit in milliseconds for the command to reach its terminal state.",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "version_id": {
+          "description": "Hex id of a Version (adjustments.items).",
+          "type": "string"
+        }
+      },
+      "required": [
+        "element_id"
+      ],
+      "type": "object"
+    },
+    "result_schema": {
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "nodes": {
+          "items": {
+            "properties": {
+              "items": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "name",
+              "items"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "preset_id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "preset_id",
+        "name",
+        "nodes"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "changes_state": true,
     "description": "Closes the editor image and the loaded project. With persist (the default), both are saved first; without it, the changes since the last save are discarded. The response arrives when no project is loaded.",
     "method": "project.close",
     "params_schema": {

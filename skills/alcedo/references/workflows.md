@@ -494,6 +494,32 @@ whose noise clearly hurts the picture (`SKILL.md`, "AI Denoise: only for real no
    alcedo-cli --json call tasks.wait '{"task_id":"bgtask-2"}'
    ```
 
+## Apply a preset
+
+When the user names one of their presets, apply it in place of a copy:
+
+1. Find its id:
+
+   ```bash
+   alcedo-cli --json call presets.list '{}'
+   ```
+
+2. Apply it onto the set and wait for the background task:
+
+   ```bash
+   alcedo-cli --json call presets.apply '{"preset_id":"Evening.alcpreset","element_ids":[2,3],"note":"agent: Evening preset"}'
+   alcedo-cli --json call tasks.wait '{"task_id":"bgtask-4"}'
+   ```
+
+   Each photo gets one new Version named after the preset. `file` in place of `preset_id`
+   applies a `.alcpreset` file from anywhere one time.
+
+3. Render previews of a few photos and fix the photos that need their own exposure or white
+   balance with the edit loop.
+
+When the user asks for a preset of a look, save the Version with `presets.save`
+(`references/reference/presets.md`).
+
 ## Retouch every photo
 
 Do the edit loop for each photo of `library.list`. A Bash example that opens each photo and

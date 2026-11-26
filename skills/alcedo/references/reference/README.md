@@ -23,6 +23,7 @@ written by hand. The examples ran with the release build. Every command also acc
 | [Nodes](nodes.md) | `nodes.list`, `nodes.set_visibility` |
 | [Versions](versions.md) | `versions.list`, `versions.create`, `versions.branch`, `versions.checkout`, `versions.rename`, `versions.remove` |
 | [Adjustments](adjustments.md) | `adjustments.items`, `adjustments.copy`, `adjustments.paste` |
+| [Presets](presets.md) | `presets.list`, `presets.save`, `presets.apply` |
 | [Export](export.md) | `export.options`, `export.run`, `export.status` |
 | [Search](search.md) | `search.query` |
 | [LUT](lut.md) | `lut.list` |
