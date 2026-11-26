@@ -3106,6 +3106,155 @@
     }
   },
   {
+    "changes_state": false,
+    "description": "Returns the Color Grades of the open image with their visibility: first the Color Grades on the image path from Develop to the display transform, in that order, then the detached Color Grades in document order.",
+    "method": "nodes.list",
+    "params_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "timeout_ms": {
+          "default": 120000,
+          "description": "Time limit in milliseconds for the command to reach its terminal state.",
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "result_schema": {
+      "properties": {
+        "color_grades": {
+          "items": {
+            "properties": {
+              "backbone_index": {
+                "description": "Position among the Color Grades on the image path from Develop to the display transform, from 0 at the Develop side; null for a Color Grade off that path.",
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "deletion_protected": {
+                "description": "True when the Color Grade is locked against deletion.",
+                "type": "boolean"
+              },
+              "detached": {
+                "description": "True when the Color Grade has no scene-image edge: it stays in the document outside the render.",
+                "type": "boolean"
+              },
+              "hidden": {
+                "description": "True when the Color Grade is hidden: the render skips it, and its parameters and Masks stay in the document.",
+                "type": "boolean"
+              },
+              "mask_count": {
+                "description": "Number of Masks of the Color Grade.",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "name": {
+                "description": "Name of the Color Grade, as the editor shows it.",
+                "type": "string"
+              },
+              "node_id": {
+                "description": "Id of the Color Grade node.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "node_id",
+              "name",
+              "hidden",
+              "detached",
+              "deletion_protected",
+              "mask_count",
+              "backbone_index"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "color_grades"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "changes_state": true,
+    "description": "Shows or hides one Color Grade, like the visibility button of its Mask Group: one history commit (Show Color Grade or Hide Color Grade). A hidden Color Grade keeps its parameters and Masks, and the render skips it in the preview and the export. A value equal to the current one makes no commit and succeeds. Answers after the commit and its rendered frame with the new state of the Color Grade. When the frame of the commit fails to render, the commit stays and the error data has 'reason' and 'head_commit'; editor.undo reverts it.",
+    "method": "nodes.set_visibility",
+    "params_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "node_id": {
+          "description": "Id of a Color Grade (nodes.list).",
+          "type": "string"
+        },
+        "timeout_ms": {
+          "default": 120000,
+          "description": "Time limit in milliseconds for the command to reach its terminal state.",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "visible": {
+          "description": "true shows the Color Grade; false hides it.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "node_id",
+        "visible"
+      ],
+      "type": "object"
+    },
+    "result_schema": {
+      "properties": {
+        "backbone_index": {
+          "description": "Position among the Color Grades on the image path from Develop to the display transform, from 0 at the Develop side; null for a Color Grade off that path.",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "deletion_protected": {
+          "description": "True when the Color Grade is locked against deletion.",
+          "type": "boolean"
+        },
+        "detached": {
+          "description": "True when the Color Grade has no scene-image edge: it stays in the document outside the render.",
+          "type": "boolean"
+        },
+        "hidden": {
+          "description": "True when the Color Grade is hidden: the render skips it, and its parameters and Masks stay in the document.",
+          "type": "boolean"
+        },
+        "mask_count": {
+          "description": "Number of Masks of the Color Grade.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "name": {
+          "description": "Name of the Color Grade, as the editor shows it.",
+          "type": "string"
+        },
+        "node_id": {
+          "description": "Id of the Color Grade node.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "node_id",
+        "name",
+        "hidden",
+        "detached",
+        "deletion_protected",
+        "mask_count",
+        "backbone_index"
+      ],
+      "type": "object"
+    }
+  },
+  {
     "changes_state": true,
     "description": "Closes the editor image and the loaded project. With persist (the default), both are saved first; without it, the changes since the last save are discarded. The response arrives when no project is loaded.",
     "method": "project.close",
