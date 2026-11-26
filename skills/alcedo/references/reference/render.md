@@ -49,7 +49,8 @@ editor viewport. Use them to check an edit, or give them to an image analysis to
 - `-32001`: `No editor image is open.`
 - `-32002`: the editor is not interactive (`Preview images require an interactive session`).
 - `-32005`: the editor renders another image job.
-- `-32007`: the render or the file write failed.
+- `-32007`: the render or the file write failed. With `data.ai_denoise_error`, the AI Denoise
+  run of the photo failed ([AI Denoise](denoise.md)).
 
 **Example**
 

@@ -16,10 +16,11 @@ written by hand. The examples ran with the release build. Every command also acc
 | [Session](session.md) | `session.ping`, `session.describe`, `state.get`, `session.shutdown` |
 | [Control](control.md) | `control.acquire`, `control.release`, `control.get` |
 | [Project](project.md) | `project.create`, `project.open`, `project.save`, `project.close` |
-| [Library](library.md) | `library.import`, `library.folders`, `library.list`, `library.stats`, `library.info`, `library.thumbnail`, `library.thumbnails`, `library.rate`, `library.color_label`, `library.delete_mark`, `library.color_labels`, `library.color_label_name.set`, `library.delete`, `library.selection.get`, `library.selection.set` |
+| [Library](library.md) | `library.import`, `library.folders`, `library.list`, `library.stats`, `library.info`, `library.thumbnail`, `library.thumbnails`, `library.rate`, `library.color_label`, `library.delete_mark`, `library.color_labels`, `library.color_label_name.set`, `library.delete`, `library.mounts`, `library.mount`, `library.sync`, `library.unmount`, `library.selection.get`, `library.selection.set` |
 | [Tasks](tasks.md) | `tasks.list`, `tasks.wait` |
 | [Editor](editor.md) | `editor.open`, `editor.close`, `editor.catalog`, `editor.get`, `editor.set`, `editor.batch_set`, `editor.undo`, `editor.redo`, `editor.history`, `editor.actions` |
 | [Render](render.md) | `render.preview` |
+| [Nodes](nodes.md) | `nodes.list`, `nodes.set_visibility` |
 | [Versions](versions.md) | `versions.list`, `versions.create`, `versions.branch`, `versions.checkout`, `versions.rename`, `versions.remove` |
 | [Adjustments](adjustments.md) | `adjustments.items`, `adjustments.copy`, `adjustments.paste` |
 | [Presets](presets.md) | `presets.list`, `presets.save`, `presets.apply` |
@@ -27,6 +28,7 @@ written by hand. The examples ran with the release build. Every command also acc
 | [Search](search.md) | `search.query` |
 | [LUT](lut.md) | `lut.list` |
 | [Film](film.md) | `film.list` |
+| [AI Denoise](denoise.md) | `denoise.status`, `denoise.set` |
 | [Tone Curve](curve.md) | `curve.presets` |
 
 [Editor fields](editor_fields.md) lists every field of `editor.set`.

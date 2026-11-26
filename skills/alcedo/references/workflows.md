@@ -56,6 +56,28 @@ alcedo-cli call library.list '{"sort":"rating","descending":true,"limit":2}'
 {"items":[{"color_labels":[],"delete_mark":false,"element_id":1,"file_name":"DSC0027.ARW","image_id":1,"rating":4},{"color_labels":[],"delete_mark":false,"element_id":3,"file_name":"DSC06683.dng","image_id":3,"rating":4}],"offset":0,"total":3}
 ```
 
+## Follow a disk folder (mounted folder)
+
+`library.mount` makes a collection that follows a disk directory: its subdirectories become
+collections, and its supported files become photos. Alcedo Studio never writes to the directory.
+The command answers after the first scan; give a large directory a larger `timeout_ms`.
+
+```bash
+alcedo-cli call library.mount '{"path":"D:/Photos/2026 Japan","timeout_ms":600000}'
+alcedo-cli call library.list '{"folder_id":42}'
+```
+
+The application scans the directory again when it changes. To have the result now, call
+`library.sync`. A renamed or moved file keeps its photo and its edits; a deleted file makes its
+photo missing (`missing` in the scan, `missing_count` in `library.mounts`). `library.unmount`
+keeps the photos as ordinary photos.
+
+```bash
+alcedo-cli call library.sync '{"mount_id":1}'
+alcedo-cli call library.mounts
+```
+
+
 ## Cull many photos with contact sheets
 
 To look at a whole set of photos (cull, pick the best of similar frames, find the sharp ones),
@@ -253,6 +275,26 @@ work. Use Versions to keep alternatives.
   {"head_commit":"7060ad9cfd466e5caa51a66f8c0750af","name":"Default","version_id":"3fdfa0facee012d4f8f233b6a9bea1f0"}
   ```
 
+## Compare with a Color Grade hidden
+
+Hide a Color Grade to see the photo without it, then show it again. Each change is one history
+commit, and the Color Grade keeps its parameters and Masks.
+
+```bash
+alcedo-cli call nodes.list
+alcedo-cli call nodes.set_visibility '{"node_id":"grade.primary","visible":false}'
+alcedo-cli call render.preview '{"out_dir":"D:/Photos/previews","file_stem":"without_grade"}'
+alcedo-cli call nodes.set_visibility '{"node_id":"grade.primary","visible":true}'
+```
+
+```json
+{"color_grades":[{"backbone_index":0,"deletion_protected":false,"detached":false,"hidden":false,"mask_count":0,"name":"Color Grade 1","node_id":"grade.primary"}]}
+{"backbone_index":0,"deletion_protected":false,"detached":false,"hidden":true,"mask_count":0,"name":"Color Grade 1","node_id":"grade.primary"}
+```
+
+`nodes.list` also lists the detached Color Grades (`"detached":true`) after the Color Grades on
+the image path.
+
 ## Export
 
 Close the editor first, so that the last edits are committed, then export. Export runs as a
@@ -404,6 +446,53 @@ Each photo gets one new Version with one commit, not one commit per field.
 
 5. Render previews of a few pasted photos and fix the photos that need their own exposure or
    white balance with the edit loop.
+
+## Remove noise with AI Denoise
+
+Use AI Denoise when the user asks for noise reduction, or on your own only for a high ISO photo
+whose noise clearly hurts the picture (`SKILL.md`, "AI Denoise: only for real noise").
+
+1. Read the ISO and check that AI Denoise can run:
+
+   ```bash
+   alcedo-cli --json call library.info '{"element_ids":[12]}'
+   alcedo-cli --json call editor.open '{"element_id":12}'
+   alcedo-cli --json call denoise.status
+   ```
+
+   `available` true, `model.installed` true, and `photo.sensor` `bayer` are needed.
+
+2. Look at a detail at about full resolution, for example the shadows of the lower left
+   quarter of a 6000 x 4000 photo (1500 x 1000 pixels):
+
+   ```bash
+   alcedo-cli --json call render.preview '{"out_dir":"D:/tmp/previews","compare":"none","long_edge":1500,"file_stem":"p12-noise-before","region":{"x":0,"y":0.5,"w":0.25,"h":0.25}}'
+   ```
+
+3. When the noise clearly hurts the picture, turn AI Denoise on and look at the same region:
+
+   ```bash
+   alcedo-cli --json call denoise.set '{"enabled":true,"note":"agent: AI Denoise, ISO 6400 shadow noise"}'
+   alcedo-cli --json call render.preview '{"out_dir":"D:/tmp/previews","compare":"none","long_edge":1500,"file_stem":"p12-noise-after","region":{"x":0,"y":0.5,"w":0.25,"h":0.25}}'
+   ```
+
+   Keep it when the detail looks cleaner and natural; otherwise `editor.undo`.
+
+4. When `denoise.set` answers `-32007` with `data.ai_denoise_error`, turn it off and tell the
+   user the `kind`:
+
+   ```bash
+   alcedo-cli --json call denoise.set '{"enabled":false,"note":"agent: AI Denoise failed, device_too_slow"}'
+   ```
+
+5. For other high ISO photos of the same scene with the same noise, copy the `raw_decode` item
+   and paste it onto them (see "Apply one look to many photos"):
+
+   ```bash
+   alcedo-cli --json call adjustments.copy '{"element_id":12,"items":[{"node_id":"develop","item":"raw_decode"}]}'
+   alcedo-cli --json call adjustments.paste '{"package_id":"package-1","element_ids":[13,14],"note":"agent: AI Denoise, ISO 6400"}'
+   alcedo-cli --json call tasks.wait '{"task_id":"bgtask-2"}'
+   ```
 
 ## Apply a preset
 

@@ -226,7 +226,8 @@ does. `values` then has `odt` and `film_grain`. See [Editor fields](editor_field
   loading, saving, or in a failed state. `state` in the result of `editor.get` tells which.
 - `-32007` `The change is applied, but its frame failed to render: ...`: the commit stays.
   `data.reason` has the render error and `data.head_commit` the new head; `editor.undo`
-  reverts the change.
+  reverts the change. With `data.ai_denoise_error`, the AI Denoise run of the photo failed;
+  every frame fails until AI Denoise is off ([`denoise.set`](denoise.md#denoiseset)).
 
 **Example**
 
