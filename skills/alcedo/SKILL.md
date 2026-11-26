@@ -21,6 +21,7 @@ the first time:
 | What each editor field does, its range, its direction | `references/reference/editor_fields.md` |
 | Find a LUT of the user's LUT library and apply it | `references/reference/lut.md` |
 | Simulate a film stock and a print (Film Print) | `references/reference/film.md`, `references/workflows.md` (Make a film print look) |
+| Remove the noise of a high ISO photo (AI Denoise) | `references/reference/denoise.md`, `references/workflows.md` (Remove noise with AI Denoise) |
 | Known limits | `references/limits.md` |
 
 ## Before you start
@@ -160,6 +161,48 @@ Tell the user what you changed in plain words (for example "exposure +0.3 EV, 30
 leveled by 1.5 degrees"). When the user wants a different result, continue the loop from the
 current state.
 
+## AI Denoise: only for real noise
+
+AI Denoise (`denoise.status`, `denoise.set`; `references/reference/denoise.md`) runs a neural
+network on the RAW file of the open photo and removes its sensor noise. It makes every
+full-size render of the photo slower. Use it in these two cases only:
+
+1. **The user asks for it:** noise reduction, "denoise", "clean up the noise" or "the grain" of
+   a high ISO or night shot.
+2. **On your own, only when both are true:** the photo has a high ISO (`iso` of `library.info`
+   is 3200 or more), and you see noise that clearly hurts the picture: color blotches or coarse
+   grain on the subject, on skin, in the sky, or in shadows that matter. Look at a detail at
+   about full resolution before you decide: `render.preview` with a `region` of the subject or
+   the shadows and a `long_edge` near the pixel size of that region. Tell the user that you
+   turned it on and why.
+
+Do not turn it on in a default retouch, a creative look, or for a whole set "to be safe". Do not
+turn it on for a photo at a lower ISO, or when the noise shows only at a zoom that the user will
+not see. Film grain of a look (`film_grain`) is a choice of the look, not noise.
+
+Before you turn it on, read `denoise.status`:
+
+- `available` false, or `photo.sensor` `xtrans` or `other`: AI Denoise cannot run for this
+  photo. When the user asked for it, tell them why.
+- `model.installed` false: when the user asked for it, tell them to download the AI Denoise
+  model on Settings > AI Models. Do not install it yourself. Without a request, skip it.
+
+Turn it on with `denoise.set` `{"enabled":true,"note":"agent: AI Denoise, ISO 6400 shadow
+noise"}`, then render the same region again and compare. Keep it only when the photo looks
+better. A failed run answers `-32007` with `data.ai_denoise_error` (`kind`: `device_too_slow`,
+`run_failed`, `model_not_installed`, `sensor_not_supported`) and keeps the switch on: turn it off
+at once with `{"enabled":false}` and tell the user the reason. Never leave a photo with AI Denoise
+on and an error.
+
+For several photos, turn it on in one photo that meets the rule above, then copy its
+`raw_decode` item (`adjustments.copy` with `{"node_id":"develop","item":"raw_decode"}`) and paste
+it onto the other photos that meet the rule, not onto the whole set. Thumbnails and contact
+sheets do not show AI Denoise; judge it on `render.preview`.
+
+When `export.status` lists a photo with the state `ai_denoise`, its model run failed. Open the
+photo, read `photo.error` of `denoise.status`, and tell the user. Turn AI Denoise off and export
+again when you turned it on yourself, or when the user agrees.
+
 ## Film Print or a LUT
 
 A film look has two tools. Choose by the request:
@@ -290,4 +333,4 @@ not whether it looks good.
 | -32003 | GUI: no agent control | `control.acquire`. |
 | -32004 | GUI: the user stopped the agent | Stop and wait until the user tells you to continue. |
 | -32005 | Busy (an import, export, or render runs) | `tasks.wait`, then try again. |
-| -32007 | Failed | Read `data.reason`; after a failed editor save, see `references/limits.md`. |
+| -32007 | Failed | Read `data.reason`; after a failed editor save, see `references/limits.md`. With `data.ai_denoise_error`, the AI Denoise run of the photo failed: see "AI Denoise: only for real noise". |

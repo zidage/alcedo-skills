@@ -185,7 +185,9 @@ history.changed {"element_id":41,"head_commit":"90169a9b3c61d41fb1df19a469dc07fe
 ## Error codes
 
 An error response has `code`, `message`, and often `data`. `data.reason` repeats the message of
-the owner. `data.pointer` points at the parameter that is wrong, for example `/value`.
+the owner. `data.pointer` points at the parameter that is wrong, for example `/value`. When the
+owner message is a failed AI Denoise run of the open photo, `data.ai_denoise_error` has its
+`kind` and `text` ([AI Denoise](reference/denoise.md#denoisestatus)).
 
 | Code | Name | Meaning | What to do |
 | --- | --- | --- | --- |

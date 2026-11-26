@@ -45,6 +45,12 @@ Behavior to know about in Alcedo Studio 0.3.3 (protocol version 1), and the open
 - **One image job at a time.** `render.preview` answers `-32005` while the editor renders another
   image job, for example an open comparison in the GUI. Try again after it ends.
 - **One export at a time.** A second `export.run` answers `-32005` until the first export ends.
+- **AI Denoise at full size only.** The model runs in the editor, `render.preview`, and the
+  export. `library.thumbnail`, `library.thumbnails`, and contact sheets show the photo without
+  it. The first render of a photo with AI Denoise takes longer (the model runs; on macOS a new
+  photo size also prepares the model for the Neural Engine).
+- **AI Denoise devices.** Windows needs a Direct3D 12 GPU, macOS the Neural Engine of Apple
+  silicon. A device that is too slow gets `device_too_slow` until Alcedo Studio restarts.
 
 ## GUI session
 
