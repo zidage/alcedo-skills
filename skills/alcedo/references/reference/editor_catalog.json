@@ -27,7 +27,7 @@
       "ui_decimals": 0,
       "ui_default": 0,
       "ui_max": 100,
-      "ui_min": -100,
+      "ui_min": -150,
       "ui_step": 1
     },
     {
@@ -36,7 +36,7 @@
       "panel": "tone",
       "ui_decimals": 0,
       "ui_default": 0,
-      "ui_max": 100,
+      "ui_max": 150,
       "ui_min": -100,
       "ui_step": 1
     },
@@ -173,7 +173,7 @@
           "name": "method",
           "options": [
             {
-              "label": "Default",
+              "label": "Auto",
               "value": "default"
             },
             {
@@ -181,7 +181,7 @@
               "value": "legacy"
             },
             {
-              "label": "Neural Engine",
+              "label": "Neural",
               "value": "neural_engine"
             }
           ],

@@ -1,6 +1,6 @@
 {
   "name": "alcedo",
-  "version": "0.3.5",
+  "version": "0.3.7",
   "description": "Edit, rate, search, and export photos in Alcedo Studio with alcedo-cli (automation protocol 1).",
   "author": {
     "name": "Yurun Zi"

@@ -1,11 +1,11 @@
 # Command reference
 
-Protocol version 1, Alcedo Studio 0.3.3. `alcedo-cli schema` prints the same list from a running
+Protocol version 1, Alcedo Studio 0.3.7. `alcedo-cli schema` prints the same list from a running
 session.
 
 Each section has the description, the parameters, and the result. These parts are generated
-from [commands.json](commands.json); do not edit them by hand. The errors and the example are
-written by hand. The examples ran with the release build. Every command also accepts
+from [commands.json](commands.json); do not edit them by hand. The errors and examples are
+written by hand. Every command also accepts
 `timeout_ms`; see [cli.md](../cli.md#call).
 
 "Changes state: yes" means that a GUI session needs agent control for the command
@@ -29,6 +29,7 @@ written by hand. The examples ran with the release build. Every command also acc
 | [LUT](lut.md) | `lut.list` |
 | [Film](film.md) | `film.list` |
 | [AI Denoise](denoise.md) | `denoise.status`, `denoise.set` |
+| [AI Labels](labels.md) | `labels.status`, `labels.install_model`, `labels.activate_model`, `labels.generate`, `labels.cancel` |
 | [Tone Curve](curve.md) | `curve.presets` |
 
 [Editor fields](editor_fields.md) lists every field of `editor.set`.

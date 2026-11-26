@@ -117,8 +117,8 @@ These tables are generated from [editor_catalog.json](editor_catalog.json) (`edi
 | --- | --- | --- | --- | --- | --- | --- |
 | `exposure` |  | tone | -10 to 10 | 0.01 | 2 | 0 |
 | `contrast` |  | tone | -100 to 100 | 1 | 0 | 0 |
-| `highlights` |  | tone | -100 to 100 | 1 | 0 | 0 |
-| `shadows` |  | tone | -100 to 100 | 1 | 0 | 0 |
+| `highlights` |  | tone | -150 to 100 | 1 | 0 | 0 |
+| `shadows` |  | tone | -100 to 150 | 1 | 0 | 0 |
 | `white` | `whites` | tone | -100 to 100 | 1 | 0 | 0 |
 | `black` | `blacks` | tone | -100 to 100 | 1 | 0 | 0 |
 | `saturation` |  | look | -100 to 100 | 1 | 0 | 0 |
@@ -145,7 +145,7 @@ Reset value: `{"film_format": "35mm"}`
 
 | Property | Type | Range or values | Step | Decimals |
 | --- | --- | --- | --- | --- |
-| `method` | option | `default` (Default), `legacy` (Legacy), `neural_engine` (Neural Engine) |  |  |
+| `method` | option | `default` (Auto), `legacy` (Legacy), `neural_engine` (Neural) |  |  |
 | `highlights_reconstruct` | boolean |  |  |  |
 
 Reset value: `{"highlights_reconstruct": true, "method": "default"}`
