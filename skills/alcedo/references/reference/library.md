@@ -5,13 +5,14 @@
 <!-- BEGIN GENERATED: library.import -->
 Changes state: yes. In a GUI session it needs agent control (`control.acquire`).
 
-Imports the files 'paths', or the supported files of 'folder' (with its subfolders when 'recursive', the default), into the current folder of the open project. Returns a task id for tasks.wait as soon as the import starts. A mounted current folder answers -32002 (rejected) with data.error 'mounted_folder_structure_is_read_only': a mounted folder takes its files from its disk directory.
+Imports the files 'paths', or the supported files of 'folder' (with its subfolders when 'recursive', the default), into the folder 'folder_id' of the open project, or into the current folder without it. Returns a task id for tasks.wait as soon as the import starts. A mounted target folder answers -32002 (rejected) with data.error 'mounted_folder_structure_is_read_only': a mounted folder takes its files from its disk directory. A 'folder_id' that no folder has answers -32002 with data.error 'unknown_folder'.
 
 **Parameters**
 
 | Name | Type | Required | Default | Notes |
 | --- | --- | --- | --- | --- |
 | `folder` | string | no |  | A folder to import. |
+| `folder_id` | integer | no |  | 0 to 4294967295. The library folder of the photos, from library.folders; the current folder by default. |
 | `paths` | array of string | no |  | at least 1 item(s). Files to import. |
 | `recursive` | boolean | no | `true` | Include the subfolders of 'folder'. |
 
@@ -23,12 +24,17 @@ Imports the files 'paths', or the supported files of 'folder' (with its subfolde
 <!-- END GENERATED: library.import -->
 
 Give `folder` or `paths`. Wait for the task before you list the photos: `tasks.wait` with the
-`task_id`, or with `idle: true`.
+`task_id`, or with `idle: true`. `folder_id` (from `library.folders` or
+`library.folder.create`) imports into that folder; without it the photos go into the current
+folder, which is the root folder in a headless session.
 
 **Errors**
 
 - `-32602`: `give exactly one of paths and folder`.
 - `-32602` `/folder` or `/paths/<n>`: the folder or file does not exist.
+- `-32002` with `data.error` `unknown_folder`: no folder of the project has the `folder_id`.
+- `-32002` with `data.error` `mounted_folder_structure_is_read_only`: the target folder is a
+  mounted folder.
 - `-32001`: `No project is open.`
 - `-32005`: `An import is already running.` Wait with `tasks.wait`, then try again.
 
@@ -74,6 +80,228 @@ alcedo-cli --json call library.folders
 
 ```json
 {"folders":[{"depth":0,"folder_id":0,"name":"","parent_id":0,"path":"/"}]}
+```
+
+## `library.folder.create`
+
+<!-- BEGIN GENERATED: library.folder.create -->
+Changes state: yes. In a GUI session it needs agent control (`control.acquire`).
+
+Creates a folder named 'name' in the folder 'parent_id' (0 is the root) and returns it as library.folders lists it. The name is trimmed; the result holds the stored name. A refusal answers -32002 (rejected) with data.error: 'invalid_folder_name' (empty after the trim, '.', '..', or a name with '/', '\', or a control character), 'folder_name_taken' (a sibling folder has the name), 'unknown_folder' (no folder has the id), 'root_folder_cannot_change', 'move_into_own_subtree', or 'mounted_folder_structure_is_read_only'. An import or export that runs answers -32005 (busy).
+
+**Parameters**
+
+| Name | Type | Required | Default | Notes |
+| --- | --- | --- | --- | --- |
+| `name` | string | yes |  |  |
+| `parent_id` | integer | yes |  | 0 to 4294967295. A folder id from library.folders. |
+
+**Result**
+
+| Field | Type | Always | Notes |
+| --- | --- | --- | --- |
+| `folder_id` | integer | yes |  |
+| `name` | string | yes |  |
+| `parent_id` | integer | yes |  |
+| `path` | string | yes |  |
+<!-- END GENERATED: library.folder.create -->
+
+A folder is a collection of the library tree. It is not a directory on the disk. The name is
+trimmed. Two child folders of one parent have different names; the same name under another
+parent is accepted. A name is compared as it is: names that differ only in case or in Unicode
+normalization are different names.
+
+**Folder errors**
+
+The four folder commands answer with these errors:
+
+| Code | `data.error` | Cause |
+| --- | --- | --- |
+| `-32002` | `invalid_folder_name` | The trimmed name is empty, `.`, or `..`, or it holds `/`, `\`, or a control character (U+0000 to U+001F, U+007F). |
+| `-32002` | `folder_name_taken` | A child folder of the parent (or of the new parent of a move) has the name. |
+| `-32002` | `unknown_folder` | No folder of the project has the id, for example a deleted folder or a photo id. |
+| `-32002` | `root_folder_cannot_change` | A rename, move, or delete of the root folder (`folder_id` 0). |
+| `-32002` | `move_into_own_subtree` | The new parent of a move is the folder itself or one of its descendants. |
+| `-32002` | `mounted_folder_structure_is_read_only` | The folder, the parent, or the new parent is a mounted folder. Its tree follows its disk directory. |
+| `-32602` | | An id is not an integer from 0 to 4294967295; `data.pointer` names the parameter. |
+| `-32005` | | An import or an export runs. Wait for it (`tasks.wait {"idle": true}`), then send the command again. |
+| `-32001` | | No project is open, or the project loads. |
+
+A refused command changes nothing.
+
+**Example**
+
+```bash
+alcedo-cli --json call library.folder.create '{"parent_id":0,"name":"Trip"}'
+alcedo-cli --json call library.folder.create '{"parent_id":42,"name":" Day 1 "}'
+```
+
+```json
+{"folder_id":42,"parent_id":0,"name":"Trip","path":"/Trip"}
+{"folder_id":43,"parent_id":42,"name":"Day 1","path":"/Trip/Day 1"}
+```
+
+## `library.folder.rename`
+
+<!-- BEGIN GENERATED: library.folder.rename -->
+Changes state: yes. In a GUI session it needs agent control (`control.acquire`).
+
+Renames the folder 'folder_id' to 'name' and returns it. The folder keeps its id, its child folders, and its photos. The name is trimmed; a rename to the current name changes nothing. A refusal answers -32002 (rejected) with data.error: 'invalid_folder_name' (empty after the trim, '.', '..', or a name with '/', '\', or a control character), 'folder_name_taken' (a sibling folder has the name), 'unknown_folder' (no folder has the id), 'root_folder_cannot_change', 'move_into_own_subtree', or 'mounted_folder_structure_is_read_only'. An import or export that runs answers -32005 (busy).
+
+**Parameters**
+
+| Name | Type | Required | Default | Notes |
+| --- | --- | --- | --- | --- |
+| `folder_id` | integer | yes |  | 0 to 4294967295. A folder id from library.folders. |
+| `name` | string | yes |  |  |
+
+**Result**
+
+| Field | Type | Always | Notes |
+| --- | --- | --- | --- |
+| `folder_id` | integer | yes |  |
+| `name` | string | yes |  |
+| `parent_id` | integer | yes |  |
+| `path` | string | yes |  |
+<!-- END GENERATED: library.folder.rename -->
+
+The folder keeps its id, its child folders, and its photos. The name rules and the errors are
+the ones of `library.folder.create`.
+
+**Example**
+
+```bash
+alcedo-cli --json call library.folder.rename '{"folder_id":43,"name":"Day One"}'
+```
+
+```json
+{"folder_id":43,"parent_id":42,"name":"Day One","path":"/Trip/Day One"}
+```
+
+## `library.folder.move`
+
+<!-- BEGIN GENERATED: library.folder.move -->
+Changes state: yes. In a GUI session it needs agent control (`control.acquire`).
+
+Moves the folder 'folder_id' into the folder 'parent_id' (0 is the root) and returns it. The folder keeps its id, its name, its child folders, and its photos. A move to the current parent changes nothing. A refusal answers -32002 (rejected) with data.error: 'invalid_folder_name' (empty after the trim, '.', '..', or a name with '/', '\', or a control character), 'folder_name_taken' (a sibling folder has the name), 'unknown_folder' (no folder has the id), 'root_folder_cannot_change', 'move_into_own_subtree', or 'mounted_folder_structure_is_read_only'. An import or export that runs answers -32005 (busy).
+
+**Parameters**
+
+| Name | Type | Required | Default | Notes |
+| --- | --- | --- | --- | --- |
+| `folder_id` | integer | yes |  | 0 to 4294967295. A folder id from library.folders. |
+| `parent_id` | integer | yes |  | 0 to 4294967295. The new parent folder. |
+
+**Result**
+
+| Field | Type | Always | Notes |
+| --- | --- | --- | --- |
+| `folder_id` | integer | yes |  |
+| `name` | string | yes |  |
+| `parent_id` | integer | yes |  |
+| `path` | string | yes |  |
+<!-- END GENERATED: library.folder.move -->
+
+`parent_id` 0 moves the folder to the top level. The folder keeps its id, its name, its child
+folders, and its photos. The errors are the ones of `library.folder.create`.
+
+**Example**
+
+```bash
+alcedo-cli --json call library.folder.move '{"folder_id":43,"parent_id":0}'
+```
+
+```json
+{"folder_id":43,"parent_id":0,"name":"Day One","path":"/Day One"}
+```
+
+## `library.folder.delete`
+
+<!-- BEGIN GENERATED: library.folder.delete -->
+Changes state: yes. In a GUI session it needs agent control (`control.acquire`).
+
+Deletes the folder 'folder_id' and its child folders. The photos stay in the project. A refusal answers -32002 (rejected) with data.error: 'invalid_folder_name' (empty after the trim, '.', '..', or a name with '/', '\', or a control character), 'folder_name_taken' (a sibling folder has the name), 'unknown_folder' (no folder has the id), 'root_folder_cannot_change', 'move_into_own_subtree', or 'mounted_folder_structure_is_read_only'. An import or export that runs answers -32005 (busy).
+
+**Parameters**
+
+| Name | Type | Required | Default | Notes |
+| --- | --- | --- | --- | --- |
+| `folder_id` | integer | yes |  | 0 to 4294967295. A folder id from library.folders. |
+
+**Result**
+
+| Field | Type | Always | Notes |
+| --- | --- | --- | --- |
+| `deleted` | boolean | yes |  |
+| `folder_id` | integer | yes |  |
+<!-- END GENERATED: library.folder.delete -->
+
+The command deletes the folder and its child folders. The photos stay in the project and in the
+other folders that hold them. The errors are the ones of `library.folder.create`.
+
+**Example**
+
+```bash
+alcedo-cli --json call library.folder.delete '{"folder_id":42}'
+```
+
+```json
+{"folder_id":42,"deleted":true}
+```
+
+## `library.link`
+
+<!-- BEGIN GENERATED: library.link -->
+Changes state: yes. In a GUI session it needs agent control (`control.acquire`).
+
+Adds the photos 'element_ids' to the folder 'folder_id', as the Add to menu does. A photo can be in several folders; it stays in the others. 'linked_ids' lists the added photos, 'already_linked_ids' the photos that the folder already held, and 'failed_ids' the photos that the link could not add. A refusal answers -32002 (rejected) with data.error 'unknown_folder', 'root_folder_cannot_change' (every photo is in the root), or 'mounted_folder_structure_is_read_only'. An unknown photo id answers -32602 with data.unknown_ids.
+
+**Parameters**
+
+| Name | Type | Required | Default | Notes |
+| --- | --- | --- | --- | --- |
+| `element_ids` | array of integer | yes |  | at least 1 item(s); each item at least 1. |
+| `folder_id` | integer | yes |  | 0 to 4294967295. A folder id from library.folders. |
+
+**Result**
+
+| Field | Type | Always | Notes |
+| --- | --- | --- | --- |
+| `already_linked_ids` | array | yes |  |
+| `failed_ids` | array | yes |  |
+| `linked_ids` | array | yes |  |
+<!-- END GENERATED: library.link -->
+
+`library.link` adds photos of the project to a folder, as the Add to menu of the Library does.
+A photo can be in several folders. To remove a photo from one folder, use `library.delete` with
+`scope` `album` and the `folder_id` of the folder.
+
+| Field | Photos |
+| --- | --- |
+| `linked_ids` | Added to the folder. |
+| `already_linked_ids` | The folder already held them; nothing changed for them. |
+| `failed_ids` | Not added for another reason. |
+
+**Errors**
+
+- `-32602` `/element_ids`: unknown photo ids; `data.unknown_ids` lists them. Nothing changes.
+- `-32002` with `data.error`:
+  - `unknown_folder`: no folder of the project has the id.
+  - `root_folder_cannot_change`: `folder_id` is 0. Every photo of the project is in the root
+    folder.
+  - `mounted_folder_structure_is_read_only`: the folder is a mounted folder.
+- `-32007`: no photo was added, for example after a storage failure.
+
+**Example**
+
+```bash
+alcedo-cli --json call library.link '{"element_ids":[3,8],"folder_id":42}'
+```
+
+Photo 3 was already in the folder:
+
+```json
+{"linked_ids":[8],"already_linked_ids":[3],"failed_ids":[]}
 ```
 
 ## `library.list`
@@ -622,13 +850,14 @@ alcedo-cli --json call library.color_label_name.set '{"code":"red","name":""}'
 <!-- BEGIN GENERATED: library.delete -->
 Changes state: yes. In a GUI session it needs agent control (`control.acquire`).
 
-Deletes 'element_ids'. With scope 'project' the photos leave the project; this needs the root folder as the current folder. With scope 'album' they leave the current album. A photo that a task holds (a mark, rating, or paste adjustments batch that is saving) and a mounted photo in a delete from the project stay; 'skipped_ids' lists them, and the other photos are deleted. Answers -32002 (rejected) when a task holds every photo or another delete runs. Send it again after tasks.wait. A delete that the mounted folder rules refuse for every photo answers -32002 with data.error 'mounted_folder_structure_is_read_only', 'mounted_photo_is_present', or 'mounted_photo_is_missing'; the Delete mark stays available. Other start failures answer -32007 (failed).
+Deletes 'element_ids'. With scope 'project' the photos leave the project; this needs the root folder as the current folder. With scope 'album' they leave the album 'folder_id', or the current album without it; a 'folder_id' that no folder has answers -32002 with data.error 'unknown_folder'. A photo that a task holds (a mark, rating, or paste adjustments batch that is saving) and a mounted photo in a delete from the project stay; 'skipped_ids' lists them, and the other photos are deleted. Answers -32002 (rejected) when a task holds every photo or another delete runs. Send it again after tasks.wait. A delete that the mounted folder rules refuse for every photo answers -32002 with data.error 'mounted_folder_structure_is_read_only', 'mounted_photo_is_present', or 'mounted_photo_is_missing'; the Delete mark stays available. Other start failures answer -32007 (failed).
 
 **Parameters**
 
 | Name | Type | Required | Default | Notes |
 | --- | --- | --- | --- | --- |
 | `element_ids` | array of integer | yes |  | at least 1 item(s); each item at least 1. |
+| `folder_id` | integer | no |  | 1 to 4294967295. Scope 'album' only: the album, from library.folders; the current album by default. |
 | `scope` | `project` \| `album` | yes |  |  |
 
 **Result**
@@ -641,16 +870,19 @@ Deletes 'element_ids'. With scope 'project' the photos leave the project; this n
 <!-- END GENERATED: library.delete -->
 
 `library.delete` removes the photos from the project or the album. It does not delete the
-image files on the disk. To mark photos for a later delete that the user reviews first, use
+image files on the disk. With `scope` `album`, `folder_id` names the album; without it the
+current album is used. To mark photos for a later delete that the user reviews first, use
 `library.delete_mark`.
 
 **Errors**
 
 - `-32602` `/element_ids`: unknown ids; `data.unknown_ids` lists them. Nothing is deleted.
 - `-32602` `/scope`: `scope` is missing.
-- `-32002`: the scope does not fit the current folder, for example `The current folder gives
-  the delete scope 'album', not 'project'.` Change the current folder, then send the command
-  again.
+- `-32602` `/folder_id`: `folder_id` with `scope` `project`, or a `folder_id` of 0.
+- `-32002` with `data.error` `unknown_folder`: no folder of the project has the `folder_id`.
+- `-32002`: without `folder_id`, the scope does not fit the current folder, for example `The
+  current folder gives the delete scope 'project', not 'album'.` Give the `folder_id` of the
+  album.
 - `-32002`: a task holds every photo of the request, for example `Image marks are being saved.`
   while a `library.color_label`, `library.delete_mark`, or `library.rate` batch of these photos
   saves, while an adjustments paste runs, or while another delete runs. Wait for the task

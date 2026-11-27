@@ -16,7 +16,7 @@ written by hand. Every command also accepts
 | [Session](session.md) | `session.ping`, `session.describe`, `state.get`, `session.shutdown` |
 | [Control](control.md) | `control.acquire`, `control.release`, `control.get` |
 | [Project](project.md) | `project.create`, `project.open`, `project.save`, `project.close` |
-| [Library](library.md) | `library.import`, `library.folders`, `library.list`, `library.stats`, `library.info`, `library.thumbnail`, `library.thumbnails`, `library.rate`, `library.color_label`, `library.delete_mark`, `library.color_labels`, `library.color_label_name.set`, `library.delete`, `library.mounts`, `library.mount`, `library.sync`, `library.unmount`, `library.selection.get`, `library.selection.set` |
+| [Library](library.md) | `library.import`, `library.folders`, `library.folder.create`, `library.folder.rename`, `library.folder.move`, `library.folder.delete`, `library.link`, `library.list`, `library.stats`, `library.info`, `library.thumbnail`, `library.thumbnails`, `library.rate`, `library.color_label`, `library.delete_mark`, `library.color_labels`, `library.color_label_name.set`, `library.delete`, `library.mounts`, `library.mount`, `library.sync`, `library.unmount`, `library.selection.get`, `library.selection.set` |
 | [Tasks](tasks.md) | `tasks.list`, `tasks.wait` |
 | [Editor](editor.md) | `editor.open`, `editor.close`, `editor.catalog`, `editor.get`, `editor.set`, `editor.batch_set`, `editor.undo`, `editor.redo`, `editor.history`, `editor.actions` |
 | [Render](render.md) | `render.preview` |
