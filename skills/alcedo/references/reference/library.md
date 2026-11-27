@@ -685,11 +685,13 @@ Photo 8 is a mounted photo, so it stays:
 <!-- BEGIN GENERATED: library.mounts -->
 Changes state: no.
 
-Returns the mounted folders of the open project: the mount id, the folder id of the mount root collection, the disk directory, the volume identity, the last read display name of the volume (empty when it has none), the mount point of the volume when a scan of this session reached it (empty otherwise), the state of the last scan of this session ('not_scanned', 'online', 'offline'), the counts of present and missing photos, and the end of the last complete scan (UTC).
+Returns the mounted folders of the open project: the mount id, the folder id of the mount root collection, the disk directory, the volume identity, the last read display name of the volume (empty when it has none), the mount point of the volume when a scan of this session reached it (empty otherwise), the state of the last scan of this session ('not_scanned', 'online', 'offline'), the counts of present and missing photos, the end of the last complete scan (UTC), what the scans of the mount do now ('scan': 'idle', 'queued', 'running', or 'paused' when an import or a delete stopped the scan until it ends), and whether the directory watcher holds the mount ('watched'). With 'with_ids' true each mount also has the element ids of its present and missing photos.
 
 **Parameters**
 
-No parameters other than `timeout_ms`.
+| Name | Type | Required | Default | Notes |
+| --- | --- | --- | --- | --- |
+| `with_ids` | boolean | no | `false` | Add present_element_ids and missing_element_ids. |
 
 **Result**
 
@@ -709,14 +711,27 @@ volume read it; an offline mount keeps it. It is empty for a volume without a na
 `volume_mount_point` is the drive (`D:\`) or the mount path of the volume while the mount is
 `online`, and empty otherwise.
 
+`scan` is what the scans of the mount do now:
+
+| Value | Meaning |
+| --- | --- |
+| `idle` | No scan of the mount runs or waits. |
+| `queued` | A scan waits for the scan of another mount, or for the end of an import or a delete. |
+| `running` | A scan of the mount runs. |
+| `paused` | An import or a delete stopped the scan. It runs again when they end. |
+
+`watched` is true while the directory watcher holds the mount: a change in the directory starts
+a scan five seconds after the last change. With `with_ids` true, each mount also has
+`present_element_ids` and `missing_element_ids`, in ascending order.
+
 **Example**
 
 ```bash
-alcedo-cli --json call library.mounts
+alcedo-cli --json call library.mounts '{"with_ids":true}'
 ```
 
 ```json
-{"mounts":[{"mount_id":1,"folder_id":42,"path":"D:/Photos/2026 Japan","volume_identity":"\\\\?\\Volume{0b6c...}\\","volume_name":"Photos SSD","volume_mount_point":"D:\\","state":"online","present_count":842,"missing_count":0,"last_scan_at":"2026-11-20T18:02:11Z"}]}
+{"mounts":[{"mount_id":1,"folder_id":42,"path":"D:/Photos/2026 Japan","volume_identity":"\\\\?\\Volume{0b6c...}\\","volume_name":"Photos SSD","volume_mount_point":"D:\\","state":"online","present_count":2,"missing_count":1,"present_element_ids":[43,45],"missing_element_ids":[44],"scan":"idle","watched":true,"last_scan_at":"2026-11-20T18:02:11Z"}]}
 ```
 
 ## `library.mount`
@@ -724,13 +739,14 @@ alcedo-cli --json call library.mounts
 <!-- BEGIN GENERATED: library.mount -->
 Changes state: yes. In a GUI session it needs agent control (`control.acquire`).
 
-Mounts the disk directory 'path' as a new collection in the library root, then waits for the first scan, which imports the supported files of the directory and its subdirectories by reference. Alcedo Studio never writes to the directory. Returns the mount id, the folder id of the new collection, and the scan counts. A large directory needs a larger 'timeout_ms'; after a timeout the scan continues and library.mounts shows its result. A refused mount answers -32002 (rejected) with data.error 'nested_mount' or 'directory_unreachable'.
+Mounts the disk directory 'path' as a new collection in the library root, then waits for the first scan, which imports the supported files of the directory and its subdirectories by reference. Alcedo Studio never writes to the directory. Returns the mount id, the folder id of the new collection, and the scan counts. With 'wait' false it answers after the mount is stored, with the task id of the first scan ('task_id') for tasks.wait and tasks.cancel instead of the counts. A large directory needs a larger 'timeout_ms'; after a timeout the scan continues and library.mounts shows its result. A refused mount answers -32002 (rejected) with data.error 'nested_mount' or 'directory_unreachable'.
 
 **Parameters**
 
 | Name | Type | Required | Default | Notes |
 | --- | --- | --- | --- | --- |
 | `path` | string | yes |  |  |
+| `wait` | boolean | no | `true` | true waits for the scan; false answers at once with the task id of the scan. |
 
 **Result**
 
@@ -738,7 +754,7 @@ Mounts the disk directory 'path' as a new collection in the library root, then w
 | --- | --- | --- | --- |
 | `folder_id` | integer | yes |  |
 | `mount_id` | integer | yes |  |
-| `scan` | object | yes |  |
+| `scan` | object | no |  |
 | `scan.changed` | integer | yes |  |
 | `scan.error` | string | no |  |
 | `scan.missing` | integer | yes |  |
@@ -749,12 +765,17 @@ Mounts the disk directory 'path' as a new collection in the library root, then w
 | `scan.relocated_root` | string | no |  |
 | `scan.returned` | integer | yes |  |
 | `scan.status` | `complete` \| `offline` \| `canceled` \| `storage_failure` | yes |  |
+| `task_id` | string | no |  |
 <!-- END GENERATED: library.mount -->
 
 The new collection takes the name of the directory and is a child of the library root: a
 collection never holds a mount. The command answers after the first scan, so the photos are in
 the library when it returns. Use `folder_id` as the `folder_id` of
 `library.list`.
+
+With `wait` false, the command answers when the mount is stored. `task_id` is the task of the
+first scan (kind `mountScan`): wait for it with `tasks.wait`, or stop it with `tasks.cancel`.
+The photos that the scan stored before a cancel stay; the next scan imports the rest.
 
 **Errors**
 
@@ -776,24 +797,33 @@ alcedo-cli --json call library.mount '{"path":"D:/Photos/2026 Japan","timeout_ms
 {"mount_id":1,"folder_id":42,"scan":{"mount_id":1,"status":"complete","new":842,"moved":0,"changed":0,"missing":0,"returned":0,"not_imported":0}}
 ```
 
+```bash
+alcedo-cli --json call library.mount '{"path":"D:/Photos/2026 Japan","wait":false}'
+```
+
+```json
+{"mount_id":1,"folder_id":42,"task_id":"bgtask-3"}
+```
+
 ## `library.sync`
 
 <!-- BEGIN GENERATED: library.sync -->
 Changes state: yes. In a GUI session it needs agent control (`control.acquire`).
 
-Scans the mounted folder 'mount_id', or each mounted folder without it, and waits for the scans. A scan makes the collection equal to its directory: new files are imported, moved and renamed files keep their photo, and a file that is gone makes its photo missing. Returns the counts of each scan. A scan of an unreachable directory has the status 'offline' and changes nothing.
+Scans the mounted folder 'mount_id', or each mounted folder without it, and waits for the scans. A scan makes the collection equal to its directory: new files are imported, moved and renamed files keep their photo, and a file that is gone makes its photo missing. Returns the counts of each scan. A scan of an unreachable directory has the status 'offline' and changes nothing. A request during a scan of the same mount waits for the scan after it. With 'wait' false it answers at once with the task id of each requested scan ('tasks': mount_id and task_id) for tasks.wait and tasks.cancel. An unknown mount id answers -32002 (rejected) with data.error 'unknown_mount'.
 
 **Parameters**
 
 | Name | Type | Required | Default | Notes |
 | --- | --- | --- | --- | --- |
 | `mount_id` | integer | no |  | 1 to 4294967295. |
+| `wait` | boolean | no | `true` | true waits for the scan; false answers at once with the task id of the scan. |
 
 **Result**
 
 | Field | Type | Always | Notes |
 | --- | --- | --- | --- |
-| `scans` | array of object | yes |  |
+| `scans` | array of object | no |  |
 | `scans[].changed` | integer | yes |  |
 | `scans[].error` | string | no |  |
 | `scans[].missing` | integer | yes |  |
@@ -804,6 +834,7 @@ Scans the mounted folder 'mount_id', or each mounted folder without it, and wait
 | `scans[].relocated_root` | string | no |  |
 | `scans[].returned` | integer | yes |  |
 | `scans[].status` | `complete` \| `offline` \| `canceled` \| `storage_failure` | yes |  |
+| `tasks` | array | no |  |
 <!-- END GENERATED: library.sync -->
 
 The application also scans each mount when the project opens, when it becomes active after a
@@ -814,12 +845,19 @@ drive letter or mount point is found by its volume identity, and its scan result
 
 A rename or a move of a file keeps its photo and its edits. A file that is gone makes its photo
 missing; the photo returns when the file returns. The missing photos stay in the project until
-the user removes them with Remove Missing Photos in the Collections panel.
+[`library.mount.remove_missing`](#librarymountremove_missing) or Remove Missing Photos in the
+Collections panel removes them.
+
+A request during a scan of the same mount waits for the scan after it, so the result holds the
+changes that came during the running scan. With `wait` false, the command answers at once with
+`tasks`: the `mount_id` and the `task_id` of each requested scan, for `tasks.wait` and
+`tasks.cancel`. A scan that waits has a task in the state `queued`.
 
 **Errors**
 
 - `-32602` `/mount_id`: not a positive integer.
-- `-32002`: the mount does not exist, or an import is running.
+- `-32002` with `data.error` `unknown_mount`: no mount has the id.
+- `-32002`: an import is running.
 
 **Example**
 
@@ -829,6 +867,14 @@ alcedo-cli --json call library.sync '{"mount_id":1}'
 
 ```json
 {"scans":[{"mount_id":1,"status":"complete","new":3,"moved":1,"changed":0,"missing":1,"returned":0,"not_imported":0}]}
+```
+
+```bash
+alcedo-cli --json call library.sync '{"mount_id":1,"wait":false}'
+```
+
+```json
+{"tasks":[{"mount_id":1,"task_id":"bgtask-4"}]}
 ```
 
 ## `library.unmount`
@@ -865,6 +911,226 @@ alcedo-cli --json call library.unmount '{"mount_id":1}'
 
 ```json
 {"mount_id":1,"unmounted":true}
+```
+
+## `library.mount.locate`
+
+<!-- BEGIN GENERATED: library.mount.locate -->
+Changes state: yes. In a GUI session it needs agent control (`control.acquire`).
+
+Binds the mounted folder 'mount_id' to the new location 'path' of its root directory (Locate Folder of the Collections panel), then waits for the scan of the new location. Each photo keeps its element; a file that is not at the new location becomes missing, and a new file is imported. Returns the mount id and the scan counts. A refusal answers -32002 (rejected) with data.error 'unknown_mount', 'directory_unreachable', or 'nested_mount' (the directory is, is inside, or holds the directory of another mount).
+
+**Parameters**
+
+| Name | Type | Required | Default | Notes |
+| --- | --- | --- | --- | --- |
+| `mount_id` | integer | yes |  | 1 to 4294967295. |
+| `path` | string | yes |  |  |
+
+**Result**
+
+| Field | Type | Always | Notes |
+| --- | --- | --- | --- |
+| `mount_id` | integer | yes |  |
+| `scan` | object | yes |  |
+| `scan.changed` | integer | yes |  |
+| `scan.error` | string | no |  |
+| `scan.missing` | integer | yes |  |
+| `scan.mount_id` | integer | yes |  |
+| `scan.moved` | integer | yes |  |
+| `scan.new` | integer | yes |  |
+| `scan.not_imported` | integer | yes |  |
+| `scan.relocated_root` | string | no |  |
+| `scan.returned` | integer | yes |  |
+| `scan.status` | `complete` \| `offline` \| `canceled` \| `storage_failure` | yes |  |
+<!-- END GENERATED: library.mount.locate -->
+
+Use it after the directory of a mount moved, for example to another drive. It is Locate Folder in
+the Collections panel. The mount keeps its id, its collection, and each photo with its edits. The
+scan of the new location finds each file at the same path below the new root; a file that is
+elsewhere becomes missing, and a new file is imported.
+
+**Errors**
+
+- `-32602` `/path`: the path is not a local path.
+- `-32002` with `data.error`:
+  - `unknown_mount`: no mount has the id.
+  - `directory_unreachable`: the directory does not exist.
+  - `nested_mount`: the directory is, is inside, or holds the directory of another mount.
+- `-32002`: an import is running.
+- `-32007`: the change could not be stored.
+
+**Example**
+
+```bash
+alcedo-cli --json call library.mount.locate '{"mount_id":1,"path":"E:/Photos/2026 Japan"}'
+```
+
+```json
+{"mount_id":1,"scan":{"mount_id":1,"status":"complete","new":0,"moved":0,"changed":0,"missing":0,"returned":0,"not_imported":0}}
+```
+
+## `library.mount.locate_photo`
+
+<!-- BEGIN GENERATED: library.mount.locate_photo -->
+Changes state: yes. In a GUI session it needs agent control (`control.acquire`).
+
+Takes the file 'path' as the source of the missing mounted photo 'element_id' (Locate of the image menu). The photo keeps its element, edit history, marks, and collection links, and moves to the collection of the directory of the file. Returns the element id. A refusal answers -32002 (rejected) with data.error 'photo_is_not_missing', 'file_outside_mount' (the file is not below the root directory of the mount of the photo), 'file_is_not_listed' (a scan does not list the file: an unsupported type, a name or a directory that starts with a period, or a link), 'file_has_photo' (another photo of the mount has the file), or 'file_unreadable'.
+
+**Parameters**
+
+| Name | Type | Required | Default | Notes |
+| --- | --- | --- | --- | --- |
+| `element_id` | integer | yes |  | 1 to 4294967295. |
+| `path` | string | yes |  |  |
+
+**Result**
+
+| Field | Type | Always | Notes |
+| --- | --- | --- | --- |
+| `element_id` | integer | yes |  |
+| `located` | boolean | yes |  |
+<!-- END GENERATED: library.mount.locate_photo -->
+
+It is Locate in the image menu of a missing photo. The file must be below the root directory of
+the mount of the photo. The photo keeps its element id, its edit history, its marks, and its
+collection links; it takes the name of the file and moves to the collection of the directory of
+the file. A directory that the last scan did not see gets its collection.
+
+**Errors**
+
+- `-32602` `/element_id` or `/path`: not an element id, or not a local path.
+- `-32002` with `data.error`:
+  - `photo_is_not_missing`: the photo is not a missing mounted photo.
+  - `file_outside_mount`: the file is not below the root directory of the mount.
+  - `file_is_not_listed`: a scan skips the file: a type that Alcedo Studio does not import, a
+    name or a directory that starts with a period, or a link on the way.
+  - `file_has_photo`: another photo of the mount has the file.
+  - `file_unreadable`: the file does not exist or cannot be read.
+- `-32002`: an import is running.
+- `-32007`: the change could not be stored.
+
+**Example**
+
+```bash
+alcedo-cli --json call library.mount.locate_photo '{"element_id":44,"path":"D:/Photos/2026 Japan/Day2/DSC0044.ARW"}'
+```
+
+```json
+{"element_id":44,"located":true}
+```
+
+## `library.mount.remove_missing`
+
+<!-- BEGIN GENERATED: library.mount.remove_missing -->
+Changes state: yes. In a GUI session it needs agent control (`control.acquire`).
+
+Removes each missing photo of the mounted folder 'mount_id' from the project (Remove Missing Photos of the Collections panel): the photo, its collection links, and its edit history. No file is removed from the disk, and a present photo stays. Returns the removed element ids and their image ids (at the same index; 0 for a photo without an image). An unknown mount id answers -32002 (rejected) with data.error 'unknown_mount'.
+
+**Parameters**
+
+| Name | Type | Required | Default | Notes |
+| --- | --- | --- | --- | --- |
+| `mount_id` | integer | yes |  | 1 to 4294967295. |
+
+**Result**
+
+| Field | Type | Always | Notes |
+| --- | --- | --- | --- |
+| `mount_id` | integer | yes |  |
+| `removed_element_ids` | array | yes |  |
+| `removed_image_ids` | array | yes |  |
+<!-- END GENERATED: library.mount.remove_missing -->
+
+It is Remove Missing Photos in the Collections panel, the only removal of mounted photos from the
+project. `removed_image_ids[i]` is the image of `removed_element_ids[i]`. A mount with no missing
+photo gives two empty lists.
+
+**Errors**
+
+- `-32002` with `data.error` `unknown_mount`: no mount has the id.
+- `-32002`: an import is running.
+- `-32007`: the change could not be stored.
+
+**Example**
+
+```bash
+alcedo-cli --json call library.mount.remove_missing '{"mount_id":1}'
+```
+
+```json
+{"mount_id":1,"removed_element_ids":[44],"removed_image_ids":[44]}
+```
+
+## `library.mounts.wait_idle`
+
+<!-- BEGIN GENERATED: library.mounts.wait_idle -->
+Changes state: no.
+
+Waits until no scan and no mount operation runs or waits, and no watcher delay (5 s after the last change notification of a mount) or volume arrival delay (2 s) runs, then returns idle true. After a disk change it answers when the scans that the directory watcher and the volume events started have ended. A change that the watcher has not reported yet does not count. A scan that an import or a delete stopped counts until it has run again. Answers also without a project.
+
+**Parameters**
+
+No parameters other than `timeout_ms`.
+
+**Result**
+
+| Field | Type | Always | Notes |
+| --- | --- | --- | --- |
+| `idle` | boolean | yes |  |
+<!-- END GENERATED: library.mounts.wait_idle -->
+
+Use it after a change on the disk (files copied, moved, or deleted; a drive connected or ejected)
+to read the state that the automatic scans make. The directory watcher reports a change after a
+short time, so give the watcher that time before the call. A scan that an import or a delete
+holds counts until it has run, so the call waits for the import or the delete too.
+
+**Errors**
+
+- `-32006`: a scan still runs or waits after `timeout_ms`. It continues; call the command again.
+
+**Example**
+
+```bash
+alcedo-cli --json call library.mounts.wait_idle '{"timeout_ms":600000}'
+```
+
+```json
+{"idle":true}
+```
+
+## `library.volumes.arrived`
+
+<!-- BEGIN GENERATED: library.volumes.arrived -->
+Changes state: no.
+
+Returns the volume of the card of the Disk section: the last volume that arrived while the project was open and that holds no mount of the project. 'volume' has the display name (empty when it has none), the mount point, whether its root holds a DCIM directory, and the volume identity (empty when it has none); it is null when there is no card.
+
+**Parameters**
+
+No parameters other than `timeout_ms`.
+
+**Result**
+
+| Field | Type | Always | Notes |
+| --- | --- | --- | --- |
+| `volume` | object or null | yes |  |
+<!-- END GENERATED: library.volumes.arrived -->
+
+The card shows when a drive or a memory card arrives while the project is open and no mount of
+the project is on it. It closes when the volume goes, when the user closes it, or when the user
+imports or mounts from it. `dcim` is true when the root of the volume holds a `DCIM` directory, as
+a camera card does. `identity` is the value that `library.mounts` gives as `volume_identity`
+after a mount of the volume.
+
+**Example**
+
+```bash
+alcedo-cli --json call library.volumes.arrived
+```
+
+```json
+{"volume":{"name":"EOS_DIGITAL","mount_point":"F:/","dcim":true,"identity":"\\\\?\\Volume{6f1d...}\\"}}
 ```
 
 

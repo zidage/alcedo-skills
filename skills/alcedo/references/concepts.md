@@ -107,6 +107,8 @@ The numbers start at 1 in each process. A task object has `task_id`, `kind`, `st
 - `tasks.wait {"idle": true}` waits until no import, export, or background task runs. Use it
   before you read results that a task writes, and before `session stop`.
 - `tasks.list` lists the tasks that have not finished.
+- `tasks.cancel {"task_id": "bgtask-4"}` cancels a task, as its cancel button in the task
+  list does.
 
 ## Notifications
 

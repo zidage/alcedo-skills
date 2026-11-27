@@ -2752,6 +2752,344 @@
   },
   {
     "changes_state": true,
+    "description": "Mounts the disk directory 'path' as a new collection in the library root, then waits for the first scan, which imports the supported files of the directory and its subdirectories by reference. Alcedo Studio never writes to the directory. Returns the mount id, the folder id of the new collection, and the scan counts. With 'wait' false it answers after the mount is stored, with the task id of the first scan ('task_id') for tasks.wait and tasks.cancel instead of the counts. A large directory needs a larger 'timeout_ms'; after a timeout the scan continues and library.mounts shows its result. A refused mount answers -32002 (rejected) with data.error 'nested_mount' or 'directory_unreachable'.",
+    "method": "library.mount",
+    "params_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "timeout_ms": {
+          "default": 120000,
+          "description": "Time limit in milliseconds for the command to reach its terminal state.",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "wait": {
+          "default": true,
+          "description": "true waits for the scan; false answers at once with the task id of the scan.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "path"
+      ],
+      "type": "object"
+    },
+    "result_schema": {
+      "properties": {
+        "folder_id": {
+          "type": "integer"
+        },
+        "mount_id": {
+          "type": "integer"
+        },
+        "scan": {
+          "properties": {
+            "changed": {
+              "type": "integer"
+            },
+            "error": {
+              "type": "string"
+            },
+            "missing": {
+              "type": "integer"
+            },
+            "mount_id": {
+              "type": "integer"
+            },
+            "moved": {
+              "type": "integer"
+            },
+            "new": {
+              "type": "integer"
+            },
+            "not_imported": {
+              "type": "integer"
+            },
+            "relocated_root": {
+              "type": "string"
+            },
+            "returned": {
+              "type": "integer"
+            },
+            "status": {
+              "enum": [
+                "complete",
+                "offline",
+                "canceled",
+                "storage_failure"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "mount_id",
+            "status",
+            "new",
+            "moved",
+            "changed",
+            "missing",
+            "returned",
+            "not_imported"
+          ],
+          "type": "object"
+        },
+        "task_id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "mount_id",
+        "folder_id"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "changes_state": true,
+    "description": "Binds the mounted folder 'mount_id' to the new location 'path' of its root directory (Locate Folder of the Collections panel), then waits for the scan of the new location. Each photo keeps its element; a file that is not at the new location becomes missing, and a new file is imported. Returns the mount id and the scan counts. A refusal answers -32002 (rejected) with data.error 'unknown_mount', 'directory_unreachable', or 'nested_mount' (the directory is, is inside, or holds the directory of another mount).",
+    "method": "library.mount.locate",
+    "params_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "mount_id": {
+          "maximum": 4294967295,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "path": {
+          "type": "string"
+        },
+        "timeout_ms": {
+          "default": 120000,
+          "description": "Time limit in milliseconds for the command to reach its terminal state.",
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "mount_id",
+        "path"
+      ],
+      "type": "object"
+    },
+    "result_schema": {
+      "properties": {
+        "mount_id": {
+          "type": "integer"
+        },
+        "scan": {
+          "properties": {
+            "changed": {
+              "type": "integer"
+            },
+            "error": {
+              "type": "string"
+            },
+            "missing": {
+              "type": "integer"
+            },
+            "mount_id": {
+              "type": "integer"
+            },
+            "moved": {
+              "type": "integer"
+            },
+            "new": {
+              "type": "integer"
+            },
+            "not_imported": {
+              "type": "integer"
+            },
+            "relocated_root": {
+              "type": "string"
+            },
+            "returned": {
+              "type": "integer"
+            },
+            "status": {
+              "enum": [
+                "complete",
+                "offline",
+                "canceled",
+                "storage_failure"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "mount_id",
+            "status",
+            "new",
+            "moved",
+            "changed",
+            "missing",
+            "returned",
+            "not_imported"
+          ],
+          "type": "object"
+        }
+      },
+      "required": [
+        "mount_id",
+        "scan"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "changes_state": true,
+    "description": "Takes the file 'path' as the source of the missing mounted photo 'element_id' (Locate of the image menu). The photo keeps its element, edit history, marks, and collection links, and moves to the collection of the directory of the file. Returns the element id. A refusal answers -32002 (rejected) with data.error 'photo_is_not_missing', 'file_outside_mount' (the file is not below the root directory of the mount of the photo), 'file_is_not_listed' (a scan does not list the file: an unsupported type, a name or a directory that starts with a period, or a link), 'file_has_photo' (another photo of the mount has the file), or 'file_unreadable'.",
+    "method": "library.mount.locate_photo",
+    "params_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "element_id": {
+          "maximum": 4294967295,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "path": {
+          "type": "string"
+        },
+        "timeout_ms": {
+          "default": 120000,
+          "description": "Time limit in milliseconds for the command to reach its terminal state.",
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "element_id",
+        "path"
+      ],
+      "type": "object"
+    },
+    "result_schema": {
+      "properties": {
+        "element_id": {
+          "type": "integer"
+        },
+        "located": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "element_id",
+        "located"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "changes_state": true,
+    "description": "Removes each missing photo of the mounted folder 'mount_id' from the project (Remove Missing Photos of the Collections panel): the photo, its collection links, and its edit history. No file is removed from the disk, and a present photo stays. Returns the removed element ids and their image ids (at the same index; 0 for a photo without an image). An unknown mount id answers -32002 (rejected) with data.error 'unknown_mount'.",
+    "method": "library.mount.remove_missing",
+    "params_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "mount_id": {
+          "maximum": 4294967295,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "timeout_ms": {
+          "default": 120000,
+          "description": "Time limit in milliseconds for the command to reach its terminal state.",
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "mount_id"
+      ],
+      "type": "object"
+    },
+    "result_schema": {
+      "properties": {
+        "mount_id": {
+          "type": "integer"
+        },
+        "removed_element_ids": {
+          "type": "array"
+        },
+        "removed_image_ids": {
+          "type": "array"
+        }
+      },
+      "required": [
+        "mount_id",
+        "removed_element_ids",
+        "removed_image_ids"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "changes_state": false,
+    "description": "Returns the mounted folders of the open project: the mount id, the folder id of the mount root collection, the disk directory, the volume identity, the last read display name of the volume (empty when it has none), the mount point of the volume when a scan of this session reached it (empty otherwise), the state of the last scan of this session ('not_scanned', 'online', 'offline'), the counts of present and missing photos, the end of the last complete scan (UTC), what the scans of the mount do now ('scan': 'idle', 'queued', 'running', or 'paused' when an import or a delete stopped the scan until it ends), and whether the directory watcher holds the mount ('watched'). With 'with_ids' true each mount also has the element ids of its present and missing photos.",
+    "method": "library.mounts",
+    "params_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "timeout_ms": {
+          "default": 120000,
+          "description": "Time limit in milliseconds for the command to reach its terminal state.",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "with_ids": {
+          "default": false,
+          "description": "Add present_element_ids and missing_element_ids.",
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
+    "result_schema": {
+      "properties": {
+        "mounts": {
+          "type": "array"
+        }
+      },
+      "required": [
+        "mounts"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "changes_state": false,
+    "description": "Waits until no scan and no mount operation runs or waits, and no watcher delay (5 s after the last change notification of a mount) or volume arrival delay (2 s) runs, then returns idle true. After a disk change it answers when the scans that the directory watcher and the volume events started have ended. A change that the watcher has not reported yet does not count. A scan that an import or a delete stopped counts until it has run again. Answers also without a project.",
+    "method": "library.mounts.wait_idle",
+    "params_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "timeout_ms": {
+          "default": 120000,
+          "description": "Time limit in milliseconds for the command to reach its terminal state.",
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "result_schema": {
+      "properties": {
+        "idle": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "idle"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "changes_state": true,
     "description": "Sets the star rating (0 to 5) of 'element_ids'. One photo is rated at once and the result holds 'applied_count'. Several photos use the batch save, and the result holds the 'task_id' of the save task.",
     "method": "library.rate",
     "params_schema": {
@@ -3090,6 +3428,95 @@
     }
   },
   {
+    "changes_state": true,
+    "description": "Scans the mounted folder 'mount_id', or each mounted folder without it, and waits for the scans. A scan makes the collection equal to its directory: new files are imported, moved and renamed files keep their photo, and a file that is gone makes its photo missing. Returns the counts of each scan. A scan of an unreachable directory has the status 'offline' and changes nothing. A request during a scan of the same mount waits for the scan after it. With 'wait' false it answers at once with the task id of each requested scan ('tasks': mount_id and task_id) for tasks.wait and tasks.cancel. An unknown mount id answers -32002 (rejected) with data.error 'unknown_mount'.",
+    "method": "library.sync",
+    "params_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "mount_id": {
+          "maximum": 4294967295,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "timeout_ms": {
+          "default": 120000,
+          "description": "Time limit in milliseconds for the command to reach its terminal state.",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "wait": {
+          "default": true,
+          "description": "true waits for the scan; false answers at once with the task id of the scan.",
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
+    "result_schema": {
+      "properties": {
+        "scans": {
+          "items": {
+            "properties": {
+              "changed": {
+                "type": "integer"
+              },
+              "error": {
+                "type": "string"
+              },
+              "missing": {
+                "type": "integer"
+              },
+              "mount_id": {
+                "type": "integer"
+              },
+              "moved": {
+                "type": "integer"
+              },
+              "new": {
+                "type": "integer"
+              },
+              "not_imported": {
+                "type": "integer"
+              },
+              "relocated_root": {
+                "type": "string"
+              },
+              "returned": {
+                "type": "integer"
+              },
+              "status": {
+                "enum": [
+                  "complete",
+                  "offline",
+                  "canceled",
+                  "storage_failure"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "mount_id",
+              "status",
+              "new",
+              "moved",
+              "changed",
+              "missing",
+              "returned",
+              "not_imported"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "tasks": {
+          "type": "array"
+        }
+      },
+      "type": "object"
+    }
+  },
+  {
     "changes_state": false,
     "description": "Renders the library thumbnail of a photo and writes it as a PNG file whose long edge is 'long_edge'. 'out' must end in .png and must not exist: the command creates a new file and does not replace an existing one.",
     "method": "library.thumbnail",
@@ -3229,208 +3656,6 @@
   },
   {
     "changes_state": true,
-    "description": "Mounts the disk directory 'path' as a new collection in the library root, then waits for the first scan, which imports the supported files of the directory and its subdirectories by reference. Alcedo Studio never writes to the directory. Returns the mount id, the folder id of the new collection, and the scan counts. A large directory needs a larger 'timeout_ms'; after a timeout the scan continues and library.mounts shows its result. A refused mount answers -32002 (rejected) with data.error 'nested_mount' or 'directory_unreachable'.",
-    "method": "library.mount",
-    "params_schema": {
-      "additionalProperties": false,
-      "properties": {
-        "path": {
-          "type": "string"
-        },
-        "timeout_ms": {
-          "default": 120000,
-          "description": "Time limit in milliseconds for the command to reach its terminal state.",
-          "minimum": 1,
-          "type": "integer"
-        }
-      },
-      "required": [
-        "path"
-      ],
-      "type": "object"
-    },
-    "result_schema": {
-      "properties": {
-        "folder_id": {
-          "type": "integer"
-        },
-        "mount_id": {
-          "type": "integer"
-        },
-        "scan": {
-          "properties": {
-            "changed": {
-              "type": "integer"
-            },
-            "error": {
-              "type": "string"
-            },
-            "missing": {
-              "type": "integer"
-            },
-            "mount_id": {
-              "type": "integer"
-            },
-            "moved": {
-              "type": "integer"
-            },
-            "new": {
-              "type": "integer"
-            },
-            "not_imported": {
-              "type": "integer"
-            },
-            "relocated_root": {
-              "type": "string"
-            },
-            "returned": {
-              "type": "integer"
-            },
-            "status": {
-              "enum": [
-                "complete",
-                "offline",
-                "canceled",
-                "storage_failure"
-              ],
-              "type": "string"
-            }
-          },
-          "required": [
-            "mount_id",
-            "status",
-            "new",
-            "moved",
-            "changed",
-            "missing",
-            "returned",
-            "not_imported"
-          ],
-          "type": "object"
-        }
-      },
-      "required": [
-        "mount_id",
-        "folder_id",
-        "scan"
-      ],
-      "type": "object"
-    }
-  },
-  {
-    "changes_state": false,
-    "description": "Returns the mounted folders of the open project: the mount id, the folder id of the mount root collection, the disk directory, the volume identity, the last read display name of the volume (empty when it has none), the mount point of the volume when a scan of this session reached it (empty otherwise), the state of the last scan of this session ('not_scanned', 'online', 'offline'), the counts of present and missing photos, and the end of the last complete scan (UTC).",
-    "method": "library.mounts",
-    "params_schema": {
-      "additionalProperties": false,
-      "properties": {
-        "timeout_ms": {
-          "default": 120000,
-          "description": "Time limit in milliseconds for the command to reach its terminal state.",
-          "minimum": 1,
-          "type": "integer"
-        }
-      },
-      "type": "object"
-    },
-    "result_schema": {
-      "properties": {
-        "mounts": {
-          "type": "array"
-        }
-      },
-      "required": [
-        "mounts"
-      ],
-      "type": "object"
-    }
-  },
-  {
-    "changes_state": true,
-    "description": "Scans the mounted folder 'mount_id', or each mounted folder without it, and waits for the scans. A scan makes the collection equal to its directory: new files are imported, moved and renamed files keep their photo, and a file that is gone makes its photo missing. Returns the counts of each scan. A scan of an unreachable directory has the status 'offline' and changes nothing.",
-    "method": "library.sync",
-    "params_schema": {
-      "additionalProperties": false,
-      "properties": {
-        "mount_id": {
-          "maximum": 4294967295,
-          "minimum": 1,
-          "type": "integer"
-        },
-        "timeout_ms": {
-          "default": 120000,
-          "description": "Time limit in milliseconds for the command to reach its terminal state.",
-          "minimum": 1,
-          "type": "integer"
-        }
-      },
-      "type": "object"
-    },
-    "result_schema": {
-      "properties": {
-        "scans": {
-          "items": {
-            "properties": {
-              "changed": {
-                "type": "integer"
-              },
-              "error": {
-                "type": "string"
-              },
-              "missing": {
-                "type": "integer"
-              },
-              "mount_id": {
-                "type": "integer"
-              },
-              "moved": {
-                "type": "integer"
-              },
-              "new": {
-                "type": "integer"
-              },
-              "not_imported": {
-                "type": "integer"
-              },
-              "relocated_root": {
-                "type": "string"
-              },
-              "returned": {
-                "type": "integer"
-              },
-              "status": {
-                "enum": [
-                  "complete",
-                  "offline",
-                  "canceled",
-                  "storage_failure"
-                ],
-                "type": "string"
-              }
-            },
-            "required": [
-              "mount_id",
-              "status",
-              "new",
-              "moved",
-              "changed",
-              "missing",
-              "returned",
-              "not_imported"
-            ],
-            "type": "object"
-          },
-          "type": "array"
-        }
-      },
-      "required": [
-        "scans"
-      ],
-      "type": "object"
-    }
-  },
-  {
-    "changes_state": true,
     "description": "Removes the mounted folder 'mount_id'. Its photos stay in the project as ordinary photos with their edits, marks, and collection links; the mounted collections are removed. Nothing changes on the disk.",
     "method": "library.unmount",
     "params_schema": {
@@ -3465,6 +3690,37 @@
       "required": [
         "mount_id",
         "unmounted"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "changes_state": false,
+    "description": "Returns the volume of the card of the Disk section: the last volume that arrived while the project was open and that holds no mount of the project. 'volume' has the display name (empty when it has none), the mount point, whether its root holds a DCIM directory, and the volume identity (empty when it has none); it is null when there is no card.",
+    "method": "library.volumes.arrived",
+    "params_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "timeout_ms": {
+          "default": 120000,
+          "description": "Time limit in milliseconds for the command to reach its terminal state.",
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "result_schema": {
+      "properties": {
+        "volume": {
+          "type": [
+            "object",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "volume"
       ],
       "type": "object"
     }
@@ -4515,6 +4771,61 @@
         "control",
         "tasks",
         "idle"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "changes_state": true,
+    "description": "Cancels the task 'task_id' as its cancel button in the task list does, and returns the task after the cancel: the state 'canceling' while its work stops, or 'canceled' for a task whose work had not started (a queued scan). tasks.wait returns the final state. A finished task is returned unchanged. An export, or another task that has no cancel, answers -32002 (rejected) with data.error 'not_cancelable'.",
+    "method": "tasks.cancel",
+    "params_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "task_id": {
+          "description": "A task id from a command.",
+          "type": "string"
+        },
+        "timeout_ms": {
+          "default": 120000,
+          "description": "Time limit in milliseconds for the command to reach its terminal state.",
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "task_id"
+      ],
+      "type": "object"
+    },
+    "result_schema": {
+      "properties": {
+        "counts": {
+          "type": "object"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "progress": {
+          "type": "integer"
+        },
+        "result": {
+          "type": "object"
+        },
+        "state": {
+          "type": "string"
+        },
+        "task_id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "task_id",
+        "kind",
+        "state"
       ],
       "type": "object"
     }
