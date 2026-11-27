@@ -16,8 +16,8 @@ written by hand. Every command also accepts
 | [Session](session.md) | `session.ping`, `session.describe`, `state.get`, `session.shutdown` |
 | [Control](control.md) | `control.acquire`, `control.release`, `control.get` |
 | [Project](project.md) | `project.create`, `project.open`, `project.save`, `project.close` |
-| [Library](library.md) | `library.import`, `library.folders`, `library.list`, `library.stats`, `library.info`, `library.thumbnail`, `library.thumbnails`, `library.rate`, `library.color_label`, `library.delete_mark`, `library.color_labels`, `library.color_label_name.set`, `library.delete`, `library.mounts`, `library.mount`, `library.sync`, `library.unmount`, `library.selection.get`, `library.selection.set` |
-| [Tasks](tasks.md) | `tasks.list`, `tasks.wait` |
+| [Library](library.md) | `library.import`, `library.folders`, `library.list`, `library.stats`, `library.info`, `library.thumbnail`, `library.thumbnails`, `library.rate`, `library.color_label`, `library.delete_mark`, `library.color_labels`, `library.color_label_name.set`, `library.delete`, `library.mounts`, `library.mount`, `library.sync`, `library.unmount`, `library.mount.locate`, `library.mount.locate_photo`, `library.mount.remove_missing`, `library.mounts.wait_idle`, `library.volumes.arrived`, `library.selection.get`, `library.selection.set` |
+| [Tasks](tasks.md) | `tasks.list`, `tasks.wait`, `tasks.cancel` |
 | [Editor](editor.md) | `editor.open`, `editor.close`, `editor.catalog`, `editor.get`, `editor.set`, `editor.batch_set`, `editor.undo`, `editor.redo`, `editor.history`, `editor.actions` |
 | [Render](render.md) | `render.preview` |
 | [Nodes](nodes.md) | `nodes.list`, `nodes.set_visibility` |

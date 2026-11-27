@@ -77,6 +77,18 @@ alcedo-cli call library.sync '{"mount_id":1}'
 alcedo-cli call library.mounts
 ```
 
+After a change on the disk, `library.mounts.wait_idle` answers when the automatic scans have
+ended. When the directory moved, `library.mount.locate` binds the mount to the new location.
+`library.mount.locate_photo` gives one missing photo its file again, and
+`library.mount.remove_missing` removes the missing photos of a mount from the project.
+
+```bash
+alcedo-cli call library.mounts.wait_idle '{"timeout_ms":600000}'
+alcedo-cli call library.mount.locate '{"mount_id":1,"path":"E:/Photos/2026 Japan"}'
+alcedo-cli call library.mounts '{"with_ids":true}'
+alcedo-cli call library.mount.remove_missing '{"mount_id":1}'
+```
+
 
 ## Cull many photos with contact sheets
 
