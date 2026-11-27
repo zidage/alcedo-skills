@@ -2278,7 +2278,7 @@
   },
   {
     "changes_state": true,
-    "description": "Deletes 'element_ids'. With scope 'project' the photos leave the project; this needs the root folder as the current folder. With scope 'album' they leave the current album. A photo that a task holds (a mark, rating, or paste adjustments batch that is saving) and a mounted photo in a delete from the project stay; 'skipped_ids' lists them, and the other photos are deleted. Answers -32002 (rejected) when a task holds every photo or another delete runs. Send it again after tasks.wait. A delete that the mounted folder rules refuse for every photo answers -32002 with data.error 'mounted_folder_structure_is_read_only', 'mounted_photo_is_present', or 'mounted_photo_is_missing'; the Delete mark stays available. Other start failures answer -32007 (failed).",
+    "description": "Deletes 'element_ids'. With scope 'project' the photos leave the project; this needs the root folder as the current folder. With scope 'album' they leave the album 'folder_id', or the current album without it; a 'folder_id' that no folder has answers -32002 with data.error 'unknown_folder'. A photo that a task holds (a mark, rating, or paste adjustments batch that is saving) and a mounted photo in a delete from the project stay; 'skipped_ids' lists them, and the other photos are deleted. Answers -32002 (rejected) when a task holds every photo or another delete runs. Send it again after tasks.wait. A delete that the mounted folder rules refuse for every photo answers -32002 with data.error 'mounted_folder_structure_is_read_only', 'mounted_photo_is_present', or 'mounted_photo_is_missing'; the Delete mark stays available. Other start failures answer -32007 (failed).",
     "method": "library.delete",
     "params_schema": {
       "additionalProperties": false,
@@ -2291,6 +2291,12 @@
           },
           "minItems": 1,
           "type": "array"
+        },
+        "folder_id": {
+          "description": "Scope 'album' only: the album, from library.folders; the current album by default.",
+          "maximum": 4294967295,
+          "minimum": 1,
+          "type": "integer"
         },
         "scope": {
           "enum": [
@@ -2385,6 +2391,209 @@
     }
   },
   {
+    "changes_state": true,
+    "description": "Creates a folder named 'name' in the folder 'parent_id' (0 is the root) and returns it as library.folders lists it. The name is trimmed; the result holds the stored name. A refusal answers -32002 (rejected) with data.error: 'invalid_folder_name' (empty after the trim, '.', '..', or a name with '/', '\\', or a control character), 'folder_name_taken' (a sibling folder has the name), 'unknown_folder' (no folder has the id), 'root_folder_cannot_change', 'move_into_own_subtree', or 'mounted_folder_structure_is_read_only'. An import or export that runs answers -32005 (busy).",
+    "method": "library.folder.create",
+    "params_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "parent_id": {
+          "description": "A folder id from library.folders.",
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "timeout_ms": {
+          "default": 120000,
+          "description": "Time limit in milliseconds for the command to reach its terminal state.",
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "parent_id",
+        "name"
+      ],
+      "type": "object"
+    },
+    "result_schema": {
+      "properties": {
+        "folder_id": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        },
+        "parent_id": {
+          "type": "integer"
+        },
+        "path": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "folder_id",
+        "parent_id",
+        "name",
+        "path"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "changes_state": true,
+    "description": "Deletes the folder 'folder_id' and its child folders. The photos stay in the project. A refusal answers -32002 (rejected) with data.error: 'invalid_folder_name' (empty after the trim, '.', '..', or a name with '/', '\\', or a control character), 'folder_name_taken' (a sibling folder has the name), 'unknown_folder' (no folder has the id), 'root_folder_cannot_change', 'move_into_own_subtree', or 'mounted_folder_structure_is_read_only'. An import or export that runs answers -32005 (busy).",
+    "method": "library.folder.delete",
+    "params_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "folder_id": {
+          "description": "A folder id from library.folders.",
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "timeout_ms": {
+          "default": 120000,
+          "description": "Time limit in milliseconds for the command to reach its terminal state.",
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "folder_id"
+      ],
+      "type": "object"
+    },
+    "result_schema": {
+      "properties": {
+        "deleted": {
+          "type": "boolean"
+        },
+        "folder_id": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "folder_id",
+        "deleted"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "changes_state": true,
+    "description": "Moves the folder 'folder_id' into the folder 'parent_id' (0 is the root) and returns it. The folder keeps its id, its name, its child folders, and its photos. A move to the current parent changes nothing. A refusal answers -32002 (rejected) with data.error: 'invalid_folder_name' (empty after the trim, '.', '..', or a name with '/', '\\', or a control character), 'folder_name_taken' (a sibling folder has the name), 'unknown_folder' (no folder has the id), 'root_folder_cannot_change', 'move_into_own_subtree', or 'mounted_folder_structure_is_read_only'. An import or export that runs answers -32005 (busy).",
+    "method": "library.folder.move",
+    "params_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "folder_id": {
+          "description": "A folder id from library.folders.",
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "parent_id": {
+          "description": "The new parent folder.",
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "timeout_ms": {
+          "default": 120000,
+          "description": "Time limit in milliseconds for the command to reach its terminal state.",
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "folder_id",
+        "parent_id"
+      ],
+      "type": "object"
+    },
+    "result_schema": {
+      "properties": {
+        "folder_id": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        },
+        "parent_id": {
+          "type": "integer"
+        },
+        "path": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "folder_id",
+        "parent_id",
+        "name",
+        "path"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "changes_state": true,
+    "description": "Renames the folder 'folder_id' to 'name' and returns it. The folder keeps its id, its child folders, and its photos. The name is trimmed; a rename to the current name changes nothing. A refusal answers -32002 (rejected) with data.error: 'invalid_folder_name' (empty after the trim, '.', '..', or a name with '/', '\\', or a control character), 'folder_name_taken' (a sibling folder has the name), 'unknown_folder' (no folder has the id), 'root_folder_cannot_change', 'move_into_own_subtree', or 'mounted_folder_structure_is_read_only'. An import or export that runs answers -32005 (busy).",
+    "method": "library.folder.rename",
+    "params_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "folder_id": {
+          "description": "A folder id from library.folders.",
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        },
+        "timeout_ms": {
+          "default": 120000,
+          "description": "Time limit in milliseconds for the command to reach its terminal state.",
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "folder_id",
+        "name"
+      ],
+      "type": "object"
+    },
+    "result_schema": {
+      "properties": {
+        "folder_id": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        },
+        "parent_id": {
+          "type": "integer"
+        },
+        "path": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "folder_id",
+        "parent_id",
+        "name",
+        "path"
+      ],
+      "type": "object"
+    }
+  },
+  {
     "changes_state": false,
     "description": "Returns the folder tree of the open project as a list, parents before children. The root folder is first.",
     "method": "library.folders",
@@ -2414,7 +2623,7 @@
   },
   {
     "changes_state": true,
-    "description": "Imports the files 'paths', or the supported files of 'folder' (with its subfolders when 'recursive', the default), into the current folder of the open project. Returns a task id for tasks.wait as soon as the import starts. A mounted current folder answers -32002 (rejected) with data.error 'mounted_folder_structure_is_read_only': a mounted folder takes its files from its disk directory.",
+    "description": "Imports the files 'paths', or the supported files of 'folder' (with its subfolders when 'recursive', the default), into the folder 'folder_id' of the open project, or into the current folder without it. Returns a task id for tasks.wait as soon as the import starts. A mounted target folder answers -32002 (rejected) with data.error 'mounted_folder_structure_is_read_only': a mounted folder takes its files from its disk directory. A 'folder_id' that no folder has answers -32002 with data.error 'unknown_folder'.",
     "method": "library.import",
     "params_schema": {
       "additionalProperties": false,
@@ -2422,6 +2631,12 @@
         "folder": {
           "description": "A folder to import.",
           "type": "string"
+        },
+        "folder_id": {
+          "description": "The library folder of the photos, from library.folders; the current folder by default.",
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
         },
         "paths": {
           "description": "Files to import.",
@@ -2590,6 +2805,61 @@
     }
   },
   {
+    "changes_state": true,
+    "description": "Adds the photos 'element_ids' to the folder 'folder_id', as the Add to menu does. A photo can be in several folders; it stays in the others. 'linked_ids' lists the added photos, 'already_linked_ids' the photos that the folder already held, and 'failed_ids' the photos that the link could not add. A refusal answers -32002 (rejected) with data.error 'unknown_folder', 'root_folder_cannot_change' (every photo is in the root), or 'mounted_folder_structure_is_read_only'. An unknown photo id answers -32602 with data.unknown_ids.",
+    "method": "library.link",
+    "params_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "element_ids": {
+          "items": {
+            "maximum": 4294967295,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "folder_id": {
+          "description": "A folder id from library.folders.",
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "timeout_ms": {
+          "default": 120000,
+          "description": "Time limit in milliseconds for the command to reach its terminal state.",
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "element_ids",
+        "folder_id"
+      ],
+      "type": "object"
+    },
+    "result_schema": {
+      "properties": {
+        "already_linked_ids": {
+          "type": "array"
+        },
+        "failed_ids": {
+          "type": "array"
+        },
+        "linked_ids": {
+          "type": "array"
+        }
+      },
+      "required": [
+        "linked_ids",
+        "already_linked_ids",
+        "failed_ids"
+      ],
+      "type": "object"
+    }
+  },
+  {
     "changes_state": false,
     "description": "Returns one page of the photos of a folder (the root folder by default) in the order of 'sort', then by element id. 'color_label' keeps the photos with that code and 'deleted' the photos with (true) or without (false) the Delete mark. 'camera', 'lens', 'capture_date', 'rating', 'import_date', and 'label' keep the photos of that library.stats bucket. Together the parameters keep the photos that match all of them. 'total' is the photo count of the folder that matches.",
     "method": "library.list",
@@ -2746,6 +3016,124 @@
         "total",
         "offset",
         "items"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "changes_state": true,
+    "description": "Mounts the disk directory 'path' as a new collection in the library root, then waits for the first scan, which imports the supported files of the directory and its subdirectories by reference. Alcedo Studio never writes to the directory. Returns the mount id, the folder id of the new collection, and the scan counts. A large directory needs a larger 'timeout_ms'; after a timeout the scan continues and library.mounts shows its result. A refused mount answers -32002 (rejected) with data.error 'nested_mount' or 'directory_unreachable'.",
+    "method": "library.mount",
+    "params_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "timeout_ms": {
+          "default": 120000,
+          "description": "Time limit in milliseconds for the command to reach its terminal state.",
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "path"
+      ],
+      "type": "object"
+    },
+    "result_schema": {
+      "properties": {
+        "folder_id": {
+          "type": "integer"
+        },
+        "mount_id": {
+          "type": "integer"
+        },
+        "scan": {
+          "properties": {
+            "changed": {
+              "type": "integer"
+            },
+            "error": {
+              "type": "string"
+            },
+            "missing": {
+              "type": "integer"
+            },
+            "mount_id": {
+              "type": "integer"
+            },
+            "moved": {
+              "type": "integer"
+            },
+            "new": {
+              "type": "integer"
+            },
+            "not_imported": {
+              "type": "integer"
+            },
+            "relocated_root": {
+              "type": "string"
+            },
+            "returned": {
+              "type": "integer"
+            },
+            "status": {
+              "enum": [
+                "complete",
+                "offline",
+                "canceled",
+                "storage_failure"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "mount_id",
+            "status",
+            "new",
+            "moved",
+            "changed",
+            "missing",
+            "returned",
+            "not_imported"
+          ],
+          "type": "object"
+        }
+      },
+      "required": [
+        "mount_id",
+        "folder_id",
+        "scan"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "changes_state": false,
+    "description": "Returns the mounted folders of the open project: the mount id, the folder id of the mount root collection, the disk directory, the volume identity, the last read display name of the volume (empty when it has none), the mount point of the volume when a scan of this session reached it (empty otherwise), the state of the last scan of this session ('not_scanned', 'online', 'offline'), the counts of present and missing photos, and the end of the last complete scan (UTC).",
+    "method": "library.mounts",
+    "params_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "timeout_ms": {
+          "default": 120000,
+          "description": "Time limit in milliseconds for the command to reach its terminal state.",
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "result_schema": {
+      "properties": {
+        "mounts": {
+          "type": "array"
+        }
+      },
+      "required": [
+        "mounts"
       ],
       "type": "object"
     }
@@ -3090,6 +3478,90 @@
     }
   },
   {
+    "changes_state": true,
+    "description": "Scans the mounted folder 'mount_id', or each mounted folder without it, and waits for the scans. A scan makes the collection equal to its directory: new files are imported, moved and renamed files keep their photo, and a file that is gone makes its photo missing. Returns the counts of each scan. A scan of an unreachable directory has the status 'offline' and changes nothing.",
+    "method": "library.sync",
+    "params_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "mount_id": {
+          "maximum": 4294967295,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "timeout_ms": {
+          "default": 120000,
+          "description": "Time limit in milliseconds for the command to reach its terminal state.",
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "result_schema": {
+      "properties": {
+        "scans": {
+          "items": {
+            "properties": {
+              "changed": {
+                "type": "integer"
+              },
+              "error": {
+                "type": "string"
+              },
+              "missing": {
+                "type": "integer"
+              },
+              "mount_id": {
+                "type": "integer"
+              },
+              "moved": {
+                "type": "integer"
+              },
+              "new": {
+                "type": "integer"
+              },
+              "not_imported": {
+                "type": "integer"
+              },
+              "relocated_root": {
+                "type": "string"
+              },
+              "returned": {
+                "type": "integer"
+              },
+              "status": {
+                "enum": [
+                  "complete",
+                  "offline",
+                  "canceled",
+                  "storage_failure"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "mount_id",
+              "status",
+              "new",
+              "moved",
+              "changed",
+              "missing",
+              "returned",
+              "not_imported"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "scans"
+      ],
+      "type": "object"
+    }
+  },
+  {
     "changes_state": false,
     "description": "Renders the library thumbnail of a photo and writes it as a PNG file whose long edge is 'long_edge'. 'out' must end in .png and must not exist: the command creates a new file and does not replace an existing one.",
     "method": "library.thumbnail",
@@ -3223,208 +3695,6 @@
         "items",
         "written_count",
         "failed_count"
-      ],
-      "type": "object"
-    }
-  },
-  {
-    "changes_state": true,
-    "description": "Mounts the disk directory 'path' as a new collection in the library root, then waits for the first scan, which imports the supported files of the directory and its subdirectories by reference. Alcedo Studio never writes to the directory. Returns the mount id, the folder id of the new collection, and the scan counts. A large directory needs a larger 'timeout_ms'; after a timeout the scan continues and library.mounts shows its result. A refused mount answers -32002 (rejected) with data.error 'nested_mount' or 'directory_unreachable'.",
-    "method": "library.mount",
-    "params_schema": {
-      "additionalProperties": false,
-      "properties": {
-        "path": {
-          "type": "string"
-        },
-        "timeout_ms": {
-          "default": 120000,
-          "description": "Time limit in milliseconds for the command to reach its terminal state.",
-          "minimum": 1,
-          "type": "integer"
-        }
-      },
-      "required": [
-        "path"
-      ],
-      "type": "object"
-    },
-    "result_schema": {
-      "properties": {
-        "folder_id": {
-          "type": "integer"
-        },
-        "mount_id": {
-          "type": "integer"
-        },
-        "scan": {
-          "properties": {
-            "changed": {
-              "type": "integer"
-            },
-            "error": {
-              "type": "string"
-            },
-            "missing": {
-              "type": "integer"
-            },
-            "mount_id": {
-              "type": "integer"
-            },
-            "moved": {
-              "type": "integer"
-            },
-            "new": {
-              "type": "integer"
-            },
-            "not_imported": {
-              "type": "integer"
-            },
-            "relocated_root": {
-              "type": "string"
-            },
-            "returned": {
-              "type": "integer"
-            },
-            "status": {
-              "enum": [
-                "complete",
-                "offline",
-                "canceled",
-                "storage_failure"
-              ],
-              "type": "string"
-            }
-          },
-          "required": [
-            "mount_id",
-            "status",
-            "new",
-            "moved",
-            "changed",
-            "missing",
-            "returned",
-            "not_imported"
-          ],
-          "type": "object"
-        }
-      },
-      "required": [
-        "mount_id",
-        "folder_id",
-        "scan"
-      ],
-      "type": "object"
-    }
-  },
-  {
-    "changes_state": false,
-    "description": "Returns the mounted folders of the open project: the mount id, the folder id of the mount root collection, the disk directory, the volume identity, the last read display name of the volume (empty when it has none), the mount point of the volume when a scan of this session reached it (empty otherwise), the state of the last scan of this session ('not_scanned', 'online', 'offline'), the counts of present and missing photos, and the end of the last complete scan (UTC).",
-    "method": "library.mounts",
-    "params_schema": {
-      "additionalProperties": false,
-      "properties": {
-        "timeout_ms": {
-          "default": 120000,
-          "description": "Time limit in milliseconds for the command to reach its terminal state.",
-          "minimum": 1,
-          "type": "integer"
-        }
-      },
-      "type": "object"
-    },
-    "result_schema": {
-      "properties": {
-        "mounts": {
-          "type": "array"
-        }
-      },
-      "required": [
-        "mounts"
-      ],
-      "type": "object"
-    }
-  },
-  {
-    "changes_state": true,
-    "description": "Scans the mounted folder 'mount_id', or each mounted folder without it, and waits for the scans. A scan makes the collection equal to its directory: new files are imported, moved and renamed files keep their photo, and a file that is gone makes its photo missing. Returns the counts of each scan. A scan of an unreachable directory has the status 'offline' and changes nothing.",
-    "method": "library.sync",
-    "params_schema": {
-      "additionalProperties": false,
-      "properties": {
-        "mount_id": {
-          "maximum": 4294967295,
-          "minimum": 1,
-          "type": "integer"
-        },
-        "timeout_ms": {
-          "default": 120000,
-          "description": "Time limit in milliseconds for the command to reach its terminal state.",
-          "minimum": 1,
-          "type": "integer"
-        }
-      },
-      "type": "object"
-    },
-    "result_schema": {
-      "properties": {
-        "scans": {
-          "items": {
-            "properties": {
-              "changed": {
-                "type": "integer"
-              },
-              "error": {
-                "type": "string"
-              },
-              "missing": {
-                "type": "integer"
-              },
-              "mount_id": {
-                "type": "integer"
-              },
-              "moved": {
-                "type": "integer"
-              },
-              "new": {
-                "type": "integer"
-              },
-              "not_imported": {
-                "type": "integer"
-              },
-              "relocated_root": {
-                "type": "string"
-              },
-              "returned": {
-                "type": "integer"
-              },
-              "status": {
-                "enum": [
-                  "complete",
-                  "offline",
-                  "canceled",
-                  "storage_failure"
-                ],
-                "type": "string"
-              }
-            },
-            "required": [
-              "mount_id",
-              "status",
-              "new",
-              "moved",
-              "changed",
-              "missing",
-              "returned",
-              "not_imported"
-            ],
-            "type": "object"
-          },
-          "type": "array"
-        }
-      },
-      "required": [
-        "scans"
       ],
       "type": "object"
     }
